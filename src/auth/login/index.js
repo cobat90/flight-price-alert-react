@@ -58,6 +58,13 @@ function Login() {
     });
   };
 
+  useEffect(() => {
+    const storedToken = localStorage.getItem('yourTokenKey'); // Replace 'yourTokenKey' with the key you used to store the token
+    if (storedToken) {
+      submitHandler
+    }
+  }, []);
+
   const submitHandler = async (e) => {
     // check rememeber me?
     e.preventDefault();
