@@ -19,7 +19,7 @@ class AuthService {
   };
 
   forgotPassword = async (payload) => {
-    const forgotPassword = '/api/account/reset-password/init';
+    const forgotPassword = 'api/account/reset-password/init';
     return await HttpService.post(forgotPassword, payload);
   }
 
@@ -34,7 +34,7 @@ class AuthService {
   }
 
   updateProfile = async (newInfo) => {
-    const updateProfile = "/api/admin/users";
+    const updateProfile = "api/admin/users";
     return await HttpService.put(updateProfile, newInfo);
   }
 }
