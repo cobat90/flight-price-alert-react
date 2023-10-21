@@ -16,7 +16,6 @@ import bgImage from "assets/images/bg-reset-cover.jpeg";
 import authService from "services/auth-service";
 
 function ForgotPassword() {
-  const [isDemo, setIsDemo] = useState(false);
   const [notification, setNotification] = useState(false);
   const [input, setEmail] = useState({
     email: "",
@@ -26,9 +25,6 @@ function ForgotPassword() {
     textError: "",
   });
 
-  useEffect(() => {
-    setIsDemo(process.env.REACT_APP_IS_DEMO === "true");
-  }, []);
 
   const changeHandler = (e) => {
     setEmail({
@@ -58,10 +54,9 @@ function ForgotPassword() {
     };
 
     try {
-      if (isDemo == false) {
-        const response = await authService.forgotPassword(myData);
-        setError({ err: false, textError: "" });
-      }
+      const response = await authService.forgotPassword(myData);
+      setError({ err: false, textError: "" });
+      
       setNotification(true);
     } catch (err) {
       console.error(err);
@@ -124,15 +119,6 @@ function ForgotPassword() {
           </MDBox>
         </MDBox>
       </Card>
-      {notification && (
-        <MDAlert color="info" mt="20px" dismissible>
-          <MDTypography variant="body2" color="white">
-          {isDemo
-              ? "You can't update the password in the demo version"
-              : "Please check your email to reset your password."}
-          </MDTypography>
-        </MDAlert>
-      )}
     </CoverLayout>
   );
 }

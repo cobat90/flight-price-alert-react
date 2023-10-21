@@ -1,41 +1,41 @@
 import HttpService from "./htttp.service";
 
 class AuthService {
-  // authEndpoint = process.env.API_URL;
+  authEndpoint = process.env.API_URL;
 
   login = async (payload) => {
-    const loginEndpoint = 'login';
+    const loginEndpoint = 'api/authenticate';
     return await HttpService.post(loginEndpoint, payload);
   };
 
   register = async (credentials) => {
-    const registerEndpoint = 'register';
+    const registerEndpoint = 'api/register';
     return await HttpService.post(registerEndpoint, credentials);
   };
 
   logout = async () => {
-    const logoutEndpoint = 'logout';
+    const logoutEndpoint = 'api/account/logout';
     return await HttpService.post(logoutEndpoint);
   };
 
   forgotPassword = async (payload) => {
-    const forgotPassword = 'password-forgot';
+    const forgotPassword = '/api/account/reset-password/init';
     return await HttpService.post(forgotPassword, payload);
   }
 
   resetPassword = async (credentials) => {
-    const resetPassword = 'password-reset';
+    const resetPassword = 'api/account/change-password';
     return await HttpService.post(resetPassword, credentials);
   }
 
   getProfile = async() => {
-    const getProfile = 'me';
+    const getProfile = 'api/account';
     return await HttpService.get(getProfile);
   }
 
   updateProfile = async (newInfo) => {
-    const updateProfile = "me";
-    return await HttpService.patch(updateProfile, newInfo);
+    const updateProfile = "/api/admin/users";
+    return await HttpService.put(updateProfile, newInfo);
   }
 }
 

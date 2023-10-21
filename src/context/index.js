@@ -42,7 +42,6 @@ const AuthContextProvider = ({ children }) => {
   const location = useLocation();
 
   const token = localStorage.getItem("token");
-
   useEffect(() => {
     if (!token) return;
 
@@ -52,10 +51,14 @@ const AuthContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (!token) return;
-
     setIsAuthenticated(isAuthenticated);
+    if (token != ''){
+      setIsAuthenticated(true);
+    }
+
     navigate(location.pathname);
   }, [isAuthenticated]);
+
 
   const login = (token) => {
     localStorage.setItem("token", token);
@@ -76,8 +79,16 @@ const AuthContextProvider = ({ children }) => {
   );
 };
 
+const RoleGuard = ({ allowedRoles, userRole, children }) => {
+  if (allowedRoles.includes(userRole)) {
+    return <>{children}</>; // Render the screen if the user's role is allowed
+  } else {
+    return <div>Access Denied</div>; // Display a restricted access message
+  }
+};
+
 // Setting custom name for the context which is visible on react dev tools
-MaterialUI.displayName = "MaterialUIContext";
+MaterialUI.displayName = "ITTENT";
 
 // Material Dashboard 2 React reducer
 function reducer(state, action) {
@@ -174,6 +185,7 @@ export {
   AuthContextProvider,
   MaterialUIControllerProvider,
   useMaterialUIController,
+  RoleGuard,
   setMiniSidenav,
   setTransparentSidenav,
   setWhiteSidenav,

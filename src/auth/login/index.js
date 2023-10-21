@@ -37,12 +37,13 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const [inputs, setInputs] = useState({
-    email: "admin@jsonapi.com",
-    password: "secret",
+    username: "xiao1990",
+    password: "aquitempreco",
+    rememberMe: false,
   });
 
   const [errors, setErrors] = useState({
-    emailError: false,
+    usernameError: false,
     passwordError: false,
   });
 
@@ -63,8 +64,8 @@ function Login() {
 
     const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-    if (inputs.email.trim().length === 0 || !inputs.email.trim().match(mailFormat)) {
-      setErrors({ ...errors, emailError: true });
+    if (inputs.username.trim().length === 0) {
+      setErrors({ ...errors, usernameError: true });
       return;
     }
 
@@ -73,19 +74,16 @@ function Login() {
       return;
     }
 
-    const newUser = { email: inputs.email, password: inputs.password };
+    const newUser = { username: inputs.username, password: inputs.password, rememberMe: inputs.rememberMe };
     addUserHandler(newUser);
 
     const myData = {
-      data: {
-        type: "token",
-        attributes: { ...newUser },
-      },
+      ...newUser
     };
 
     try {
       const response = await AuthService.login(myData);
-      authContext.login(response.access_token, response.refresh_token);
+      authContext.login(response.id_token);
     } catch (res) {
       if (res.hasOwnProperty("message")) {
         setCredentialsError(res.message);
@@ -96,12 +94,12 @@ function Login() {
 
     return () => {
       setInputs({
-        email: "",
+        username: "",
         password: "",
       });
 
       setErrors({
-        emailError: false,
+        usernameError: false,
         passwordError: false,
       });
     };
@@ -146,13 +144,13 @@ function Login() {
           <MDBox component="form" role="form" method="POST" onSubmit={submitHandler}>
             <MDBox mb={2}>
               <MDInput
-                type="email"
-                label="Email"
+                type="username"
+                label="username"
                 fullWidth
-                value={inputs.email}
-                name="email"
+                value={inputs.username}
+                name="username"
                 onChange={changeHandler}
-                error={errors.emailError}
+                error={errors.usernameError}
               />
             </MDBox>
             <MDBox mb={2}>

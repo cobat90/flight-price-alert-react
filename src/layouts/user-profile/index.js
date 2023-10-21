@@ -17,17 +17,16 @@ import Header from "layouts/user-profile/Header";
 import AuthService from "../../services/auth-service";
 
 const UserProfile = () => {
-  const [isDemo, setIsDemo] = useState(false);
   const [notification, setNotification] = useState(false);
   const [user, setUser] = useState({
-    name: "",
+    firstName: "",
     email: "",
     newPassword: "",
     confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({
-    nameError: false,
+    firstNameError: false,
     emailError: false,
     newPassError: false,
     confirmPassError: false,
@@ -35,12 +34,9 @@ const UserProfile = () => {
 
   const getUserData = async () => {
     const response = await AuthService.getProfile();
-    if (response.data.id == 1) {
-      setIsDemo(process.env.REACT_APP_IS_DEMO === "true");
-    }
     setUser((prevUser) => ({
       ...prevUser,
-      ...response.data.attributes,
+      ...response,
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -62,18 +58,17 @@ const UserProfile = () => {
   const changeHandler = (e) => {
     setUser({
       ...user,
-      [e.target.name]: e.target.value,
+      [e.target.firstName]: e.target.value,
     });
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    // validation
     const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-    if (user.name.trim().length === 0) {
-      setErrors({ ...errors, nameError: true });
+    if (user.nafirstNameme.trim().length === 0) {
+      setErrors({ ...errors, firstNameError: true });
       return;
     }
 
@@ -95,28 +90,16 @@ const UserProfile = () => {
     }
 
     let userData = {
-      data: {
-        type: "profile",
-        attributes: {
-          name: user.name,
-          email: user.email,
-          profile_image: null,
-        },
-      },
+      firstName: user.firstName,
+      email: user.email,
+      imageUrl: user.imageUrl,
     };
     // set new user data for call
     if (user.newPassword.length > 0) {
       userData = {
-        data: {
-          type: "profile",
-          attributes: {
-            ...user,
-            profile_image: null,
-            password: user.newPassword,
-            password_new: user.newPassword,
-            password_confirmation: user.confirmPassword,
-          },
-        },
+        ...user,
+        imageUrl: user.imageUrl,
+        newPassword: user.newPassword,
       };
     }
 
@@ -125,7 +108,7 @@ const UserProfile = () => {
 
     // reset errors
     setErrors({
-      nameError: false,
+      firstNameError: false,
       emailError: false,
       passwordError: false,
       newPassError: false,
@@ -139,7 +122,7 @@ const UserProfile = () => {
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox mb={2} />
-      <Header name={user.name}>
+      <Header firstName={user.firstName}>
         {notification && (
           <MDAlert color="info" mt="20px">
             <MDTypography variant="body2" color="white">
@@ -167,16 +150,16 @@ const UserProfile = () => {
               </MDTypography>
               <MDBox mb={2} width="100%">
                 <MDInput
-                  type="name"
+                  type="firstName"
                   fullWidth
-                  name="name"
-                  value={user.name}
+                  firstName="firstName"
+                  value={user.firstName}
                   onChange={changeHandler}
-                  error={errors.nameError}
+                  error={errors.firstNameError}
                 />
-                {errors.nameError && (
+                {errors.firstNameError && (
                   <MDTypography variant="caption" color="error" fontWeight="light">
-                    The name can not be null
+                    The firstName can not be null
                   </MDTypography>
                 )}
               </MDBox>
@@ -199,7 +182,6 @@ const UserProfile = () => {
                   value={user.email}
                   onChange={changeHandler}
                   error={errors.emailError}
-                  disabled={isDemo}
                 />
                 {errors.emailError && (
                   <MDTypography variant="caption" color="error" fontWeight="light">
@@ -207,11 +189,6 @@ const UserProfile = () => {
                   </MDTypography>
                 )}
               </MDBox>
-              {isDemo && (
-                <MDTypography variant="caption" color="text" fontWeight="light">
-                  In the demo version the email can not be updated
-                </MDTypography>
-              )}
             </MDBox>
           </MDBox>
 
@@ -236,7 +213,6 @@ const UserProfile = () => {
                     value={user.newPassword}
                     onChange={changeHandler}
                     error={errors.newPassError}
-                    disabled={isDemo}
                     inputProps={{
                       autoComplete: "new-password",
                       form: {
@@ -270,7 +246,6 @@ const UserProfile = () => {
                     value={user.confirmPassword}
                     onChange={changeHandler}
                     error={errors.confirmPassError}
-                    disabled={isDemo}
                     inputProps={{
                       autoComplete: "confirmPassword",
                       form: {
@@ -284,11 +259,6 @@ const UserProfile = () => {
                     </MDTypography>
                   )}
                 </MDBox>
-                {isDemo && (
-                  <MDTypography variant="caption" color="text" ml={1} fontWeight="light">
-                    In the demo version the password can not be updated
-                  </MDTypography>
-                )}
               </MDBox>
             </MDBox>
             <MDBox mt={4} display="flex" justifyContent="end">

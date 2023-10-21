@@ -60,7 +60,7 @@ function Footer({ company, links }) {
         fontSize={size.sm}
         px={1.5}
       >
-        &copy; {new Date().getFullYear()}, made with
+        &copy; 2023, Ittent
         <MDBox fontSize={size.md} color="text" mb={-0.5} mx={0.25}>
           <Icon color="inherit" fontSize="inherit">
             favorite
@@ -73,9 +73,9 @@ function Footer({ company, links }) {
           </MDTypography>
         </Link>
         &amp;
-        <Link href="https://updivision.com" target="_blank">
+        <Link href="https://ittent.com" target="_blank">
           <MDTypography variant="button" fontWeight="medium">
-            &nbsp;UPDIVISION&nbsp;
+            &nbsp;ITTENT&nbsp;
           </MDTypography>
         </Link>
         for a better web.
