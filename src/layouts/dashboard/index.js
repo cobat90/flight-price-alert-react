@@ -24,17 +24,24 @@ import FlightPriceAlertService from "../../services/flight-price-alert-service";
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
-
   
-  const getAlertsByUserData = async () => {
-    const response = await FlightPriceAlertService.getAlertsByUser();
-    setUser((prevUser) => ({
-      ...prevUser,
+  const userId = localStorage.getItem("userId");
+  const [alerts, setAlerts] = useState({
+    alertName: "",
+  });
+
+  const getAlertsData = async () => {
+    const response = await FlightPriceAlertService.findAllAlerts(userId);
+    setAlerts(() => ({
       ...response,
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
     }));
+  };
+
+  const changeHandler = (e) => {
+    setAlerts({
+      ...alerts,
+      [e.target.alertName]: e.target.value,
+    });
   };
 
   return (
@@ -44,17 +51,14 @@ function Dashboard() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={3.0}>
-              <ComplexStatisticsCard
-                color="dark"
-                icon="weekend"
-                title="Bookings"
-                count={281}
-                percentage={{
-                  color: "success",
-                  amount: "+55%",
-                  label: "than lask week",
-                }}
-              />
+              <MDInput
+                  type="alertName"
+                  fullWidth
+                  alertName="alertName"
+                  value={alerts.alertName}
+                  onChange={changeHandler}
+                />
+ 
             </MDBox>
             <MDBox mb={3}>
                 <ReportsBarChart
