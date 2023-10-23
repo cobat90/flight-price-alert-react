@@ -14,7 +14,7 @@ export class HttpService {
     this._axios.interceptors.response.use(onFulfilled, onRejected);
   };
 
-  get = async (url) => await this.request(this.getOptionsConfig("get", url));
+  get = async (url) => await this.request(this.getOptionsConfigGET("get", url));
 
   post = async (url, data) => await this.request(this.getOptionsConfig("post", url, data));
 
@@ -30,6 +30,15 @@ export class HttpService {
       url,
       data,
       headers: { "Content-Type": "application/vnd.api+json", "Accept": "application/vnd.api+json", 'Access-Control-Allow-Credentials': true },
+    };
+  };
+
+  getOptionsConfigGET = (method, url, data) => {
+    return {
+      method,
+      url,
+      data,
+      headers: { "Content-Type": "application/vnd.api+json", 'Access-Control-Allow-Credentials': true },
     };
   };
 

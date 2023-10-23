@@ -9,7 +9,7 @@ class FlightPriceAlertService {
   };
 
   findAllAlerts = async (userId) => {
-    const findAllAlertsEndpoint = 'api/alerts/users/${userId}';
+    const findAllAlertsEndpoint = `api/alerts/users/${userId}`;
     return await HttpService.get(findAllAlertsEndpoint);
   };
 
