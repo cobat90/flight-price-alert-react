@@ -118,12 +118,14 @@ const bull = (
 
 
   const [menu, setMenu] = useState(null);
-  const openMenu = (event) => { setMenu(event.currentTarget); };
+  const openMenu = (event, alert) => { 
+    setMenu(event.currentTarget);
+ };
   const closeMenu = () => setMenu(null);
 
   const dropdownMenu = (
     <Menu
-      anchorEl={menu}
+      anchorEl={() => document.getElementById(`menu-${index}`)} // Use a unique identifier for each card
       anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       transformOrigin={{ vertical: "top", horizontal: "left" }}
       open={Boolean(menu)}
@@ -143,21 +145,19 @@ const bull = (
         {alerts.map((alert, index) => (
           <Grid item xs={16} md={8} lg={4} key={index}>
             <MDBox mb={3}>
-              <Card sx={{ maxWidth: 345 }}>
+              <Card sx={{ maxWidth: 345 }} id={`menu-${index}`}>
                 <CardHeader
                   avatar={
                     <Icon>flight</Icon>
                   }
                   action={
                     <div>
-                      <IconButton aria-label="settings" onClick={() => openMenu(alert)}>
+                      <IconButton aria-label="settings" onClick={(event) => openMenu(event, alert)}>
                         <MoreVertIcon />
                       </IconButton>
                       {dropdownMenu === alert ? (
                         // Render the dropdown menu for the specific card
-                        <div>
-                          {/* Your menu items here */}
-                        </div>
+                        alert("eba")
                       ) : null}
                     </div>
                   }
