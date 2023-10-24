@@ -11,7 +11,8 @@ import {
   CardHeader,
   CardContent,
   Divider,
-  styled
+  styled,
+  List
 } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
 
@@ -57,14 +58,7 @@ function Dashboard() {
   const userId = localStorage.getItem("userId");
 
   const [alerts, setAlerts] = useState([
-    {
-      flightPriceAlertId: 1,
-      alertName: 'Alert 1',
-    },
-    {
-      flightPriceAlertId: 2,
-      alertName: 'Alert 2',
-    },
+
   ]);
 
   const ExpandMore = styled((props) => {
@@ -83,7 +77,6 @@ const bull = (
     component="span"
     sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
   >
-    •
   </Box>
 );
 
@@ -93,30 +86,15 @@ const bull = (
   setExpanded(!expanded);
   };
 
-  const getAlertsData = async () => {
-    try {
-      const response = await FlightPriceAlertService.findAllAlerts(userId);
-      if (Array.isArray(response)) {
-        // Extract flightPriceAlertIds and alertNames
-        const flightPriceAlertIds = response.map((item) => item.flightPriceAlertId);
-        const alertNames = response.map((item) => item.alert.alertName);
+  function formatDate(inputDate) {
+    const date = new Date(inputDate); // Parse the input date string
+    const day = String(date.getDate()).padStart(2, '0'); // Get the day and format it with leading zero
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Get the month (0-based) and format it with leading zero
+    const year = date.getFullYear(); // Get the year
   
-        // Update the alerts state as an array
-        setAlerts(response);
-      } else {
-        console.error("Invalid data format in response:", response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching alerts:", error);
-    }
-  };
+    return `${day}/${month}/${year}`; // Format the date as "dd/mm/yyyy"
+  }
   
-
-  useEffect(() => {
-    getAlertsData();
-  }, []);
-
-
   const [menu, setMenu] = useState(null);
   const openMenu = (event, alert) => { 
     setMenu(event.currentTarget);
@@ -125,7 +103,7 @@ const bull = (
 
   const dropdownMenu = (
     <Menu
-      anchorEl={() => document.getElementById(`menu-${index}`)} // Use a unique identifier for each card
+      anchorEl={menu}
       anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       transformOrigin={{ vertical: "top", horizontal: "left" }}
       open={Boolean(menu)}
@@ -137,6 +115,24 @@ const bull = (
     </Menu>
   );
 
+  const getAlertsData = async () => {
+    try {
+      const response = await FlightPriceAlertService.findAllAlerts(userId);
+      if (Array.isArray(response)) {
+
+        setAlerts(response);
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAlertsData();
+  }, []);
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -145,7 +141,7 @@ const bull = (
         {alerts.map((alert, index) => (
           <Grid item xs={16} md={8} lg={4} key={index}>
             <MDBox mb={3}>
-              <Card sx={{ maxWidth: 345 }} id={`menu-${index}`}>
+              <Card sx={{ maxWidth: 345, opacity: alert.alert?.alertDisabled ? 0.6 : 1 }} id={`menu-${index}`}>
                 <CardHeader
                   avatar={
                     <Icon>flight</Icon>
@@ -155,14 +151,15 @@ const bull = (
                       <IconButton aria-label="settings" onClick={(event) => openMenu(event, alert)}>
                         <MoreVertIcon />
                       </IconButton>
-                      {dropdownMenu === alert ? (
-                        // Render the dropdown menu for the specific card
-                        alert("eba")
-                      ) : null}
+                      {menu && (
+                        <div>
+                          {dropdownMenu}
+                        </div>
+                      )}
                     </div>
                   }
-                  title={alert.alertName}
-                  subheader={alert.flightPriceAlertId}
+                  title={alert.alert?.alertName}
+                  subheader={formatDate(alert.alert?.alertDateCreated)}
                 />
                 <ReportsLineChart
                   color="success"
@@ -177,7 +174,14 @@ const bull = (
                 />
                 <CardContent>
                   <Typography variant="body2" color="text.secondary">
-                    This impressive paella is a perfect party dish and a fun                   
+                  <ul>
+                    <li>{alert.alert?.alertType}</li>
+                    <li>{alert.alert?.alertDurationTime}</li>                    
+                    {alert.alert?.alertDisabled === true ? (
+                        // Render the dropdown menu for the specific card
+                        <li>{formatDate(alert.alert?.alertDateDisabled)}</li>
+                      ) : null}
+                  </ul>
                   </Typography>
                 </CardContent>
                 <CardActions disableSpacing>

@@ -44,6 +44,7 @@ import UserManagement from "layouts/user-management";
 import { Helmet } from "react-helmet";
 
 export default function App() {
+
   const authContext = useContext(AuthContext);
 
   const [controller, dispatch] = useMaterialUIController();
