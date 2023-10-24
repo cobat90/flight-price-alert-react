@@ -30,7 +30,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-
+import Modal from '@mui/material/Modal';
 
 
 // Material Dashboard 2 React example components
@@ -58,7 +58,6 @@ function Dashboard() {
   const userId = localStorage.getItem("userId");
 
   const [alerts, setAlerts] = useState([
-
   ]);
 
   const ExpandMore = styled((props) => {
@@ -94,6 +93,37 @@ const bull = (
   
     return `${day}/${month}/${year}`; // Format the date as "dd/mm/yyyy"
   }
+
+  const [modalMenu, setModalMenu] = useState(null);
+  const openModalMenu = (event, alert) => { 
+    setModalMenu(event.currentTarget);
+ };
+  const closeModalMenu = () => setModalMenu(null);
+
+  const modalCreateAlertMenu = ( 
+    <Modal
+      open={Boolean(modalMenu)}
+      onClose={closeModalMenu}
+      aria-labelledby="parent-modal-title"
+      aria-describedby="parent-modal-description"
+    >
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400, // Set the desired width
+          padding: '16px'
+        }}
+      >
+        <h2 id="parent-modal-title">Text in a modal</h2>
+        <p id="parent-modal-description">
+          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+        </p>
+      </Box>
+    </Modal>
+  );
   
   const [menu, setMenu] = useState(null);
   const openMenu = (event, alert) => { 
@@ -109,12 +139,18 @@ const bull = (
       open={Boolean(menu)}
       onClose={closeMenu}
     >
-      <MenuItem onClick={closeMenu}>Action</MenuItem>
+      <MenuItem onClick={openModalMenu}>Create Alert</MenuItem>
+      {modalMenu && (
+                        <div>
+                          {modalCreateAlertMenu}
+                        </div>
+                      )}
       <MenuItem onClick={closeMenu}>Another action</MenuItem>
       <MenuItem onClick={closeMenu}>Something else here</MenuItem>
     </Menu>
   );
 
+ 
   const getAlertsData = async () => {
     try {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
@@ -174,14 +210,16 @@ const bull = (
                 />
                 <CardContent>
                   <Typography variant="body2" color="text.secondary">
-                  <ul>
-                    <li>{alert.alert?.alertType}</li>
-                    <li>{alert.alert?.alertDurationTime}</li>                    
-                    {alert.alert?.alertDisabled === true ? (
-                        // Render the dropdown menu for the specific card
-                        <li>{formatDate(alert.alert?.alertDateDisabled)}</li>
-                      ) : null}
-                  </ul>
+                  <div>
+                    <ul>
+                      <li>{alert.alert?.alertType}</li>
+                      <li>{alert.alert?.alertDurationTime}</li>                    
+                      {alert.alert?.alertDisabled === true ? (
+                          // Render the dropdown menu for the specific card
+                          <li>{formatDate(alert.alert?.alertDateDisabled)}</li>
+                        ) : null}
+                    </ul>
+                  </div>
                   </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
