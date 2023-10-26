@@ -14,19 +14,6 @@ import {
   styled,
   List
 } from '@mui/material';
-import {
-  Button as StrapButton,
-  Card as StrapCard,
-  CardHeader as StrapCardHeader,
-  CardBody as StrapCardBody,
-  CardFooter as StrapCardFooter,
-  CardText as StrapCardText,
-  FormGroup as StrapFormGroup,
-  Form as StrapForm,
-  Input as StrapInput,
-  Row as StrapRow,
-  Col as StrapCol,
-} from "reactstrap";
 import CardActions from '@mui/material/CardActions';
 
 import Button from '@mui/material/Button';
@@ -41,6 +28,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CloseIcon from '@mui/icons-material/Close';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
@@ -48,17 +36,20 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
+import Autocomplete from "@mui/material/Autocomplete";
 
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
-import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
+import FormField from "components/FormField";
+import selectData from "components/FormField/data/selectData";
 
 import MDButton from "components/MDButton";
+import MDTypography from "components/MDTypography";
+
 // Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
@@ -68,7 +59,7 @@ import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, React } from "react";
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
@@ -113,185 +104,131 @@ const bull = (
   }
 
   const [modalMenu, setModalMenu] = useState(null);
-  const openModalMenu = (event, alert) => { 
+  const openModalEditAlert = (event, alert) => { 
     setModalMenu(event.currentTarget);
+    
   };
-  const closeModalMenu = () => setModalMenu(null);
+  const closeModalMenu = () => {
+    setModalMenu(null);
+    closeDropdownMenu();
+  }
 
-  const modalCreateAlertMenu = ( 
-    <>
-        <div className="content">
-          <StrapRow>
-            <StrapCol md="8">
-              <StrapCard>
-                <CardHeader>
-                  <h5 className="title">Edit Profile</h5>
-                </CardHeader>
-                <StrapCardBody>
-                  <StrapForm>
-                    <StrapRow>
-                      <StrapCol className="pr-md-1" md="5">
-                        <StrapFormGroup>
-                          <label>Company (disabled)</label>
-                          <StrapInput
-                            defaultValue="Creative Code Inc."
-                            disabled
-                            placeholder="Company"
-                            type="text"
+  const modalEditAlert = ( 
+    <Modal
+    open={Boolean(modalMenu)}
+    onClose={closeModalMenu}
+    aria-labelledby="parent-modal-title"
+    aria-describedby="parent-modal-description"
+    >
+      <Card id="basic-info" sx={{ overflow: "visible" }}>
+        <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalMenu}>
+          <CloseIcon />
+        </IconButton>
+        <MDBox p={3}>
+          <MDTypography variant="h5">Basic Info</MDTypography>
+        </MDBox>
+        <MDBox component="form" pb={3} px={3}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
+              <FormField label="First Name" placeholder="Alec" />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormField label="Last Name" placeholder="Thompson" />
+            </Grid>
+            <Grid item xs={12}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={4}>
+                  <Autocomplete
+                    defaultValue="Male"
+                    options={selectData.gender}
+                    renderInput={(params) => (
+                      <FormField {...params} label="I'm" InputLabelProps={{ shrink: true }} />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={8}>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={5}>
+                      <Autocomplete
+                        defaultValue="February"
+                        options={selectData.birthDate}
+                        renderInput={(params) => (
+                          <FormField
+                            {...params}
+                            label="Birth Date"
+                            InputLabelProps={{ shrink: true }}
                           />
-                        </StrapFormGroup>
-                      </StrapCol>
-                      <StrapCol className="px-md-1" md="3">
-                        <StrapFormGroup>
-                          <label>Username</label>
-                          <StrapInput
-                            defaultValue="michael23"
-                            placeholder="Username"
-                            type="text"
-                          />
-                        </StrapFormGroup>
-                      </StrapCol>
-                      <StrapCol className="pl-md-1" md="4">
-                        <StrapFormGroup>
-                          <label htmlFor="exampleInputEmail1">
-                            Email address
-                          </label>
-                          <StrapInput placeholder="mike@email.com" type="email" />
-                        </StrapFormGroup>
-                      </StrapCol>
-                    </StrapRow>
-                    <StrapRow>
-                      <StrapCol className="pr-md-1" md="6">
-                        <StrapFormGroup>
-                          <label>First Name</label>
-                          <StrapInput
-                            defaultValue="Mike"
-                            placeholder="Company"
-                            type="text"
-                          />
-                        </StrapFormGroup>
-                      </StrapCol>
-                      <StrapCol className="pl-md-1" md="6">
-                        <StrapFormGroup>
-                          <label>Last Name</label>
-                          <StrapInput
-                            defaultValue="Andrew"
-                            placeholder="Last Name"
-                            type="text"
-                          />
-                        </StrapFormGroup>
-                      </StrapCol>
-                    </StrapRow>
-                    <StrapRow>
-                      <StrapCol md="12">
-                        <StrapFormGroup>
-                          <label>Address</label>
-                          <StrapInput
-                            defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
-                            placeholder="Home Address"
-                            type="text"
-                          />
-                        </StrapFormGroup>
-                      </StrapCol>
-                    </StrapRow>
-                    <StrapRow>
-                      <StrapCol className="pr-md-1" md="4">
-                        <StrapFormGroup>
-                          <label>City</label>
-                          <StrapInput
-                            defaultValue="Mike"
-                            placeholder="City"
-                            type="text"
-                          />
-                        </StrapFormGroup>
-                      </StrapCol>
-                      <StrapCol className="px-md-1" md="4">
-                        <StrapFormGroup>
-                          <label>Country</label>
-                          <StrapInput
-                            defaultValue="Andrew"
-                            placeholder="Country"
-                            type="text"
-                          />
-                        </StrapFormGroup>
-                      </StrapCol>
-                      <StrapCol className="pl-md-1" md="4">
-                        <StrapFormGroup>
-                          <label>Postal Code</label>
-                          <StrapInput placeholder="ZIP Code" type="number" />
-                        </StrapFormGroup>
-                      </StrapCol>
-                    </StrapRow>
-                    <StrapRow>
-                      <StrapCol md="8">
-                        <StrapFormGroup>
-                          <label>About Me</label>
-                          <StrapInput
-                            cols="80"
-                            defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in
-                              that two seat Lambo."
-                            placeholder="Here can be your description"
-                            rows="4"
-                            type="textarea"
-                          />
-                        </StrapFormGroup>
-                      </StrapCol>
-                    </StrapRow>
-                  </StrapForm>
-                </StrapCardBody>
-                <StrapCardFooter>
-                  <Button className="btn-fill" color="primary" type="submit">
-                    Save
-                  </Button>
-                </StrapCardFooter>
-              </StrapCard>
-            </StrapCol>
-            <StrapCol md="4">
-              <StrapCard className="card-user">
-                <StrapCardBody>
-                  <StrapCardText />
-                  <div className="author">
-                    <div className="block block-one" />
-                    <div className="block block-two" />
-                    <div className="block block-three" />
-                    <div className="block block-four" />
-                    <a href="#pablo" onClick={(e) => e.preventDefault()}>
-
-                      <h5 className="title">Mike Andrew</h5>
-                    </a>
-                    <p className="description">Ceo/Co-Founder</p>
-                  </div>
-                  <div className="card-description">
-                    Do not be scared of the truth because we need to restart the
-                    human foundation in truth And I love you like Kanye loves
-                    Kanye I love Rick Owens’ bed design but the back is...
-                  </div>
-                </StrapCardBody>
-                <StrapCardFooter>
-                  <div className="button-container">
-                    <StrapButton className="btn-icon btn-round" color="facebook">
-                      <i className="fab fa-facebook" />
-                    </StrapButton>
-                    <StrapButton className="btn-icon btn-round" color="twitter">
-                      <i className="fab fa-twitter" />
-                    </StrapButton>
-                    <StrapButton className="btn-icon btn-round" color="google">
-                      <i className="fab fa-google-plus" />
-                    </StrapButton>
-                  </div>
-                </StrapCardFooter>
-              </StrapCard>
-            </StrapCol>
-          </StrapRow>
-        </div>
-        </>
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <Autocomplete
+                        defaultValue="1"
+                        options={selectData.days}
+                        renderInput={(params) => (
+                          <FormField {...params} InputLabelProps={{ shrink: true }} />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={3}>
+                      <Autocomplete
+                        defaultValue="2021"
+                        options={selectData.years}
+                        renderInput={(params) => (
+                          <FormField {...params} InputLabelProps={{ shrink: true }} />
+                        )}
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormField
+                label="Email"
+                placeholder="example@email.com"
+                inputProps={{ type: "email" }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormField
+                label="confirmation email"
+                placeholder="example@email.com"
+                inputProps={{ type: "email" }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormField label="your location" placeholder="Sydney, A" />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormField
+                label="Phone Number"
+                placeholder="+40 735 631 620"
+                inputProps={{ type: "number" }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormField label="Language" placeholder="English" />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Autocomplete
+                multiple
+                defaultValue={["react", "angular"]}
+                options={selectData.skills}
+                renderInput={(params) => <FormField {...params} InputLabelProps={{ shrink: true }} />}
+              />
+            </Grid>
+          </Grid>
+        </MDBox>
+      </Card>
+    </Modal>
   );
   
   const [menu, setMenu] = useState(null);
   const openMenu = (event, alert) => { 
     setMenu(event.currentTarget);
   };
-  const closeMenu = () => setMenu(null);
+  const closeDropdownMenu = () => setMenu(null);
 
   const dropdownMenu = (
     <Menu
@@ -299,19 +236,18 @@ const bull = (
       anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       transformOrigin={{ vertical: "top", horizontal: "left" }}
       open={Boolean(menu)}
-      onClose={closeMenu}
+      onClose={closeDropdownMenu}
     >
-      <MenuItem onClick={openModalMenu}>Edit</MenuItem>
+      <MenuItem onClick={openModalEditAlert}>Edit</MenuItem>
       {modalMenu && (
         <div>
-          {modalCreateAlertMenu}
+          {modalEditAlert}
         </div>
       )}
-      <MenuItem onClick={closeMenu}>Disable</MenuItem>
-      <MenuItem onClick={closeMenu}>Delete</MenuItem>
+      <MenuItem onClick={closeDropdownMenu}>Disable</MenuItem>
+      <MenuItem onClick={closeDropdownMenu}>Delete</MenuItem>
     </Menu>
   );
-
  
   const getAlertsData = async () => {
     try {
@@ -376,8 +312,6 @@ const bull = (
                     <List>
                       <ListItem disablePadding>
                           <ListItemText primary={"Type: " + alert.alert?.alertType} />
-                      </ListItem>
-                      <ListItem disablePadding>
                           <ListItemText primary={"Duration: " + alert.alert?.alertDurationTime} />
                       </ListItem>
                       {alert.alert?.alertDisabled === true ? (
@@ -407,7 +341,6 @@ const bull = (
                 </CardActions>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                   <CardContent>
-                    <Typography paragraph>
                     <List>
                       <ListItem disablePadding>
                         <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
@@ -431,7 +364,6 @@ const bull = (
                         </div>
                       </ListItem>
                       </List>
-                    </Typography>                 
                   </CardContent>
                 </Collapse>
               </Card>
@@ -447,7 +379,7 @@ const bull = (
                   color="info"
                   fullWidth
                   type="button"
-                  onClick={openModalMenu}
+                  onClick={openModalEditAlert}
                 >
                   Create New Alert
                 </MDButton>
