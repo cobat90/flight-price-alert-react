@@ -64,35 +64,24 @@ import { useState, useEffect, React } from "react";
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
   const userId = localStorage.getItem("userId");
-
-  const [alerts, setAlerts] = useState([
-  ]);
-
+  const [alerts, setAlerts] = useState([]);
+  
   const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest
-  })
-}));
-
-const bull = (
-  <Box
-    component="span"
-    sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
-  >
-  </Box>
-);
+    const { expand, ...other } = props;
+    return <IconButton {...other} />;
+  })(({ theme, expand }) => ({
+    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest
+    })
+  }));
 
   const [expanded, setExpanded] = useState(false);
 
   const handleExpandClick = () => {
   setExpanded(!expanded);
   };
-
 
   function formatDate(inputDate) {
     const date = new Date(inputDate); // Parse the input date string
@@ -103,25 +92,24 @@ const bull = (
     return `${day}/${month}/${year}`; // Format the date as "dd/mm/yyyy"
   }
 
-  const [modalMenu, setModalMenu] = useState(null);
+  const [modalEditAlert, setModalEditAlert] = useState(null);
   const openModalEditAlert = (event, alert) => { 
-    setModalMenu(event.currentTarget);
-    
+    setModalEditAlert(event.currentTarget);
   };
-  const closeModalMenu = () => {
-    setModalMenu(null);
-    closeDropdownMenu();
+  const closeModalEditAlert = () => {
+    setModalEditAlert(null);
+    closeCardAlertMenu();
   }
 
-  const modalEditAlert = ( 
+  const modalEditAlertContent = ( 
     <Modal
-    open={Boolean(modalMenu)}
-    onClose={closeModalMenu}
+    open={Boolean(modalEditAlert)}
+    onClose={closeModalEditAlert}
     aria-labelledby="parent-modal-title"
     aria-describedby="parent-modal-description"
     >
       <Card id="basic-info" sx={{ overflow: "visible" }}>
-        <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalMenu}>
+        <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
           <CloseIcon />
         </IconButton>
         <MDBox p={3}>
@@ -224,28 +212,30 @@ const bull = (
     </Modal>
   );
   
-  const [menu, setMenu] = useState(null);
-  const openMenu = (event, alert) => { 
-    setMenu(event.currentTarget);
+  const [cardAlertMenu, setCardAlertMenu] = useState(null);
+  const openCardAlertMenu = (event, alert) => { 
+    setCardAlertMenu(event.currentTarget);
   };
-  const closeDropdownMenu = () => setMenu(null);
+  const closeCardAlertMenu = () => setCardAlertMenu(null);
 
-  const dropdownMenu = (
+  const cardAlertMenuContent = (
     <Menu
-      anchorEl={menu}
-      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      anchorEl={cardAlertMenu}
       transformOrigin={{ vertical: "top", horizontal: "left" }}
-      open={Boolean(menu)}
-      onClose={closeDropdownMenu}
+      open={Boolean(cardAlertMenu)}
+      onClose={closeCardAlertMenu}
+      keepMounted
+      disableAutoFocusItem
+      disableScrollLock={ true }
     >
       <MenuItem onClick={openModalEditAlert}>Edit</MenuItem>
-      {modalMenu && (
+      {modalEditAlert && (
         <div>
-          {modalEditAlert}
+          {modalEditAlertContent}
         </div>
       )}
-      <MenuItem onClick={closeDropdownMenu}>Disable</MenuItem>
-      <MenuItem onClick={closeDropdownMenu}>Delete</MenuItem>
+      <MenuItem onClick={closeCardAlertMenu}>Disable</MenuItem>
+      <MenuItem onClick={closeCardAlertMenu}>Delete</MenuItem>
     </Menu>
   );
  
@@ -275,19 +265,19 @@ const bull = (
         {alerts.map((alert, index) => (
           <Grid item xs={16} md={8} lg={4} key={index}>
             <MDBox mb={3}>
-              <Card sx={{ maxWidth: 345, opacity: alert.alert?.alertDisabled ? 0.6 : 1 }} id={`menu-${index}`}>
+              <Card sx={{ maxWidth: 345, opacity: alert.alert?.alertDisabled ? 0.6 : 1 }} id={`cardAlertMenu-${index}`}>
                 <CardHeader
                   avatar={
                     <Icon>flight</Icon>
                   }
                   action={
                     <div>
-                      <IconButton aria-label="settings" onClick={(event) => openMenu(event, alert)}>
+                      <IconButton aria-label="settings" onClick={(event) => openCardAlertMenu(event, alert)}>
                         <MoreVertIcon />
                       </IconButton>
-                      {menu && (
+                      {cardAlertMenu && (
                         <div>
-                          {dropdownMenu}
+                          {cardAlertMenuContent}
                         </div>
                       )}
                     </div>
@@ -307,7 +297,6 @@ const bull = (
                   chart={sales}
                 />
                 <CardContent>
-                  <Typography variant="body2" color="text.secondary" height="200">
                   <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>                 
                     <List>
                       <ListItem disablePadding>
@@ -321,7 +310,6 @@ const bull = (
                         ) : null}
                     </List>
                   </Box>
-                  </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
                   <IconButton aria-label="add to favorites">
@@ -379,10 +367,14 @@ const bull = (
                   color="info"
                   fullWidth
                   type="button"
-                  onClick={openModalEditAlert}
-                >
+                  onClick={openModalEditAlert}>         
                   Create New Alert
                 </MDButton>
+                {modalEditAlert && (
+                  <div>
+                    {modalEditAlertContent}
+                  </div>
+                )}
               </Card>
             </MDBox>
           </Grid>
