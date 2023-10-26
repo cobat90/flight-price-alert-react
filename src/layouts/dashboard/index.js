@@ -14,6 +14,19 @@ import {
   styled,
   List
 } from '@mui/material';
+import {
+  Button as StrapButton,
+  Card as StrapCard,
+  CardHeader as StrapCardHeader,
+  CardBody as StrapCardBody,
+  CardFooter as StrapCardFooter,
+  CardText as StrapCardText,
+  FormGroup as StrapFormGroup,
+  Form as StrapForm,
+  Input as StrapInput,
+  Row as StrapRow,
+  Col as StrapCol,
+} from "reactstrap";
 import CardActions from '@mui/material/CardActions';
 
 import Button from '@mui/material/Button';
@@ -31,6 +44,10 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from '@mui/material/Dialog';
 
 
 // Material Dashboard 2 React example components
@@ -41,7 +58,7 @@ import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
 
-
+import MDButton from "components/MDButton";
 // Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
@@ -85,6 +102,7 @@ const bull = (
   setExpanded(!expanded);
   };
 
+
   function formatDate(inputDate) {
     const date = new Date(inputDate); // Parse the input date string
     const day = String(date.getDate()).padStart(2, '0'); // Get the day and format it with leading zero
@@ -97,38 +115,182 @@ const bull = (
   const [modalMenu, setModalMenu] = useState(null);
   const openModalMenu = (event, alert) => { 
     setModalMenu(event.currentTarget);
- };
+  };
   const closeModalMenu = () => setModalMenu(null);
 
   const modalCreateAlertMenu = ( 
-    <Modal
-      open={Boolean(modalMenu)}
-      onClose={closeModalMenu}
-      aria-labelledby="parent-modal-title"
-      aria-describedby="parent-modal-description"
-    >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 400, // Set the desired width
-          padding: '16px'
-        }}
-      >
-        <h2 id="parent-modal-title">Text in a modal</h2>
-        <p id="parent-modal-description">
-          Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-        </p>
-      </Box>
-    </Modal>
+    <>
+        <div className="content">
+          <StrapRow>
+            <StrapCol md="8">
+              <StrapCard>
+                <CardHeader>
+                  <h5 className="title">Edit Profile</h5>
+                </CardHeader>
+                <StrapCardBody>
+                  <StrapForm>
+                    <StrapRow>
+                      <StrapCol className="pr-md-1" md="5">
+                        <StrapFormGroup>
+                          <label>Company (disabled)</label>
+                          <StrapInput
+                            defaultValue="Creative Code Inc."
+                            disabled
+                            placeholder="Company"
+                            type="text"
+                          />
+                        </StrapFormGroup>
+                      </StrapCol>
+                      <StrapCol className="px-md-1" md="3">
+                        <StrapFormGroup>
+                          <label>Username</label>
+                          <StrapInput
+                            defaultValue="michael23"
+                            placeholder="Username"
+                            type="text"
+                          />
+                        </StrapFormGroup>
+                      </StrapCol>
+                      <StrapCol className="pl-md-1" md="4">
+                        <StrapFormGroup>
+                          <label htmlFor="exampleInputEmail1">
+                            Email address
+                          </label>
+                          <StrapInput placeholder="mike@email.com" type="email" />
+                        </StrapFormGroup>
+                      </StrapCol>
+                    </StrapRow>
+                    <StrapRow>
+                      <StrapCol className="pr-md-1" md="6">
+                        <StrapFormGroup>
+                          <label>First Name</label>
+                          <StrapInput
+                            defaultValue="Mike"
+                            placeholder="Company"
+                            type="text"
+                          />
+                        </StrapFormGroup>
+                      </StrapCol>
+                      <StrapCol className="pl-md-1" md="6">
+                        <StrapFormGroup>
+                          <label>Last Name</label>
+                          <StrapInput
+                            defaultValue="Andrew"
+                            placeholder="Last Name"
+                            type="text"
+                          />
+                        </StrapFormGroup>
+                      </StrapCol>
+                    </StrapRow>
+                    <StrapRow>
+                      <StrapCol md="12">
+                        <StrapFormGroup>
+                          <label>Address</label>
+                          <StrapInput
+                            defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
+                            placeholder="Home Address"
+                            type="text"
+                          />
+                        </StrapFormGroup>
+                      </StrapCol>
+                    </StrapRow>
+                    <StrapRow>
+                      <StrapCol className="pr-md-1" md="4">
+                        <StrapFormGroup>
+                          <label>City</label>
+                          <StrapInput
+                            defaultValue="Mike"
+                            placeholder="City"
+                            type="text"
+                          />
+                        </StrapFormGroup>
+                      </StrapCol>
+                      <StrapCol className="px-md-1" md="4">
+                        <StrapFormGroup>
+                          <label>Country</label>
+                          <StrapInput
+                            defaultValue="Andrew"
+                            placeholder="Country"
+                            type="text"
+                          />
+                        </StrapFormGroup>
+                      </StrapCol>
+                      <StrapCol className="pl-md-1" md="4">
+                        <StrapFormGroup>
+                          <label>Postal Code</label>
+                          <StrapInput placeholder="ZIP Code" type="number" />
+                        </StrapFormGroup>
+                      </StrapCol>
+                    </StrapRow>
+                    <StrapRow>
+                      <StrapCol md="8">
+                        <StrapFormGroup>
+                          <label>About Me</label>
+                          <StrapInput
+                            cols="80"
+                            defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in
+                              that two seat Lambo."
+                            placeholder="Here can be your description"
+                            rows="4"
+                            type="textarea"
+                          />
+                        </StrapFormGroup>
+                      </StrapCol>
+                    </StrapRow>
+                  </StrapForm>
+                </StrapCardBody>
+                <StrapCardFooter>
+                  <Button className="btn-fill" color="primary" type="submit">
+                    Save
+                  </Button>
+                </StrapCardFooter>
+              </StrapCard>
+            </StrapCol>
+            <StrapCol md="4">
+              <StrapCard className="card-user">
+                <StrapCardBody>
+                  <StrapCardText />
+                  <div className="author">
+                    <div className="block block-one" />
+                    <div className="block block-two" />
+                    <div className="block block-three" />
+                    <div className="block block-four" />
+                    <a href="#pablo" onClick={(e) => e.preventDefault()}>
+
+                      <h5 className="title">Mike Andrew</h5>
+                    </a>
+                    <p className="description">Ceo/Co-Founder</p>
+                  </div>
+                  <div className="card-description">
+                    Do not be scared of the truth because we need to restart the
+                    human foundation in truth And I love you like Kanye loves
+                    Kanye I love Rick Owens’ bed design but the back is...
+                  </div>
+                </StrapCardBody>
+                <StrapCardFooter>
+                  <div className="button-container">
+                    <StrapButton className="btn-icon btn-round" color="facebook">
+                      <i className="fab fa-facebook" />
+                    </StrapButton>
+                    <StrapButton className="btn-icon btn-round" color="twitter">
+                      <i className="fab fa-twitter" />
+                    </StrapButton>
+                    <StrapButton className="btn-icon btn-round" color="google">
+                      <i className="fab fa-google-plus" />
+                    </StrapButton>
+                  </div>
+                </StrapCardFooter>
+              </StrapCard>
+            </StrapCol>
+          </StrapRow>
+        </div>
+        </>
   );
   
   const [menu, setMenu] = useState(null);
   const openMenu = (event, alert) => { 
     setMenu(event.currentTarget);
- };
+  };
   const closeMenu = () => setMenu(null);
 
   const dropdownMenu = (
@@ -139,14 +301,14 @@ const bull = (
       open={Boolean(menu)}
       onClose={closeMenu}
     >
-      <MenuItem onClick={openModalMenu}>Create Alert</MenuItem>
+      <MenuItem onClick={openModalMenu}>Edit</MenuItem>
       {modalMenu && (
-                        <div>
-                          {modalCreateAlertMenu}
-                        </div>
-                      )}
-      <MenuItem onClick={closeMenu}>Another action</MenuItem>
-      <MenuItem onClick={closeMenu}>Something else here</MenuItem>
+        <div>
+          {modalCreateAlertMenu}
+        </div>
+      )}
+      <MenuItem onClick={closeMenu}>Disable</MenuItem>
+      <MenuItem onClick={closeMenu}>Delete</MenuItem>
     </Menu>
   );
 
@@ -195,31 +357,36 @@ const bull = (
                     </div>
                   }
                   title={alert.alert?.alertName}
-                  subheader={formatDate(alert.alert?.alertDateCreated)}
+                  subheader={"Created: " + formatDate(alert.alert?.alertDateCreated)}
                 />
                 <ReportsLineChart
                   color="success"
-                  title="daily sales"
+                  title="monthly prices"
                   description={
                     <>
-                      (<strong>+15%</strong>) increase in today sales.
+                      (<strong>+15%</strong>) increase in today prices.
                     </>
                   }
-                  date="updated 4 min ago"
+                  date="updated 5 min ago"
                   chart={sales}
                 />
                 <CardContent>
-                  <Typography variant="body2" color="text.secondary">
-                  <div>
-                    <ul>
-                      <li>{alert.alert?.alertType}</li>
-                      <li>{alert.alert?.alertDurationTime}</li>                    
+                  <Typography variant="body2" color="text.secondary" height="200">
+                  <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>                 
+                    <List>
+                      <ListItem disablePadding>
+                          <ListItemText primary={"Type: " + alert.alert?.alertType} />
+                      </ListItem>
+                      <ListItem disablePadding>
+                          <ListItemText primary={"Duration: " + alert.alert?.alertDurationTime} />
+                      </ListItem>
                       {alert.alert?.alertDisabled === true ? (
-                          // Render the dropdown menu for the specific card
-                          <li>{formatDate(alert.alert?.alertDateDisabled)}</li>
+                        <ListItem disablePadding>
+                            <ListItemText primary={"Disabled: " + formatDate(alert.alert?.alertDateDisabled)} />
+                        </ListItem>
                         ) : null}
-                    </ul>
-                  </div>
+                    </List>
+                  </Box>
                   </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
@@ -240,10 +407,30 @@ const bull = (
                 </CardActions>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                   <CardContent>
-                    <Typography paragraph>Method:</Typography>
                     <Typography paragraph>
-                      Heat 1/2 cup of the broth in a pot until simmering, add
-                      saffron and set aside for 10 minutes.
+                    <List>
+                      <ListItem disablePadding>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
+                        <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Adults: " + alert.mainFilter?.adults}</span>} />
+                        <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Children: " + alert.mainFilter?.children}</span>} />
+                        <ListItemText primary={<span style={{ fontSize: '16px'}}>{"Cabin Class: " + alert.mainFilter?.cabinClassType}</span>} />
+                        </div>
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Flight: " + alert.mainFilter?.flight.flightType}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Depart: " + alert.mainFilter?.flight.departDate}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px'}}>{"Return: " + alert.mainFilter?.flight.returnDate}</span>} />
+                        </div>
+                      </ListItem>
+                      <ListItem disablePadding>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px' }}>{"From: " + (alert.mainFilter?.flight.airports[0].airportFrom || "N/A")}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px'  }}>{"To: " + (alert.mainFilter?.flight.airports[0].airportTo || "N/A")}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px'  }}>{"Scales: " + (alert.mainFilter?.flight.airports[0].airportScales || "N/A")}</span>} />
+                        </div>
+                      </ListItem>
+                      </List>
                     </Typography>                 
                   </CardContent>
                 </Collapse>
@@ -251,6 +438,22 @@ const bull = (
             </MDBox>
           </Grid>
           ))}
+          
+          <Grid item xs={16} md={8} lg={4}>
+            <MDBox display="flex" justifyContent="center" mb={3}>
+              <Card >
+                <MDButton
+                  variant="gradient"
+                  color="info"
+                  fullWidth
+                  type="button"
+                  onClick={openModalMenu}
+                >
+                  Create New Alert
+                </MDButton>
+              </Card>
+            </MDBox>
+          </Grid>
         </Grid>    
         <MDBox>
           <Grid container spacing={3}>
