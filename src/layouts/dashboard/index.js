@@ -79,10 +79,12 @@ function Dashboard() {
     })
   }));
 
-  const [expanded, setExpanded] = useState(false);
+  const [expandedAlertCard, setCardExpanded] = useState(false);
+  const [expandedAlertModal, setModalExpanded] = useState(false);
 
   const handleExpandClick = () => {
-  setExpanded(!expanded);
+    setCardExpanded(!expandedAlertCard);
+    setModalExpanded(!expandedAlertModal);
   };
 
   function formatDate(inputDate) {
@@ -111,7 +113,16 @@ function Dashboard() {
     aria-describedby="parent-modal-description"
     disableScrollLock={ true }
     >
-      <Card id="flight-alert-info" sx={{ overflow: "visible" }}>
+      <Card id="flight-alert-info" sx={{ 
+        overflow: "visible",
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 800, // Default width for larger screens
+        maxWidth: "90%", // Set maximum width for smaller screens
+        border: '2px solid #000',
+         }}>
         <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
           <CloseIcon />
         </IconButton>
@@ -120,101 +131,149 @@ function Dashboard() {
         </MDBox>
         <MDBox component="form" pb={3} px={3}>
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={7}>
               <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <Autocomplete
-                    defaultValue="Telegram"
-                    options={selectData.alertType}
-                    renderInput={(params) => (
-                      <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }} />
-                    )}
-                  />
+                defaultValue="Telegram"
+                options={selectData.alertType}
+                renderInput={(params) => (
+                  <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }} />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <Autocomplete
+                defaultValue="15"
+                options={selectData.days}
+                renderInput={(params) => (
+                  <FormField {...params} name="alertDurationTime" label="Duration(Days)" InputLabelProps={{ shrink: true }} />
+                )}
+              />
             </Grid>
             <Grid item xs={12}>
               <Grid container spacing={3}>
                 <Grid item xs={12} sm={4}>
                   <Autocomplete
-                    defaultValue="15"
-                    options={selectData.days}
-                    renderInput={(params) => (
-                      <FormField {...params} name="alertDurationTime" label="Duration(Days)" InputLabelProps={{ shrink: true }} />
-                    )}
-                  />
+                  defaultValue="ONE WAY"
+                  options={selectData.flightType}
+                  renderInput={(params) => (
+                    <FormField {...params} name="flightType" label="Flight Type" InputLabelProps={{ shrink: true }} />
+                  )}/>                    
                 </Grid>
-                <Grid item xs={12} sm={8}>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} sm={5}>
-                      <Autocomplete
-                      defaultValue="15"
-                      options={selectData.flightType}
-                      renderInput={(params) => (
-                        <FormField {...params} name="flightType" label="Flight Type" InputLabelProps={{ shrink: true }} />
-                      )}
-                    />
-                    </Grid>
-                    <Grid item xs={12} sm={5}>
-                      <MDDatePicker name="departDate" input={{ placeholder: "Depart date" }} />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <Autocomplete
-                        defaultValue="1"
-                        options={selectData.days}
-                        renderInput={(params) => (
-                          <FormField {...params} InputLabelProps={{ shrink: true }} />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={3}>
-                      <Autocomplete
-                        defaultValue="2021"
-                        options={selectData.years}
-                        renderInput={(params) => (
-                          <FormField {...params} InputLabelProps={{ shrink: true }} />
-                        )}
-                      />
-                    </Grid>
-                  </Grid>
+                <Grid item xs={12} sm={4}>
+                  <MDDatePicker name="departDate" input={{ placeholder: "Depart Date" }} />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <MDDatePicker name="returnDate" input={{ placeholder: "Return Date" }} />
                 </Grid>
               </Grid>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormField
-                label="Email"
-                placeholder="example@email.com"
-                inputProps={{ type: "email" }}
-              />
+              <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)"  />              
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormField
-                label="confirmation email"
-                placeholder="example@email.com"
-                inputProps={{ type: "email" }}
-              />
+              <FormField name="aiportTo" label="To" placeholder="Bahamas" />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormField label="your location" placeholder="Sydney, A" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormField
-                label="Phone Number"
-                placeholder="+40 735 631 620"
-                inputProps={{ type: "number" }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormField label="Language" placeholder="English" />
-            </Grid>
-            <Grid item xs={12} md={6}>
               <Autocomplete
-                multiple
-                defaultValue={["react", "angular"]}
-                options={selectData.skills}
-                renderInput={(params) => <FormField {...params} InputLabelProps={{ shrink: true }} />}
-              />
+                  defaultValue="Economy"
+                  options={selectData.cabinClassType}
+                  renderInput={(params) => (
+                    <FormField {...params} name="cabinClassType" label="Cabin Class" InputLabelProps={{ shrink: true }} />
+              )}/>                        
             </Grid>
+            <Grid item xs={12} sm={3}>
+              <Autocomplete
+                  defaultValue="1"
+                  options={selectData.passagers}
+                  renderInput={(params) => (
+                    <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }} />
+              )}/>     
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <Autocomplete
+                    defaultValue="0"
+                    options={selectData.passagers}
+                    renderInput={(params) => (
+                      <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} />
+                )}/>    
+            </Grid>
+              <ExpandMore
+                  expand={expandedAlertModal}
+                  onClick={handleExpandClick}
+                  aria-expanded={expandedAlertModal}
+                  aria-label="show more"
+                >
+                  <ExpandMoreIcon />
+                </ExpandMore>
+            <Collapse in={expandedAlertModal} timeout="auto" unmountOnExit>
+              <MDBox component="form" pb={3} px={3}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={7}>
+                    <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" />
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <Autocomplete
+                      defaultValue="Telegram"
+                      options={selectData.alertType}
+                      renderInput={(params) => (
+                        <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }} />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={2}>
+                    <Autocomplete
+                      defaultValue="15"
+                      options={selectData.days}
+                      renderInput={(params) => (
+                        <FormField {...params} name="alertDurationTime" label="Duration(Days)" InputLabelProps={{ shrink: true }} />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} sm={4}>
+                        <Autocomplete
+                        defaultValue="ONE WAY"
+                        options={selectData.flightType}
+                        renderInput={(params) => (
+                          <FormField {...params} name="flightType" label="Flight Type" InputLabelProps={{ shrink: true }} />
+                        )}/>                    
+                      </Grid>
+                      <Grid item xs={12} sm={4}>
+                        <MDDatePicker name="departDate" input={{ placeholder: "Depart Date" }} />
+                      </Grid>
+                      <Grid item xs={12} sm={4}>
+                        <MDDatePicker name="returnDate" input={{ placeholder: "Return Date" }} />
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </MDBox>
+            </Collapse>
           </Grid>
+          <MDBox component="form" pb={3} px={3} display="flex" justifyContent="center" mb={3}>
+            <Grid item xs={12} md={11} >
+              <MDButton
+                variant="gradient"
+                color="info"
+                type="button"
+                >         
+                Clear
+                </MDButton>
+            </Grid>
+            <Grid item xs={12} md={1} >
+              <MDButton
+                variant="gradient"
+                color="info"
+                type="button"
+                >         
+                Save
+                </MDButton>
+            </Grid>
+          </MDBox>
         </MDBox>
       </Card>
     </Modal>
@@ -327,15 +386,15 @@ function Dashboard() {
                     <ShareIcon />
                   </IconButton>
                   <ExpandMore
-                    expand={expanded}
+                    expand={expandedAlertCard}
                     onClick={handleExpandClick}
-                    aria-expanded={expanded}
+                    aria-expanded={expandedAlertCard}
                     aria-label="show more"
                   >
                     <ExpandMoreIcon />
                   </ExpandMore>
                 </CardActions>
-                <Collapse in={expanded} timeout="auto" unmountOnExit>
+                <Collapse in={expandedAlertCard} timeout="auto" unmountOnExit>
                   <CardContent>
                     <List>
                       <ListItem disablePadding>
