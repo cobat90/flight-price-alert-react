@@ -1,5 +1,7 @@
 const selectData = {
   gender: ["Male", "Female"],
+  alertType: ["Telegram", "Email"],
+  flightType: ["One Way", "Roundtrip", "Multi-city"],
   birthDate: [
     "January",
     "February",

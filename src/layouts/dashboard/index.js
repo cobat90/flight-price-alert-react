@@ -49,6 +49,8 @@ import selectData from "components/FormField/data/selectData";
 
 import MDButton from "components/MDButton";
 import MDTypography from "components/MDTypography";
+import MDDatePicker from "components/MDDatePicker";
+
 
 // Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
@@ -107,30 +109,37 @@ function Dashboard() {
     onClose={closeModalEditAlert}
     aria-labelledby="parent-modal-title"
     aria-describedby="parent-modal-description"
+    disableScrollLock={ true }
     >
-      <Card id="basic-info" sx={{ overflow: "visible" }}>
+      <Card id="flight-alert-info" sx={{ overflow: "visible" }}>
         <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
           <CloseIcon />
         </IconButton>
         <MDBox p={3}>
-          <MDTypography variant="h5">Basic Info</MDTypography>
+          <MDTypography variant="h5">Flight Alert Info</MDTypography>
         </MDBox>
         <MDBox component="form" pb={3} px={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <FormField label="First Name" placeholder="Alec" />
+              <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormField label="Last Name" placeholder="Thompson" />
+              <Autocomplete
+                    defaultValue="Telegram"
+                    options={selectData.alertType}
+                    renderInput={(params) => (
+                      <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }} />
+                    )}
+                  />
             </Grid>
             <Grid item xs={12}>
               <Grid container spacing={3}>
                 <Grid item xs={12} sm={4}>
                   <Autocomplete
-                    defaultValue="Male"
-                    options={selectData.gender}
+                    defaultValue="15"
+                    options={selectData.days}
                     renderInput={(params) => (
-                      <FormField {...params} label="I'm" InputLabelProps={{ shrink: true }} />
+                      <FormField {...params} name="alertDurationTime" label="Duration(Days)" InputLabelProps={{ shrink: true }} />
                     )}
                   />
                 </Grid>
@@ -138,16 +147,15 @@ function Dashboard() {
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={5}>
                       <Autocomplete
-                        defaultValue="February"
-                        options={selectData.birthDate}
-                        renderInput={(params) => (
-                          <FormField
-                            {...params}
-                            label="Birth Date"
-                            InputLabelProps={{ shrink: true }}
-                          />
-                        )}
-                      />
+                      defaultValue="15"
+                      options={selectData.flightType}
+                      renderInput={(params) => (
+                        <FormField {...params} name="flightType" label="Flight Type" InputLabelProps={{ shrink: true }} />
+                      )}
+                    />
+                    </Grid>
+                    <Grid item xs={12} sm={5}>
+                      <MDDatePicker name="departDate" input={{ placeholder: "Depart date" }} />
                     </Grid>
                     <Grid item xs={12} sm={4}>
                       <Autocomplete
