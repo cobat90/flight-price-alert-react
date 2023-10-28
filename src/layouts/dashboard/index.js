@@ -55,6 +55,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimeField } from '@mui/x-date-pickers/TimeField';
+import dayjs from "dayjs";
 
 // Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
@@ -109,6 +110,7 @@ function Dashboard() {
     return `${day}/${month}/${year}`; // Format the date as "dd/mm/yyyy"
   }
 
+
   const [modalEditAlert, setModalEditAlert] = useState(null);
   const openModalEditAlert = (event, alert) => { 
     setModalEditAlert(event.currentTarget);
@@ -124,8 +126,7 @@ function Dashboard() {
     onClose={closeModalEditAlert}
     aria-labelledby="parent-modal-title"
     aria-describedby="parent-modal-description"
-    disableScrollLock={ true }
-    >
+    disableScrollLock={ true }>    
       <Card id="flight-alert-info" sx={{ 
         overflow: "visible",
         position: 'absolute',
@@ -460,13 +461,14 @@ function Dashboard() {
                     <List>
                       <ListItem disablePadding>
                           <ListItemText primary={"Type: " + alert.alert?.alertType} />
-                          <ListItemText primary={"Duration: " + alert.alert?.alertDurationTime} />
+                          {alert.alert?.alertDisabled === true ? (
+                              <ListItemText primary={"Disabled: " + dayjs(alert.alert?.alertDateDisabled).format("DD/MM/YYYY")} />                 
+                          ) : null}
                       </ListItem>
-                      {alert.alert?.alertDisabled === true ? (
-                        <ListItem disablePadding>
-                            <ListItemText primary={"Disabled: " + formatDate(alert.alert?.alertDateDisabled)} />
+                      <ListItem disablePadding>
+                        <ListItemText primary={"Active Days: " + alert.alert?.alertDurationTime} />
+                        <ListItemText primary={"Left Days: " + dayjs().diff(alert.alert?.alertDateCreated, "days") } />
                         </ListItem>
-                        ) : null}
                     </List>
                   </Box>
                 </CardContent>
@@ -538,16 +540,6 @@ function Dashboard() {
             </MDBox>
           </Grid>
         </Grid>    
-        <MDBox>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
-              <Projects />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <OrdersOverview />
-            </Grid>
-          </Grid>
-        </MDBox>
       </MDBox>
       <Footer />
     </DashboardLayout>
