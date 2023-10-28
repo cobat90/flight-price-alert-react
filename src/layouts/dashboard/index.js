@@ -5,15 +5,7 @@ import Grid from "@mui/material/Grid";
 import MDBox from "components/MDBox";
 import Icon from "@mui/material/Icon";
 
-import {
-  Container,
-  Card,
-  CardHeader,
-  CardContent,
-  Divider,
-  styled,
-  List
-} from '@mui/material';
+import { Card, CardHeader,  CardContent, styled, List } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
 
 import Button from '@mui/material/Button';
@@ -39,7 +31,6 @@ import Dialog from '@mui/material/Dialog';
 import Autocomplete from "@mui/material/Autocomplete";
 import Tooltip from "@mui/material/Tooltip";
 
-
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -50,23 +41,18 @@ import selectData from "components/FormField/data/selectData";
 
 import MDButton from "components/MDButton";
 import MDTypography from "components/MDTypography";
-import MDDatePicker from "components/MDDatePicker";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimeField } from '@mui/x-date-pickers/TimeField';
 import dayjs from "dayjs";
+import "dayjs/locale/en-gb";
 
 // Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
-
-// Dashboard components
-import Projects from "layouts/dashboard/components/Projects";
-import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
-
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 
-import { useState, useEffect, React } from "react";
+import { useState, useEffect, useRef, React } from "react";
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
@@ -100,16 +86,64 @@ function Dashboard() {
   const handleFlightTypeChange = (event, value) => {
     setFlightType(value);
   };
-
-  function formatDate(inputDate) {
-    const date = new Date(inputDate); // Parse the input date string
-    const day = String(date.getDate()).padStart(2, '0'); // Get the day and format it with leading zero
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Get the month (0-based) and format it with leading zero
-    const year = date.getFullYear(); // Get the year
   
-    return `${day}/${month}/${year}`; // Format the date as "dd/mm/yyyy"
-  }
+  const [cleared, setCleared] = useState(false);
+  useEffect(() => {
+    if (cleared) {
+      const timeout = setTimeout(() => {
+        setCleared(false);
+      }, 1500);
 
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [cleared]);
+
+  const formRef = useRef();
+
+  const handleClearForm = () => {
+    setCleared(true);
+    formRef.current.reset();
+    
+  };
+
+  const [cardAlertMenu, setCardAlertMenu] = useState(null);
+  const openCardAlertMenu = (event, alert) => { 
+    setCardAlertMenu(event.currentTarget);
+  };
+  const closeCardAlertMenu = () => setCardAlertMenu(null);
+ 
+  const getAlertsData = async () => {
+    try {
+      const response = await FlightPriceAlertService.findAllAlerts(userId);
+      if (Array.isArray(response)) {
+
+        setAlerts(response);
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+    }
+  };
+
+  const updateAlertData = async (flightPriceAlertId) => {
+    try {
+      const response = await FlightPriceAlertService.updateAlert(flightPriceAlertId);
+      if (Array.isArray(response)) {
+
+        setAlerts(response);
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAlertsData();
+  }, []);
 
   const [modalEditAlert, setModalEditAlert] = useState(null);
   const openModalEditAlert = (event, alert) => { 
@@ -140,10 +174,10 @@ function Dashboard() {
         <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
           <CloseIcon />
         </IconButton>
-        <MDBox p={3}>
+        <MDBox pb={3} px={3}>
           <MDTypography variant="h5">Flight Alert Info</MDTypography>
         </MDBox>
-        <MDBox component="form" pb={3} px={3}>
+        <MDBox component="form" pb={3} px={3} ref={formRef}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={7}>
               <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" />
@@ -181,21 +215,26 @@ function Dashboard() {
                         InputLabelProps={{ shrink: true }}/>                    
                     )}/>                                
                 </Grid>
-                <Grid item xs={12} sm={3}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker name="departDate" label="Depart Date"/>
+                <Grid item xs={12} sm={3.3}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                    <DatePicker name="departDate" label="Depart Date" 
+                    slotProps={{
+                      field: { clearable: true, onClear: () => setCleared(true) },
+                    }}/>
                   </LocalizationProvider>
                 </Grid>
-                <Grid item xs={12} sm={3}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Grid item xs={12} sm={3.3}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                     <DatePicker
                       name="returnDate"
                       label="Return Date"
-                      disabled={flightType === "One Way"} 
-                    />
+                      disabled={flightType === "One Way"}
+                      slotProps={{
+                        field: { clearable: true, onClear: () => setCleared(true) },
+                      }}/> 
                   </LocalizationProvider>
                 </Grid>
-                <Grid item xs={12} sm={3.5}>
+                <Grid item xs={12} sm={2.9}>
                   <Autocomplete
                     defaultValue="Economy"
                     options={selectData.cabinClassType}
@@ -262,8 +301,11 @@ function Dashboard() {
                   <Grid item xs={12} sm={3.5}>
                     <Tooltip title="End Date of the Departure Range. The first Departure Date is the Start of the Range." placement="bottom">
                       <div>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker name="departRangeDate" label="Depart Range Date"/>
+                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                          <DatePicker name="departRangeDate" label="Depart Range Date"
+                            slotProps={{
+                              field: { clearable: true, onClear: () => setCleared(true) },
+                            }}/> 
                         </LocalizationProvider>  
                       </div>
                     </Tooltip>
@@ -272,7 +314,10 @@ function Dashboard() {
                     <Tooltip title="End Date of the Return Range. The first Return Date is the Start of the Range." placement="bottom">
                       <div>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker name="returnRangeDate" label="Return Range Date"/>
+                          <DatePicker name="returnRangeDate" label="Return Range Date" adapterLocale="en-gb"
+                            slotProps={{
+                              field: { clearable: true, onClear: () => setCleared(true) },
+                            }}/> 
                         </LocalizationProvider>  
                       </div>
                     </Tooltip>
@@ -281,22 +326,22 @@ function Dashboard() {
                     <Grid container spacing={3}>
                       <Grid item xs={12} sm={3}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimeField name="departRangeTimeStart" label="Depart Range Time Start" format="HH:mm" />
+                          <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" />
                         </LocalizationProvider>              
                       </Grid>
                       <Grid item xs={12} sm={3}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimeField name="departRangeTimeEnd" label="Depart Range Time End" format="HH:mm" />
+                          <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" />
                         </LocalizationProvider>
                       </Grid>
                       <Grid item xs={12} sm={3}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimeField name="returnRangeTimeEnd" label="Return Range Time End" format="HH:mm" />
+                          <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" />
                         </LocalizationProvider>
                       </Grid>
                       <Grid item xs={12} sm={3}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimeField name="returnRangeTimeEnd" label="Return Range Time End" format="HH:mm" />
+                          <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" />
                         </LocalizationProvider>
                       </Grid>
                     </Grid>
@@ -362,7 +407,8 @@ function Dashboard() {
               <MDButton
                 variant="gradient"
                 color="info"
-                type="button">                      
+                type="button"
+                onClick={handleClearForm}>                      
                 Clear
                 </MDButton>
             </Grid>
@@ -371,12 +417,6 @@ function Dashboard() {
       </Card>
     </Modal>
   );
-  
-  const [cardAlertMenu, setCardAlertMenu] = useState(null);
-  const openCardAlertMenu = (event, alert) => { 
-    setCardAlertMenu(event.currentTarget);
-  };
-  const closeCardAlertMenu = () => setCardAlertMenu(null);
 
   const cardAlertMenuContent = (
     <Menu
@@ -398,24 +438,6 @@ function Dashboard() {
       <MenuItem onClick={closeCardAlertMenu}>Delete</MenuItem>
     </Menu>
   );
- 
-  const getAlertsData = async () => {
-    try {
-      const response = await FlightPriceAlertService.findAllAlerts(userId);
-      if (Array.isArray(response)) {
-
-        setAlerts(response);
-      } else {
-        console.error("Invalid data format in response:", response);
-      }
-    } catch (error) {
-      console.error("Error fetching alerts:", error);
-    }
-  };
-
-  useEffect(() => {
-    getAlertsData();
-  }, []);
 
   return (
     <DashboardLayout>
@@ -427,9 +449,7 @@ function Dashboard() {
             <MDBox mb={3}>
               <Card sx={{ maxWidth: 345, opacity: alert.alert?.alertDisabled ? 0.6 : 1 }} id={`cardAlertMenu-${index}`}>
                 <CardHeader
-                  avatar={
-                    <Icon>flight</Icon>
-                  }
+                  avatar={<Icon>flight</Icon>}            
                   action={
                     <div>
                       <IconButton aria-label="settings" onClick={(event) => openCardAlertMenu(event, alert)}>
@@ -443,7 +463,7 @@ function Dashboard() {
                     </div>
                   }
                   title={alert.alert?.alertName}
-                  subheader={"Created: " + formatDate(alert.alert?.alertDateCreated)}
+                  subheader={"Created: " + dayjs(alert.alert?.alertDateCreated).format("DD/MM/YYYY")}
                 />
                 <ReportsLineChart
                   color="success"
@@ -457,20 +477,29 @@ function Dashboard() {
                   chart={sales}
                 />
                 <CardContent>
-                  <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>                 
+                  <MDBox>
+                    <input type="hidden" name="flightPriceAlertId" value={alert.flightPriceAlertId} />                 
                     <List>
-                      <ListItem disablePadding>
-                          <ListItemText primary={"Type: " + alert.alert?.alertType} />
+                      <ListItem disablePadding >
+                          <ListItemText >
+                            <MDTypography variant="h6">{"Type: " + alert.alert?.alertType}</MDTypography>
+                          </ListItemText>
                           {alert.alert?.alertDisabled === true ? (
-                              <ListItemText primary={"Disabled: " + dayjs(alert.alert?.alertDateDisabled).format("DD/MM/YYYY")} />                 
+                            <ListItemText>
+                              <MDTypography variant="h6">{"Disabled: " + dayjs(alert.alert?.alertDateDisabled).format("DD/MM/YYYY")}</MDTypography>
+                            </ListItemText>                 
                           ) : null}
                       </ListItem>
                       <ListItem disablePadding>
-                        <ListItemText primary={"Active Days: " + alert.alert?.alertDurationTime} />
-                        <ListItemText primary={"Left Days: " + dayjs().diff(alert.alert?.alertDateCreated, "days") } />
+                        <ListItemText>
+                          <MDTypography variant="h6">{"Active Days: " + alert.alert?.alertDurationTime}</MDTypography>
+                        </ListItemText>
+                        <ListItemText>
+                          <MDTypography variant="h6">{"Left Days: " + dayjs().diff(alert.alert?.alertDateCreated, "days") }</MDTypography>
+                        </ListItemText>
                         </ListItem>
                     </List>
-                  </Box>
+                  </MDBox>
                 </CardContent>
                 <CardActions disableSpacing>
                   <IconButton aria-label="add to favorites">
