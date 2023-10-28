@@ -1,8 +1,12 @@
 const selectData = {
   gender: ["Male", "Female"],
   alertType: ["Telegram", "Email"],
-  flightType: ["One Way", "Roundtrip", "Multi-city"],
+  flightType: ["One Way", "Roundtrip"],
   cabinClassType: ["Economy", "Premium Economy", "Business Class", "First Class"],
+  paymentType: ["Credit Card", "Bank Transfer", "Paypal", "Ticket", "Pix", "Cryptocurrency"],
+  otherPreferences: ["Wifi Flights", "Night Flights", "With Entertainment Flights"],
+  airlines: ["GOL", "LATAM", "With Entertainment Flights"],
+  searchSites: ["Skyscanner"],
   birthDate: [
     "January",
     "February",

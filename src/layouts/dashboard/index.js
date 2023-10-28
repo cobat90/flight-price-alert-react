@@ -37,6 +37,7 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import Autocomplete from "@mui/material/Autocomplete";
+import Tooltip from "@mui/material/Tooltip";
 
 
 // Material Dashboard 2 React example components
@@ -50,7 +51,10 @@ import selectData from "components/FormField/data/selectData";
 import MDButton from "components/MDButton";
 import MDTypography from "components/MDTypography";
 import MDDatePicker from "components/MDDatePicker";
-
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimeField } from '@mui/x-date-pickers/TimeField';
 
 // Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
@@ -82,9 +86,18 @@ function Dashboard() {
   const [expandedAlertCard, setCardExpanded] = useState(false);
   const [expandedAlertModal, setModalExpanded] = useState(false);
 
-  const handleExpandClick = () => {
+  const handleExpandCardClick = () => {
     setCardExpanded(!expandedAlertCard);
+  };
+
+  const handleExpandModalClick = () => {
     setModalExpanded(!expandedAlertModal);
+  };
+
+  const [flightType, setFlightType] = useState("One Way");
+
+  const handleFlightTypeChange = (event, value) => {
+    setFlightType(value);
   };
 
   function formatDate(inputDate) {
@@ -154,99 +167,180 @@ function Dashboard() {
             </Grid>
             <Grid item xs={12}>
               <Grid container spacing={3}>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={2.5}>
                   <Autocomplete
-                  defaultValue="ONE WAY"
-                  options={selectData.flightType}
-                  renderInput={(params) => (
-                    <FormField {...params} name="flightType" label="Flight Type" InputLabelProps={{ shrink: true }} />
-                  )}/>                    
+                    value={flightType}
+                    options={selectData.flightType}
+                    onChange={handleFlightTypeChange}
+                    renderInput={(params) => (
+                      <FormField
+                        {...params}
+                        name="flightType"
+                        label="Flight Type"
+                        InputLabelProps={{ shrink: true }}/>                    
+                    )}/>                                
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <MDDatePicker name="departDate" input={{ placeholder: "Depart Date" }} />
+                <Grid item xs={12} sm={3}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker name="departDate" label="Depart Date"/>
+                  </LocalizationProvider>
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <MDDatePicker name="returnDate" input={{ placeholder: "Return Date" }} />
+                <Grid item xs={12} sm={3}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      name="returnDate"
+                      label="Return Date"
+                      disabled={flightType === "One Way"} 
+                    />
+                  </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12} sm={3.5}>
+                  <Autocomplete
+                    defaultValue="Economy"
+                    options={selectData.cabinClassType}
+                    renderInput={(params) => (
+                      <FormField {...params} name="cabinClassType" label="Cabin Class" InputLabelProps={{ shrink: true }} />
+                  )}/>
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)"  />              
+            <Grid item xs={12}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={4.5}>
+                  <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)"  />              
+                </Grid>
+                <Grid item xs={12} sm={4.5}>
+                  <FormField name="aiportTo" label="To" placeholder="Bahamas" />
+                </Grid>
+                <Grid item xs={12} sm={1.5}>
+                  <Autocomplete
+                      defaultValue="1"
+                      options={selectData.passagers}
+                      renderInput={(params) => (
+                        <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }} />
+                  )}/>     
+                </Grid>
+                <Grid item xs={12} sm={1.5}>
+                  <Autocomplete
+                        defaultValue="0"
+                        options={selectData.passagers}
+                        renderInput={(params) => (
+                          <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} />
+                    )}/>    
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormField name="aiportTo" label="To" placeholder="Bahamas" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Autocomplete
-                  defaultValue="Economy"
-                  options={selectData.cabinClassType}
-                  renderInput={(params) => (
-                    <FormField {...params} name="cabinClassType" label="Cabin Class" InputLabelProps={{ shrink: true }} />
-              )}/>                        
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <Autocomplete
-                  defaultValue="1"
-                  options={selectData.passagers}
-                  renderInput={(params) => (
-                    <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }} />
-              )}/>     
-            </Grid>
-            <Grid item xs={12} md={3}>
-              <Autocomplete
-                    defaultValue="0"
-                    options={selectData.passagers}
-                    renderInput={(params) => (
-                      <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} />
-                )}/>    
-            </Grid>
-              <ExpandMore
+            <MDBox p={3}>
+              <MDTypography variant="h5">Preferences
+                <ExpandMore
                   expand={expandedAlertModal}
-                  onClick={handleExpandClick}
+                  onClick={handleExpandModalClick}
                   aria-expanded={expandedAlertModal}
-                  aria-label="show more"
-                >
+                  aria-label="show more">                           
                   <ExpandMoreIcon />
                 </ExpandMore>
-            <Collapse in={expandedAlertModal} timeout="auto" unmountOnExit>
-              <MDBox component="form" pb={3} px={3}>
+              </MDTypography>  
+            </MDBox>
+            <Collapse in={expandedAlertModal} timeout="auto" unmountOnExit px={3}>
+              <MDBox pb={3} px={3}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} sm={7}>
-                    <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" />
+                  <Grid item xs={12} sm={1.75}>
+                    <FormField name="rangePrice" label="$ Range Start" placeholder="200" />
                   </Grid>
-                  <Grid item xs={12} sm={3}>
-                    <Autocomplete
-                      defaultValue="Telegram"
-                      options={selectData.alertType}
-                      renderInput={(params) => (
-                        <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }} />
-                      )}
-                    />
+                  <Grid item xs={12} sm={1.75}>
+                    <FormField name="rangePrice" label="$ Range End" placeholder="500" />        
                   </Grid>
-                  <Grid item xs={12} sm={2}>
+                  <Grid item xs={12} sm={1.5}>
                     <Autocomplete
-                      defaultValue="15"
-                      options={selectData.days}
+                      defaultValue="0"
+                      options={selectData.passagers}
                       renderInput={(params) => (
-                        <FormField {...params} name="alertDurationTime" label="Duration(Days)" InputLabelProps={{ shrink: true }} />
-                      )}
-                    />
+                        <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} />
+                     )}/>     
+                  </Grid>
+                  <Grid item xs={12} sm={3.5}>
+                    <Tooltip title="End Date of the Departure Range. The first Departure Date is the Start of the Range." placement="bottom">
+                      <div>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker name="departRangeDate" label="Depart Range Date"/>
+                        </LocalizationProvider>  
+                      </div>
+                    </Tooltip>
+                  </Grid>
+                  <Grid item xs={12} sm={3.5}>
+                    <Tooltip title="End Date of the Return Range. The first Return Date is the Start of the Range." placement="bottom">
+                      <div>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker name="returnRangeDate" label="Return Range Date"/>
+                        </LocalizationProvider>  
+                      </div>
+                    </Tooltip>
                   </Grid>
                   <Grid item xs={12}>
                     <Grid container spacing={3}>
-                      <Grid item xs={12} sm={4}>
+                      <Grid item xs={12} sm={3}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <TimeField name="departRangeTimeStart" label="Depart Range Time Start" format="HH:mm" />
+                        </LocalizationProvider>              
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <TimeField name="departRangeTimeEnd" label="Depart Range Time End" format="HH:mm" />
+                        </LocalizationProvider>
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <TimeField name="returnRangeTimeEnd" label="Return Range Time End" format="HH:mm" />
+                        </LocalizationProvider>
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <TimeField name="returnRangeTimeEnd" label="Return Range Time End" format="HH:mm" />
+                        </LocalizationProvider>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} sm={3}>
                         <Autocomplete
-                        defaultValue="ONE WAY"
-                        options={selectData.flightType}
-                        renderInput={(params) => (
-                          <FormField {...params} name="flightType" label="Flight Type" InputLabelProps={{ shrink: true }} />
-                        )}/>                    
+                            defaultValue="Credit Card"
+                            options={selectData.paymentType}
+                            renderInput={(params) => (
+                              <FormField {...params} name="paymentMethod" label="Payment Method" InputLabelProps={{ shrink: true }} />
+                        )}/>                     
                       </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <MDDatePicker name="departDate" input={{ placeholder: "Depart Date" }} />
+                      <Grid item xs={12} sm={1.5}>
+                        <Autocomplete
+                          defaultValue="0"
+                          options={selectData.passagers}
+                          renderInput={(params) => (
+                            <FormField {...params} name="paymentParcels" label="Parcels" InputLabelProps={{ shrink: true }} />
+                        )}/> 
                       </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <MDDatePicker name="returnDate" input={{ placeholder: "Return Date" }} />
+                      <Grid item xs={12} sm={3}>
+                        <Autocomplete
+                            defaultValue="Wifi Flights"
+                            options={selectData.otherPreferences}
+                            renderInput={(params) => (
+                              <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} />
+                          )}/> 
+                      </Grid>
+                      <Grid item xs={12} sm={1.5}>
+                        <Autocomplete
+                            defaultValue="GOL"
+                            options={selectData.airlines}
+                            renderInput={(params) => (
+                              <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} />
+                          )}/> 
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <Autocomplete
+                            defaultValue="Skyscanner"
+                            options={selectData.searchSites}
+                            renderInput={(params) => (
+                              <FormField {...params} name="searchSites" label="Search Motors" InputLabelProps={{ shrink: true }} />
+                          )}/> 
                       </Grid>
                     </Grid>
                   </Grid>
@@ -254,23 +348,21 @@ function Dashboard() {
               </MDBox>
             </Collapse>
           </Grid>
-          <MDBox component="form" pb={3} px={3} display="flex" justifyContent="center" mb={3}>
+          <MDBox pb={3} px={3} display="flex" justifyContent="center" mb={3}>
             <Grid item xs={12} md={11} >
               <MDButton
                 variant="gradient"
                 color="info"
-                type="button"
-                >         
-                Clear
+                type="button">                   
+                Save
                 </MDButton>
             </Grid>
             <Grid item xs={12} md={1} >
               <MDButton
                 variant="gradient"
                 color="info"
-                type="button"
-                >         
-                Save
+                type="button">                      
+                Clear
                 </MDButton>
             </Grid>
           </MDBox>
@@ -387,7 +479,7 @@ function Dashboard() {
                   </IconButton>
                   <ExpandMore
                     expand={expandedAlertCard}
-                    onClick={handleExpandClick}
+                    onClick={handleExpandCardClick}
                     aria-expanded={expandedAlertCard}
                     aria-label="show more"
                   >
