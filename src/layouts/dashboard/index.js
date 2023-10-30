@@ -103,8 +103,7 @@ function Dashboard() {
 
   const handleClearForm = () => {
     setCleared(true);
-    formRef.current.reset();
-    
+    formRef.current.reset();   
   };
 
   const [cardAlertMenu, setCardAlertMenu] = useState(null);
@@ -127,9 +126,9 @@ function Dashboard() {
     }
   };
 
-  const updateAlertData = async (flightPriceAlertId) => {
+  const updateAlertData = async (formData) => {
     try {
-      const response = await FlightPriceAlertService.updateAlert(flightPriceAlertId);
+      const response = await FlightPriceAlertService.updateAlert(alert);
       if (Array.isArray(response)) {
 
         setAlerts(response);
@@ -137,7 +136,7 @@ function Dashboard() {
         console.error("Invalid data format in response:", response);
       }
     } catch (error) {
-      console.error("Error fetching alerts:", error);
+      console.error("Error fetching alert:", error);
     }
   };
 
@@ -145,8 +144,31 @@ function Dashboard() {
     getAlertsData();
   }, []);
 
+  const handleSubmit = (action) => {
+    if (formData) {
+      if (action === 'update') {
+        // Call the updateAlertData function and pass the updated 'alert' object
+        updateAlertData(alert);
+      } else if (action === 'create') {
+        // Create a new alert here if needed
+      }
+    }
+
+    // Clear the form if needed
+    setFormData({
+      alertName: '',
+      alertType: 'Telegram',
+      alertDurationTime: '15',
+      // Reset other form fields as well
+    });
+
+    setCleared(true);
+  };
+
   const [modalEditAlert, setModalEditAlert] = useState(null);
-  const openModalEditAlert = (event, alert) => { 
+  const [alert, setAlert] = useState(null);
+  
+  const openModalEditAlert = (event) => {
     setModalEditAlert(event.currentTarget);
   };
   const closeModalEditAlert = () => {
@@ -154,271 +176,275 @@ function Dashboard() {
     closeCardAlertMenu();
   }
 
-  const modalEditAlertContent = ( 
-    <Modal
-    open={Boolean(modalEditAlert)}
-    onClose={closeModalEditAlert}
-    aria-labelledby="parent-modal-title"
-    aria-describedby="parent-modal-description"
-    disableScrollLock={ true }>    
-      <Card id="flight-alert-info" sx={{ 
-        overflow: "visible",
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 800, // Default width for larger screens
-        maxWidth: "90%", // Set maximum width for smaller screens
-        border: '2px solid #000',
-         }}>
-        <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
-          <CloseIcon />
-        </IconButton>
-        <MDBox pb={3} px={3}>
-          <MDTypography variant="h5">Flight Alert Info</MDTypography>
-        </MDBox>
-        <MDBox component="form" pb={3} px={3} ref={formRef}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={7}>
-              <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" />
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <Autocomplete
-                defaultValue="Telegram"
-                options={selectData.alertType}
-                renderInput={(params) => (
-                  <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }} />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <Autocomplete
-                defaultValue="15"
-                options={selectData.days}
-                renderInput={(params) => (
-                  <FormField {...params} name="alertDurationTime" label="Duration(Days)" InputLabelProps={{ shrink: true }} />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={2.5}>
-                  <Autocomplete
-                    value={flightType}
-                    options={selectData.flightType}
-                    onChange={handleFlightTypeChange}
-                    renderInput={(params) => (
-                      <FormField
-                        {...params}
-                        name="flightType"
-                        label="Flight Type"
-                        InputLabelProps={{ shrink: true }}/>                    
-                    )}/>                                
-                </Grid>
-                <Grid item xs={12} sm={3.3}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                    <DatePicker name="departDate" label="Depart Date" 
-                    slotProps={{
-                      field: { clearable: true, onClear: () => setCleared(true) },
-                    }}/>
-                  </LocalizationProvider>
-                </Grid>
-                <Grid item xs={12} sm={3.3}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                    <DatePicker
-                      name="returnDate"
-                      label="Return Date"
-                      disabled={flightType === "One Way"}
+  const modalEditAlertContent = (alert) => {
+    return ( 
+      <Modal
+      open={Boolean(modalEditAlert)}
+      onClose={closeModalEditAlert}
+      aria-labelledby="parent-modal-title"
+      aria-describedby="parent-modal-description"
+      disableScrollLock={ true }>    
+        <Card id="flight-alert-info" sx={{ 
+          overflow: "visible",
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 800, // Default width for larger screens
+          maxWidth: "90%", // Set maximum width for smaller screens
+          border: '2px solid #000',
+          }}>
+          <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
+            <CloseIcon />
+          </IconButton>
+          <MDBox pb={3} px={3}>
+            <MDTypography variant="h5">Flight Alert Info</MDTypography>
+          </MDBox>
+          <MDBox component="form" pb={3} px={3} ref={formRef}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={7}>
+                <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" defaultValue={alert.alert?.alertName} />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <Autocomplete
+                  defaultValue="Telegram"
+                  options={selectData.alertType}
+                  renderInput={(params) => (
+                    <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }} defaultValue={alert.alert?.alertType} />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <Autocomplete
+                  defaultValue="15"
+                  options={selectData.days}
+                  renderInput={(params) => (
+                    <FormField {...params} name="alertDurationTime" label="Duration(Days)" 
+                    InputLabelProps={{ shrink: true }} defaultValue={alert.alert?.alertDurationTime}/>
+                  )}/>          
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={2.5}>
+                    <Autocomplete
+                      value={flightType}
+                      options={selectData.flightType}
+                      onChange={handleFlightTypeChange}
+                      renderInput={(params) => (
+                        <FormField
+                          {...params}
+                          name="flightType"
+                          label="Flight Type"
+                          InputLabelProps={{ shrink: true }} defaultValue={alert.mainFilter?.flight?.flightType}/>                    
+                      )}/>                                
+                  </Grid>
+                  <Grid item xs={12} sm={3.3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                      <DatePicker name="departDate" label="Depart Date" defaultValue={dayjs(alert.mainFilter?.flight?.departDate)}
                       slotProps={{
                         field: { clearable: true, onClear: () => setCleared(true) },
-                      }}/> 
-                  </LocalizationProvider>
-                </Grid>
-                <Grid item xs={12} sm={2.9}>
-                  <Autocomplete
-                    defaultValue="Economy"
-                    options={selectData.cabinClassType}
-                    renderInput={(params) => (
-                      <FormField {...params} name="cabinClassType" label="Cabin Class" InputLabelProps={{ shrink: true }} />
-                  )}/>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={12}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={4.5}>
-                  <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)"  />              
-                </Grid>
-                <Grid item xs={12} sm={4.5}>
-                  <FormField name="aiportTo" label="To" placeholder="Bahamas" />
-                </Grid>
-                <Grid item xs={12} sm={1.5}>
-                  <Autocomplete
-                      defaultValue="1"
-                      options={selectData.passagers}
-                      renderInput={(params) => (
-                        <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }} />
-                  )}/>     
-                </Grid>
-                <Grid item xs={12} sm={1.5}>
-                  <Autocomplete
-                        defaultValue="0"
-                        options={selectData.passagers}
-                        renderInput={(params) => (
-                          <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} />
-                    )}/>    
-                </Grid>
-              </Grid>
-            </Grid>
-            <MDBox p={3}>
-              <MDTypography variant="h5">Preferences
-                <ExpandMore
-                  expand={expandedAlertModal}
-                  onClick={handleExpandModalClick}
-                  aria-expanded={expandedAlertModal}
-                  aria-label="show more">                           
-                  <ExpandMoreIcon />
-                </ExpandMore>
-              </MDTypography>  
-            </MDBox>
-            <Collapse in={expandedAlertModal} timeout="auto" unmountOnExit px={3}>
-              <MDBox pb={3} px={3}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={1.75}>
-                    <FormField name="rangePrice" label="$ Range Start" placeholder="200" />
+                      }}/>
+                    </LocalizationProvider>
                   </Grid>
-                  <Grid item xs={12} sm={1.75}>
-                    <FormField name="rangePrice" label="$ Range End" placeholder="500" />        
+                  <Grid item xs={12} sm={3.3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                      <DatePicker
+                        name="returnDate"
+                        label="Return Date"
+                        defaultValue={dayjs(alert.mainFilter?.flight?.returnDate)}
+                        disabled={flightType === "One Way"}
+                        slotProps={{
+                          field: { clearable: true, onClear: () => setCleared(true) },
+                        }}/> 
+                    </LocalizationProvider>
+                  </Grid>
+                  <Grid item xs={12} sm={2.9}>
+                    <Autocomplete
+                      options={selectData.cabinClassType}
+                      defaultValue={alert.mainFilter?.cabinClassType}
+                      renderInput={(params) => (
+                        <FormField {...params} name="cabinClassType" label="Cabin Class" InputLabelProps={{ shrink: true }} />
+                    )}/>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={4.5}>
+                    <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)" defaultValue={alert.mainFilter?.flight?.airports[0].airportFrom}  />              
+                  </Grid>
+                  <Grid item xs={12} sm={4.5}>
+                    <FormField name="aiportTo" label="To" placeholder="Bahamas" defaultValue={alert.mainFilter?.flight?.airports[0].aiportTo} />
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
                     <Autocomplete
-                      defaultValue="0"
-                      options={selectData.passagers}
-                      renderInput={(params) => (
-                        <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} />
-                     )}/>     
+                        defaultValue="1"
+                        options={selectData.passagers}
+                        renderInput={(params) => (
+                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }} defaultValue={alert.mainFilter?.adults} />
+                    )}/>     
                   </Grid>
-                  <Grid item xs={12} sm={3.5}>
-                    <Tooltip title="End Date of the Departure Range. The first Departure Date is the Start of the Range." placement="bottom">
-                      <div>
-                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                          <DatePicker name="departRangeDate" label="Depart Range Date"
-                            slotProps={{
-                              field: { clearable: true, onClear: () => setCleared(true) },
-                            }}/> 
-                        </LocalizationProvider>  
-                      </div>
-                    </Tooltip>
-                  </Grid>
-                  <Grid item xs={12} sm={3.5}>
-                    <Tooltip title="End Date of the Return Range. The first Return Date is the Start of the Range." placement="bottom">
-                      <div>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker name="returnRangeDate" label="Return Range Date" adapterLocale="en-gb"
-                            slotProps={{
-                              field: { clearable: true, onClear: () => setCleared(true) },
-                            }}/> 
-                        </LocalizationProvider>  
-                      </div>
-                    </Tooltip>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Grid container spacing={3}>
-                      <Grid item xs={12} sm={3}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" />
-                        </LocalizationProvider>              
-                      </Grid>
-                      <Grid item xs={12} sm={3}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" />
-                        </LocalizationProvider>
-                      </Grid>
-                      <Grid item xs={12} sm={3}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" />
-                        </LocalizationProvider>
-                      </Grid>
-                      <Grid item xs={12} sm={3}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" />
-                        </LocalizationProvider>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Grid container spacing={3}>
-                      <Grid item xs={12} sm={3}>
-                        <Autocomplete
-                            defaultValue="Credit Card"
-                            options={selectData.paymentType}
-                            renderInput={(params) => (
-                              <FormField {...params} name="paymentMethod" label="Payment Method" InputLabelProps={{ shrink: true }} />
-                        )}/>                     
-                      </Grid>
-                      <Grid item xs={12} sm={1.5}>
-                        <Autocomplete
+                  <Grid item xs={12} sm={1.5}>
+                    <Autocomplete
                           defaultValue="0"
                           options={selectData.passagers}
                           renderInput={(params) => (
-                            <FormField {...params} name="paymentParcels" label="Parcels" InputLabelProps={{ shrink: true }} />
-                        )}/> 
+                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} defaultValue={alert.mainFilter?.children}/>
+                      )}/>    
+                  </Grid>
+                </Grid>
+              </Grid>
+              <MDBox p={3}>
+                <MDTypography variant="h5">Preferences
+                  <ExpandMore
+                    expand={expandedAlertModal}
+                    onClick={handleExpandModalClick}
+                    aria-expanded={expandedAlertModal}
+                    aria-label="show more">                           
+                    <ExpandMoreIcon />
+                  </ExpandMore>
+                </MDTypography>  
+              </MDBox>
+              <Collapse in={expandedAlertModal} timeout="auto" unmountOnExit px={3}>
+                <MDBox pb={3} px={3}>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={1.75}>
+                      <FormField name="rangePrice" label="$ Range Start" placeholder="200" defaultValue={alert.preferencesFilter?.rangePrice?.rangeStart} />
+                    </Grid>
+                    <Grid item xs={12} sm={1.75}>
+                      <FormField name="rangePrice" label="$ Range End" placeholder="500" defaultValue={alert.preferencesFilter?.rangePrice?.rangeEnd}/>        
+                    </Grid>
+                    <Grid item xs={12} sm={1.5}>
+                      <Autocomplete
+                        defaultValue="0"
+                        options={selectData.passagers}
+                        renderInput={(params) => (
+                          <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} defaultValue={alert.preferencesFilter?.scalesQuantity} />
+                      )}/>     
+                    </Grid>
+                    <Grid item xs={12} sm={3.5}>
+                      <Tooltip title="End Date of the Departure Range. The first Departure Date is the Start of the Range." placement="bottom">
+                        <div>
+                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                            <DatePicker name="departRangeDate" label="Depart Range Date" defaultValue={dayjs(alert.preferencesFilter?.departRangeDate)}
+                              slotProps={{
+                                field: { clearable: true, onClear: () => setCleared(true) },
+                              }}/> 
+                          </LocalizationProvider>  
+                        </div>
+                      </Tooltip>
+                    </Grid>
+                    <Grid item xs={12} sm={3.5}>
+                      <Tooltip title="End Date of the Return Range. The first Return Date is the Start of the Range." placement="bottom">
+                        <div>
+                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                            <DatePicker name="returnRangeDate" label="Return Range Date" defaultValue={dayjs(alert.preferencesFilter?.returnRangeDate)}
+                              slotProps={{
+                                field: { clearable: true, onClear: () => setCleared(true) },
+                              }}/> 
+                          </LocalizationProvider>  
+                        </div>
+                      </Tooltip>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Grid container spacing={3}>
+                        <Grid item xs={12} sm={3}>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" />
+                          </LocalizationProvider>              
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" />
+                          </LocalizationProvider>
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" />
+                          </LocalizationProvider>
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" />
+                          </LocalizationProvider>
+                        </Grid>
                       </Grid>
-                      <Grid item xs={12} sm={3}>
-                        <Autocomplete
-                            defaultValue="Wifi Flights"
-                            options={selectData.otherPreferences}
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Grid container spacing={3}>
+                        <Grid item xs={12} sm={3}>
+                          <Autocomplete
+                              defaultValue="Credit Card"
+                              options={selectData.paymentType}
+                              renderInput={(params) => (
+                                <FormField {...params} name="paymentMethod" label="Payment Method" InputLabelProps={{ shrink: true }} />
+                          )}/>                     
+                        </Grid>
+                        <Grid item xs={12} sm={1.5}>
+                          <Autocomplete
+                            defaultValue="0"
+                            options={selectData.passagers}
                             renderInput={(params) => (
-                              <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} />
+                              <FormField {...params} name="paymentParcels" label="Parcels" InputLabelProps={{ shrink: true }} />
                           )}/> 
-                      </Grid>
-                      <Grid item xs={12} sm={1.5}>
-                        <Autocomplete
-                            defaultValue="GOL"
-                            options={selectData.airlines}
-                            renderInput={(params) => (
-                              <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} />
-                          )}/> 
-                      </Grid>
-                      <Grid item xs={12} sm={3}>
-                        <Autocomplete
-                            defaultValue="Skyscanner"
-                            options={selectData.searchSites}
-                            renderInput={(params) => (
-                              <FormField {...params} name="searchSites" label="Search Motors" InputLabelProps={{ shrink: true }} />
-                          )}/> 
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                          <Autocomplete
+                              defaultValue="Wifi Flights"
+                              options={selectData.otherPreferences}
+                              renderInput={(params) => (
+                                <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} />
+                            )}/> 
+                        </Grid>
+                        <Grid item xs={12} sm={1.5}>
+                          <Autocomplete
+                              defaultValue="GOL"
+                              options={selectData.airlines}
+                              renderInput={(params) => (
+                                <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} />
+                            )}/> 
+                        </Grid>
+                        <Grid item xs={12} sm={3}>
+                          <Autocomplete
+                              defaultValue="Skyscanner"
+                              options={selectData.searchSites}
+                              renderInput={(params) => (
+                                <FormField {...params} name="searchSites" label="Search Motors" InputLabelProps={{ shrink: true }} />
+                            )}/> 
+                        </Grid>
                       </Grid>
                     </Grid>
                   </Grid>
-                </Grid>
-              </MDBox>
-            </Collapse>
-          </Grid>
-          <MDBox pb={3} px={3} display="flex" justifyContent="center" mb={3}>
-            <Grid item xs={12} md={11} >
-              <MDButton
-                variant="gradient"
-                color="info"
-                type="button">                   
-                Save
-                </MDButton>
+                </MDBox>
+              </Collapse>
             </Grid>
-            <Grid item xs={12} md={1} >
-              <MDButton
-                variant="gradient"
-                color="info"
-                type="button"
-                onClick={handleClearForm}>                      
-                Clear
-                </MDButton>
-            </Grid>
+            <MDBox pb={3} px={3} display="flex" justifyContent="center" mb={3}>
+              <Grid item xs={12} md={11} >
+                <MDButton
+                  variant="gradient"
+                  color="info"
+                  type="button"
+                  onClick={handleSubmit}>                   
+                  Save
+                  </MDButton>
+              </Grid>
+              <Grid item xs={12} md={1} >
+                <MDButton
+                  variant="gradient"
+                  color="info"
+                  type="button"
+                  onClick={handleClearForm}>                      
+                  Clear
+                  </MDButton>
+              </Grid>
+            </MDBox>
           </MDBox>
-        </MDBox>
-      </Card>
-    </Modal>
-  );
+        </Card>
+      </Modal>
+    );
+  };
 
-  const cardAlertMenuContent = (
+  const cardAlertMenuContent = (alert) => (
     <Menu
       anchorEl={cardAlertMenu}
       transformOrigin={{ vertical: "top", horizontal: "left" }}
@@ -431,7 +457,7 @@ function Dashboard() {
       <MenuItem onClick={openModalEditAlert}>Edit</MenuItem>
       {modalEditAlert && (
         <div>
-          {modalEditAlertContent}
+          {modalEditAlertContent(alert)}
         </div>
       )}
       <MenuItem onClick={closeCardAlertMenu}>Disable</MenuItem>
@@ -457,7 +483,7 @@ function Dashboard() {
                       </IconButton>
                       {cardAlertMenu && (
                         <div>
-                          {cardAlertMenuContent}
+                          {cardAlertMenuContent(alert)}
                         </div>
                       )}
                     </div>
@@ -573,6 +599,7 @@ function Dashboard() {
       <Footer />
     </DashboardLayout>
   );
+                   
 }
 
 export default Dashboard;

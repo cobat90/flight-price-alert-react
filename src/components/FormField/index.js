@@ -6,6 +6,7 @@ function FormField({ label, ...rest }) {
   return (
     <MDInput
       variant="standard"
+      readonly={false}
       label={label || " "}  // Default label value is a space if not provided
       fullWidth
       InputLabelProps={{ shrink: true }}
