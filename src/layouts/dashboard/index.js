@@ -207,27 +207,27 @@ function Dashboard() {
               </Grid>
               <Grid item xs={12} sm={3}>
                 <Autocomplete
-                  defaultValue="Telegram"
+                  defaultValue={(alert.alert?.alertType || "").toString()}
                   options={selectData.alertType}
                   renderInput={(params) => (
-                    <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }} defaultValue={alert.alert?.alertType} />
+                    <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }}  />
                   )}
                 />
               </Grid>
               <Grid item xs={12} sm={2}>
                 <Autocomplete
-                  defaultValue="15"
+                  defaultValue={(alert.alert?.alertDurationTime || "").toString()}
                   options={selectData.days}
                   renderInput={(params) => (
                     <FormField {...params} name="alertDurationTime" label="Duration(Days)" 
-                    InputLabelProps={{ shrink: true }} defaultValue={alert.alert?.alertDurationTime}/>
+                    InputLabelProps={{ shrink: true }} />
                   )}/>          
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={2.5}>
                     <Autocomplete
-                      value={flightType}
+                      defaultValue={(alert.mainFilter?.flight?.flightType || "").toString()}
                       options={selectData.flightType}
                       onChange={handleFlightTypeChange}
                       renderInput={(params) => (
@@ -235,7 +235,7 @@ function Dashboard() {
                           {...params}
                           name="flightType"
                           label="Flight Type"
-                          InputLabelProps={{ shrink: true }} defaultValue={alert.mainFilter?.flight?.flightType}/>                    
+                          InputLabelProps={{ shrink: true }} />                    
                       )}/>                                
                   </Grid>
                   <Grid item xs={12} sm={3.3}>
@@ -260,8 +260,8 @@ function Dashboard() {
                   </Grid>
                   <Grid item xs={12} sm={2.9}>
                     <Autocomplete
-                      options={selectData.cabinClassType}
                       defaultValue={alert.mainFilter?.cabinClassType}
+                      options={selectData.cabinClassType}
                       renderInput={(params) => (
                         <FormField {...params} name="cabinClassType" label="Cabin Class" InputLabelProps={{ shrink: true }} />
                     )}/>
@@ -274,22 +274,22 @@ function Dashboard() {
                     <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)" defaultValue={alert.mainFilter?.flight?.airports[0].airportFrom}  />              
                   </Grid>
                   <Grid item xs={12} sm={4.5}>
-                    <FormField name="aiportTo" label="To" placeholder="Bahamas" defaultValue={alert.mainFilter?.flight?.airports[0].aiportTo} />
+                    <FormField name="aiportTo" label="To" placeholder="Bahamas" defaultValue={alert.mainFilter?.flight?.airports[0].airportTo} />
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
                     <Autocomplete
-                        defaultValue="1"
+                        defaultValue={(alert.mainFilter?.adults || "").toString()}
                         options={selectData.passagers}
                         renderInput={(params) => (
-                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }} defaultValue={alert.mainFilter?.adults} />
+                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  />
                     )}/>     
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
                     <Autocomplete
-                          defaultValue="0"
+                          defaultValue={(alert.mainFilter?.children || "").toString()}
                           options={selectData.passagers}
                           renderInput={(params) => (
-                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} defaultValue={alert.mainFilter?.children}/>
+                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} />
                       )}/>    
                   </Grid>
                 </Grid>
@@ -316,10 +316,10 @@ function Dashboard() {
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
                       <Autocomplete
-                        defaultValue="0"
+                        defaultValue={(alert.preferencesFilter?.scalesQuantity || "").toString()}
                         options={selectData.passagers}
                         renderInput={(params) => (
-                          <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} defaultValue={alert.preferencesFilter?.scalesQuantity} />
+                          <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} />
                       )}/>     
                     </Grid>
                     <Grid item xs={12} sm={3.5}>
@@ -350,22 +350,22 @@ function Dashboard() {
                       <Grid container spacing={3}>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" />
+                            <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" defaultValue={dayjs(alert.preferencesFilter?.departRangeTime?.rangeStart)} />
                           </LocalizationProvider>              
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" />
+                            <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" defaultValue={dayjs(alert.preferencesFilter?.departRangeTime?.rangeEnd)} />
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" />
+                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" defaultValue={dayjs(alert.preferencesFilter?.returnRangeTime?.rangeStart)}/>
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" />
+                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" defaultValue={dayjs(alert.preferencesFilter?.returnRangeTime?.rangeEnd)}/>
                           </LocalizationProvider>
                         </Grid>
                       </Grid>
@@ -374,7 +374,7 @@ function Dashboard() {
                       <Grid container spacing={3}>
                         <Grid item xs={12} sm={3}>
                           <Autocomplete
-                              defaultValue="Credit Card"
+                              defaultValue={alert.preferencesFilter?.payment?.method}
                               options={selectData.paymentType}
                               renderInput={(params) => (
                                 <FormField {...params} name="paymentMethod" label="Payment Method" InputLabelProps={{ shrink: true }} />
@@ -382,7 +382,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={1.5}>
                           <Autocomplete
-                            defaultValue="0"
+                            defaultValue={(alert.preferencesFilter?.payment?.parcels || "").toString()}
                             options={selectData.passagers}
                             renderInput={(params) => (
                               <FormField {...params} name="paymentParcels" label="Parcels" InputLabelProps={{ shrink: true }} />
@@ -390,7 +390,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <Autocomplete
-                              defaultValue="Wifi Flights"
+                              defaultValue={(alert.preferencesFilter?.otherPreferences || "").toString()}
                               options={selectData.otherPreferences}
                               renderInput={(params) => (
                                 <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} />
@@ -398,7 +398,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={1.5}>
                           <Autocomplete
-                              defaultValue="GOL"
+                              defaultValue={(alert.preferencesFilter?.airline || "").toString()}
                               options={selectData.airlines}
                               renderInput={(params) => (
                                 <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} />
@@ -406,7 +406,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <Autocomplete
-                              defaultValue="Skyscanner"
+                              defaultValue={(alert.preferencesFilter?.searchSites || "").toString()}
                               options={selectData.searchSites}
                               renderInput={(params) => (
                                 <FormField {...params} name="searchSites" label="Search Motors" InputLabelProps={{ shrink: true }} />
