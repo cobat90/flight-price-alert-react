@@ -116,7 +116,7 @@ function Dashboard() {
   const closeCardAlertMenu = () => {
     setCardAlertMenu(null);
     setCardAlertIndex(null);
-    setIsEditing(null);
+    setIsEditing(false);
   }
  
   const getAlertsData = async () => {
@@ -213,12 +213,14 @@ function Dashboard() {
             <Grid container spacing={3}>
               <Grid item xs={12} sm={7}>
                 <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" defaultValue={(isEditing
-                    ? currentAlert?.alert?.alertName
+                    ? (currentAlert?.alert?.alertName|| "").toString()
                     : "")} />
               </Grid>
               <Grid item xs={12} sm={3}>
                 <Autocomplete
-                  defaultValue={(alert?.alert?.alertType || "").toString()}
+                  defaultValue={(isEditing
+                    ? (currentAlert?.alert?.alertType|| "").toString()
+                    : "")}
                   options={selectData.alertType}
                   renderInput={(params) => (
                     <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }}  />
@@ -227,7 +229,9 @@ function Dashboard() {
               </Grid>
               <Grid item xs={12} sm={2}>
                 <Autocomplete
-                  defaultValue={(alert?.alert?.alertDurationTime || "").toString()}
+                  defaultValue={(isEditing
+                    ? (currentAlert?.alert?.alertDurationTime|| "").toString()
+                    : "")}
                   options={selectData.days}
                   renderInput={(params) => (
                     <FormField {...params} name="alertDurationTime" label="Duration(Days)" 
@@ -238,7 +242,9 @@ function Dashboard() {
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={2.5}>
                     <Autocomplete
-                      defaultValue={(alert?.mainFilter?.flight?.flightType || "").toString()}
+                      defaultValue={(isEditing
+                        ? (currentAlert?.mainFilter?.flight?.flightType || "").toString()
+                        : "")}
                       options={selectData.flightType}
                       onChange={handleFlightTypeChange}
                       renderInput={(params) => (
@@ -251,7 +257,10 @@ function Dashboard() {
                   </Grid>
                   <Grid item xs={12} sm={3.3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                      <DatePicker name="departDate" label="Depart Date" defaultValue={dayjs(alert?.mainFilter?.flight?.departDate)}
+                      <DatePicker name="departDate" label="Depart Date" 
+                      defaultValue={(isEditing
+                        ? (dayjs(currentAlert?.mainFilter?.flight?.departDate))
+                        : "")}
                       slotProps={{
                         field: { clearable: true, onClear: () => setCleared(true) },
                       }}/>
@@ -262,7 +271,9 @@ function Dashboard() {
                       <DatePicker
                         name="returnDate"
                         label="Return Date"
-                        defaultValue={dayjs(alert?.mainFilter?.flight?.returnDate)}
+                        defaultValue={(isEditing
+                          ? (dayjs(currentAlert?.mainFilter?.flight?.returnDate))
+                          : "")}
                         disabled={flightType === "One Way"}
                         slotProps={{
                           field: { clearable: true, onClear: () => setCleared(true) },
@@ -271,7 +282,9 @@ function Dashboard() {
                   </Grid>
                   <Grid item xs={12} sm={2.9}>
                     <Autocomplete
-                      defaultValue={alert?.mainFilter?.cabinClassType}
+                      defaultValue={(isEditing
+                        ? (currentAlert?.mainFilter?.cabinClassType || "").toString()
+                        : "")}
                       options={selectData.cabinClassType}
                       renderInput={(params) => (
                         <FormField {...params} name="cabinClassType" label="Cabin Class" InputLabelProps={{ shrink: true }} />
@@ -282,14 +295,22 @@ function Dashboard() {
               <Grid item xs={12}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={4.5}>
-                    <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)" defaultValue={alert?.mainFilter?.flight?.airports[0].airportFrom}  />              
+                    <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)"
+                     defaultValue={(isEditing
+                      ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
+                      : "")}  />              
                   </Grid>
                   <Grid item xs={12} sm={4.5}>
-                    <FormField name="aiportTo" label="To" placeholder="Bahamas" defaultValue={alert?.mainFilter?.flight?.airports[0].airportTo} />
+                    <FormField name="aiportTo" label="To" placeholder="Bahamas" 
+                    defaultValue={(isEditing
+                      ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
+                      : "")} />
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
                     <Autocomplete
-                        defaultValue={(alert?.mainFilter?.adults || 0).toString()}
+                        defaultValue={(isEditing
+                          ? currentAlert?.mainFilter?.adults || 0
+                          : "")}
                         options={selectData.passagers}
                         renderInput={(params) => (
                           <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  />
@@ -297,7 +318,9 @@ function Dashboard() {
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
                     <Autocomplete
-                          defaultValue={(alert?.mainFilter?.children || 0).toString()}
+                          defaultValue={(isEditing
+                            ? currentAlert?.mainFilter?.children || 0
+                            : "")}
                           options={selectData.passagers}
                           renderInput={(params) => (
                             <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} />
@@ -320,14 +343,22 @@ function Dashboard() {
                 <MDBox pb={3} px={3}>
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={1.75}>
-                      <FormField name="rangePrice" label="$ Range Start" placeholder="200" defaultValue={alert?.preferencesFilter?.rangePrice?.rangeStart} />
+                      <FormField name="rangePrice" label="$ Range Start" placeholder="200" 
+                        defaultValue={(isEditing
+                        ? (currentAlert?.preferencesFilter?.rangePrice?.rangeStart || "").toString()
+                        : "")} />
                     </Grid>
                     <Grid item xs={12} sm={1.75}>
-                      <FormField name="rangePrice" label="$ Range End" placeholder="500" defaultValue={alert?.preferencesFilter?.rangePrice?.rangeEnd}/>        
+                      <FormField name="rangePrice" label="$ Range End" placeholder="500" 
+                      defaultValue={(isEditing
+                        ? (currentAlert?.preferencesFilter?.rangePrice?.rangeEnd || "").toString()
+                        : "")}/>        
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
                       <Autocomplete
-                        defaultValue={(alert?.preferencesFilter?.scalesQuantity || 0).toString()}
+                        defaultValue={(isEditing
+                          ? currentAlert?.preferencesFilter?.scalesQuantity || 0
+                          : "")}
                         options={selectData.passagers}
                         renderInput={(params) => (
                           <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} />
@@ -337,7 +368,10 @@ function Dashboard() {
                       <Tooltip title="End Date of the Departure Range. The first Departure Date is the Start of the Range." placement="bottom">
                         <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                            <DatePicker name="departRangeDate" label="Depart Range Date" defaultValue={dayjs(alert?.preferencesFilter?.departRangeDate)}
+                            <DatePicker name="departRangeDate" label="Depart Range Date" 
+                              defaultValue={(isEditing
+                                ? dayjs(currentAlert?.preferencesFilter?.departRangeDate)
+                                : "")}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }}/> 
@@ -349,7 +383,10 @@ function Dashboard() {
                       <Tooltip title="End Date of the Return Range. The first Return Date is the Start of the Range." placement="bottom">
                         <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                            <DatePicker name="returnRangeDate" label="Return Range Date" defaultValue={dayjs(alert?.preferencesFilter?.returnRangeDate)}
+                            <DatePicker name="returnRangeDate" label="Return Range Date" 
+                              defaultValue={(isEditing
+                                ? dayjs(currentAlert?.preferencesFilter?.returnRangeDate)
+                                : "")}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }}/> 
@@ -361,22 +398,34 @@ function Dashboard() {
                       <Grid container spacing={3}>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" defaultValue={dayjs(alert?.preferencesFilter?.departRangeTime?.rangeStart, "HH:mm")} />
+                            <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" 
+                              defaultValue={(isEditing
+                                ? dayjs(currentAlert?.preferencesFilter?.departRangeTime?.rangeStart, "hh:mm")
+                                : "")} />
                           </LocalizationProvider>              
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" defaultValue={dayjs(alert?.preferencesFilter?.departRangeTime?.rangeEnd, "HH:mm")} />
+                            <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" 
+                              defaultValue={(isEditing
+                                ? dayjs(currentAlert?.preferencesFilter?.departRangeTime?.rangeEnd, "hh:mm")
+                                : "")} />
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" defaultValue={dayjs(alert?.preferencesFilter?.returnRangeTime?.rangeStart, "HH:mm")} />
+                            <TimeField name="returnRangeTimeStart" label="Start Return Range Time" format="HH:mm" 
+                              defaultValue={(isEditing
+                                ? dayjs(currentAlert?.preferencesFilter?.returnRangeTime?.rangeStart, "hh:mm")
+                                : "")} />
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" defaultValue={dayjs(alert?.preferencesFilter?.returnRangeTime?.rangeEnd, "HH:mm")} />
+                            <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" 
+                              defaultValue={(isEditing
+                                ? dayjs(currentAlert?.preferencesFilter?.returnRangeTime?.rangeEnd, "hh:mm")
+                                : "")} /> 
                           </LocalizationProvider>
                         </Grid>
                       </Grid>
@@ -387,7 +436,7 @@ function Dashboard() {
                         <Autocomplete
                           multiple
                           limitTags={2}
-                          defaultValue={[alert?.preferencesFilter?.payment?.method] || []}
+                          defaultValue={[currentAlert?.preferencesFilter?.payment?.method] || []}
                           options={selectData.paymentType}
                           getOptionLabel={(option) => option}
                           renderInput={(params) => (
@@ -397,7 +446,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={1.5}>
                           <Autocomplete
-                            defaultValue={(alert?.preferencesFilter?.payment?.parcels || "").toString()}
+                            defaultValue={(currentAlert?.preferencesFilter?.payment?.parcels || "").toString()}
                             options={selectData.passagers}
                             renderInput={(params) => (
                               <FormField {...params} name="paymentParcels" label="Parcels" InputLabelProps={{ shrink: true }} />
@@ -405,7 +454,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <Autocomplete
-                              defaultValue={(alert?.preferencesFilter?.otherPreferences || "").toString()}
+                              defaultValue={(currentAlert?.preferencesFilter?.otherPreferences || "").toString()}
                               options={selectData.otherPreferences}
                               renderInput={(params) => (
                                 <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} />
@@ -413,7 +462,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={1.5}>
                           <Autocomplete
-                              defaultValue={(alert?.preferencesFilter?.airline || "").toString()}
+                              defaultValue={(currentAlert?.preferencesFilter?.airline || "").toString()}
                               options={selectData.airlines}
                               renderInput={(params) => (
                                 <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} />
@@ -421,7 +470,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <Autocomplete
-                              defaultValue={(alert?.preferencesFilter?.searchSites || "").toString()}
+                              defaultValue={(currentAlert?.preferencesFilter?.searchSites || "").toString()}
                               options={selectData.searchSites}
                               renderInput={(params) => (
                                 <FormField {...params} name="searchSites" label="Search Motors" InputLabelProps={{ shrink: true }} />
@@ -469,11 +518,12 @@ function Dashboard() {
       disableAutoFocusItem
       disableScrollLock={ true }
     >
-      <MenuItem onClick={() => {
-        openModalEditAlert;
-        setIsEditing(true);
-        
-      }}>Edit</MenuItem>
+<MenuItem onClick={(e) => {
+  e.stopPropagation(); // Prevent the event from propagating further if necessary
+  openModalEditAlert(e);
+  setIsEditing(true);
+}}>Edit</MenuItem>
+
       {modalEditAlert && (
         <div>
           {modalEditAlertContent(alert, cardAlertIndex)}
@@ -608,10 +658,10 @@ function Dashboard() {
                   type="button"
                   onClick={openModalEditAlert}>         
                   Create New Alert
-                </MDButton>
+                </MDButton>            
                 {modalEditAlert && (
                   <div>
-                    {modalEditAlertContent(null, null)} {/* Pass null values for alert and index */}
+                    {modalEditAlertContent(alert, cardAlertIndex)}
                   </div>
                 )}
               </Card>
