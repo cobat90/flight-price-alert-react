@@ -116,8 +116,10 @@ function Dashboard() {
   const closeCardAlertMenu = () => {
     setCardAlertMenu(null);
     setCardAlertIndex(null);
+    setModalExpanded(null);
     setIsEditing(false);
   }
+
  
   const getAlertsData = async () => {
     try {
@@ -133,12 +135,28 @@ function Dashboard() {
     }
   };
 
-  const updateAlertData = async (formData) => {
+  const createAlertData = async (alertData) => {
     try {
-      const response = await FlightPriceAlertService.updateAlert(alert);
-      if (Array.isArray(response)) {
+      const response = await FlightPriceAlertService.createAlert(alertData);
+      if (response.status === 201) {
 
-        setAlerts(response);
+        console.info("Alert " + alertData.alertName +  " created with sucess");
+   
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alert:", error);
+    }
+  };
+
+  const updateAlertData = async (alertData) => {
+    try {
+      const response = await FlightPriceAlertService.updateAlert(alertData);
+      if (response.status === 200) {
+
+        console.info("Alert " + alertData.alert.alertName +  " updated with sucess");
+
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -151,23 +169,56 @@ function Dashboard() {
     getAlertsData();
   }, []);
 
-  const handleSubmit = (action) => {
-    if (formData) {
-      if (action === 'update') {
-        // Call the updateAlertData function and pass the updated 'alert' object
-        updateAlertData(alert);
-      } else if (action === 'create') {
-        // Create a new alert here if needed
-      }
-    }
 
-    // Clear the form if needed
-    setFormData({
-      alertName: '',
-      alertType: 'Telegram',
-      alertDurationTime: '15',
-      // Reset other form fields as well
+  const initialFormData = {
+    alertName: '',
+    alertType: '',
+    alertDurationTime: '',
+    flightType: '',
+    departDate: null,
+    returnDate: null,
+    cabinClassType: '',
+    aiportFrom: '',
+    aiportTo: '',
+    adults: '',
+    children: '',
+    rangePriceStart: '',
+    rangePriceEnd: '',
+    scalesQuantity: '',
+    departRangeDate: null,
+    returnRangeDate: null,
+    departRangeTimeStart: null,
+    departRangeTimeEnd: null,
+    returnRangeTimeStart: null,
+    returnRangeTimeEnd: null,
+    paymentMethod: [],
+    paymentParcels: '',
+    otherPreferences: '',
+    airline: '',
+    searchSites: '',
+  };
+
+  const [alertData, setAlertData] = useState(initialFormData);
+
+  const handleFieldChange = (fieldName, value) => {
+    setAlertData({
+      ...alertData,
+      [fieldName]: value,
     });
+    console.log("ADDED: " + fieldName + value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault(); // Prevent the form from actually submitting
+
+    console.log("INFO: " + alertData.alertName);
+
+    if (isEditing) {
+      updateAlertData(alertData);
+    }
+    else{
+      createAlertData(alertData);
+    }
 
     setCleared(true);
   };
@@ -212,9 +263,9 @@ function Dashboard() {
           <MDBox component="form" pb={3} px={3} ref={formRef}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={7}>
-                <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" defaultValue={(isEditing
-                    ? (currentAlert?.alert?.alertName|| "").toString()
-                    : "")} />
+                <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
+                  onChange={(e) => handleFieldChange('alertName', e.target.value)}
+                  defaultValue={(isEditing ? (currentAlert?.alert?.alertName|| "").toString() : "")} />                                   
               </Grid>
               <Grid item xs={12} sm={3}>
                 <Autocomplete
@@ -223,47 +274,60 @@ function Dashboard() {
                     : "")}
                   options={selectData.alertType}
                   renderInput={(params) => (
-                    <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }}  />
+                    <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }}
+                      onChange={(e, newValue) => handleFieldChange('alertType', newValue)}  />
                   )}
                 />
               </Grid>
               <Grid item xs={12} sm={2}>
                 <Autocomplete
                   defaultValue={(isEditing
-                    ? (currentAlert?.alert?.alertDurationTime|| "").toString()
-                    : "")}
+                    ? (currentAlert?.alert?.alertDurationTime || '').toString()
+                    : '')}
                   options={selectData.days}
                   renderInput={(params) => (
-                    <FormField {...params} name="alertDurationTime" label="Duration(Days)" 
-                    InputLabelProps={{ shrink: true }} />
-                  )}/>          
+                    <FormField
+                      {...params}
+                      name="alertDurationTime"
+                      label="Duration(Days)"
+                      InputLabelProps={{ shrink: true }}
+                      onChange={(e, newValue) => handleFieldChange('alertDurationTime', newValue)} // Add onChange handler
+                    />
+                  )}
+                />
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={2.5}>
                     <Autocomplete
                       defaultValue={(isEditing
-                        ? (currentAlert?.mainFilter?.flight?.flightType || "").toString()
-                        : "")}
+                        ? (currentAlert?.mainFilter?.flight?.flightType || '').toString()
+                        : '')}
                       options={selectData.flightType}
-                      onChange={handleFlightTypeChange}
                       renderInput={(params) => (
                         <FormField
                           {...params}
                           name="flightType"
                           label="Flight Type"
-                          InputLabelProps={{ shrink: true }} />                    
-                      )}/>                                
+                          InputLabelProps={{ shrink: true }}
+                          onChange={(e, newValue) => handleFieldChange('flightType', newValue)} // Add onChange handler
+                        />
+                      )}
+                    />
                   </Grid>
                   <Grid item xs={12} sm={3.3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                      <DatePicker name="departDate" label="Depart Date" 
-                      defaultValue={(isEditing
-                        ? (dayjs(currentAlert?.mainFilter?.flight?.departDate))
-                        : "")}
-                      slotProps={{
-                        field: { clearable: true, onClear: () => setCleared(true) },
-                      }}/>
+                      <DatePicker
+                        name="departDate"
+                        label="Depart Date"
+                        defaultValue={(isEditing
+                          ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
+                          : null)}
+                        slotProps={{
+                          field: { clearable: true, onClear: () => setCleared(true) },
+                        }}
+                        onChange={(date) => handleFieldChange('departDate', date)} // Add onChange handler
+                      />
                     </LocalizationProvider>
                   </Grid>
                   <Grid item xs={12} sm={3.3}>
@@ -272,23 +336,32 @@ function Dashboard() {
                         name="returnDate"
                         label="Return Date"
                         defaultValue={(isEditing
-                          ? (dayjs(currentAlert?.mainFilter?.flight?.returnDate))
-                          : "")}
-                        disabled={flightType === "One Way"}
+                          ? dayjs(currentAlert?.mainFilter?.flight?.returnDate)
+                          : null)}
+                        disabled={flightType === 'One Way'}
                         slotProps={{
                           field: { clearable: true, onClear: () => setCleared(true) },
-                        }}/> 
+                        }}
+                        onChange={(date) => handleFieldChange('returnDate', date)} // Add onChange handler
+                      />
                     </LocalizationProvider>
                   </Grid>
                   <Grid item xs={12} sm={2.9}>
                     <Autocomplete
                       defaultValue={(isEditing
-                        ? (currentAlert?.mainFilter?.cabinClassType || "").toString()
-                        : "")}
+                        ? (currentAlert?.mainFilter?.cabinClassType || '').toString()
+                        : '')}
                       options={selectData.cabinClassType}
                       renderInput={(params) => (
-                        <FormField {...params} name="cabinClassType" label="Cabin Class" InputLabelProps={{ shrink: true }} />
-                    )}/>
+                        <FormField
+                          {...params}
+                          name="cabinClassType"
+                          label="Cabin Class"
+                          InputLabelProps={{ shrink: true }}
+                          onChange={(e, newValue) => handleFieldChange('cabinClassType', newValue)} // Add onChange handler
+                        />
+                      )}
+                    />
                   </Grid>
                 </Grid>
               </Grid>
@@ -371,7 +444,7 @@ function Dashboard() {
                             <DatePicker name="departRangeDate" label="Depart Range Date" 
                               defaultValue={(isEditing
                                 ? dayjs(currentAlert?.preferencesFilter?.departRangeDate)
-                                : "")}
+                                : null)}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }}/> 
@@ -386,7 +459,7 @@ function Dashboard() {
                             <DatePicker name="returnRangeDate" label="Return Range Date" 
                               defaultValue={(isEditing
                                 ? dayjs(currentAlert?.preferencesFilter?.returnRangeDate)
-                                : "")}
+                                : null)}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }}/> 
@@ -401,7 +474,7 @@ function Dashboard() {
                             <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" 
                               defaultValue={(isEditing
                                 ? dayjs(currentAlert?.preferencesFilter?.departRangeTime?.rangeStart, "hh:mm")
-                                : "")} />
+                                : null)} />
                           </LocalizationProvider>              
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -409,7 +482,7 @@ function Dashboard() {
                             <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" 
                               defaultValue={(isEditing
                                 ? dayjs(currentAlert?.preferencesFilter?.departRangeTime?.rangeEnd, "hh:mm")
-                                : "")} />
+                                : null)} />
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -417,7 +490,7 @@ function Dashboard() {
                             <TimeField name="returnRangeTimeStart" label="Start Return Range Time" format="HH:mm" 
                               defaultValue={(isEditing
                                 ? dayjs(currentAlert?.preferencesFilter?.returnRangeTime?.rangeStart, "hh:mm")
-                                : "")} />
+                                : null)} />
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -425,7 +498,7 @@ function Dashboard() {
                             <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" 
                               defaultValue={(isEditing
                                 ? dayjs(currentAlert?.preferencesFilter?.returnRangeTime?.rangeEnd, "hh:mm")
-                                : "")} /> 
+                                : null)} /> 
                           </LocalizationProvider>
                         </Grid>
                       </Grid>
