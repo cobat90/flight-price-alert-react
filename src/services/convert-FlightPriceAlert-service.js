@@ -1,5 +1,4 @@
-function convertToRequestPayload(alertData) {
-    // Extract fields from initialAlertData
+export const convertRequest = (alertData) => {
     const {
       alertName,
       alertType,
@@ -26,16 +25,23 @@ function convertToRequestPayload(alertData) {
       otherPreferences,
       airline,
       searchSites,
+      userId,
+      alertDisabled,
+      userName,
+      userEmail,
+      userCellphone,
+      userCurrency,
+      userCountry,
     } = alertData;
   
     // Create the payload structure
     const payload = {
-      userId: 1,
+      userId: userId,
       alert: {
         alertName: alertName,
         alertType: [alertType], // Convert alertType to an array
         alertDurationTime: parseInt(alertDurationTime), // Convert to an integer
-        alertDisabled: false,
+        alertDisabled: alertDisabled,
       },
       mainFilter: {
         flight: {
@@ -67,8 +73,8 @@ function convertToRequestPayload(alertData) {
           rangeEnd: returnRangeTimeEnd ? returnRangeTimeEnd.toISOString() : null,
         },
         travelDuration: {
-          total: '40:00', // You might need to calculate this based on your data
-          scales: '40:00', // You might need to calculate this based on your data
+          total: null, // You might need to calculate this based on your data
+          scales: null, // You might need to calculate this based on your data
         },
         rangePrice: {
           rangeStart: parseFloat(rangePriceStart), // Convert to a float
@@ -78,25 +84,25 @@ function convertToRequestPayload(alertData) {
           method: paymentMethod,
           parcels: parseInt(paymentParcels), // Convert to an integer
         },
-        airplaneModel: 'BOEING_737', // You might need to adjust this based on your data
+        airplaneModel: null, // You might need to adjust this based on your data
         otherPreferences: otherPreferences,
         airline: airline,
         searchSites: searchSites,
-        lowerCO2: true, // You might need to adjust this based on your data
+        lowerCO2: null, // You might need to adjust this based on your data
       },
       alertUser: {
-        name: 'Fernando', // You might need to adjust this based on your data
-        cellphone: '55219934534643', // You might need to adjust this based on your data
-        email: 'email@email.com', // You might need to adjust this based on your data
-        currency: 'BRL', // You might need to adjust this based on your data
-        country: 'BRA', // You might need to adjust this based on your data
+        name: userName, // You might need to adjust this based on your data
+        cellphone: userCellphone, // You might need to adjust this based on your data
+        email: userEmail, // You might need to adjust this based on your data
+        currency: userCurrency, // You might need to adjust this based on your data
+        country: userCountry, // You might need to adjust this based on your data
       },
     };
+    console.log("Payload: " + payload);
   
     return payload;
   }
 
-  module.exports = convertToRequestPayload;
 
 
 

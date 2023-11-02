@@ -51,6 +51,7 @@ import "dayjs/locale/en-gb";
 // Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
+import { convertRequest } from '../../services/convert-FlightPriceAlert-service';
 
 import { useState, useEffect, useRef, React } from "react";
 
@@ -170,7 +171,7 @@ function Dashboard() {
   }, []);
 
 
-  const initialFormData = {
+  const initialAlertData = {
     alertName: '',
     alertType: '',
     alertDurationTime: '',
@@ -196,9 +197,16 @@ function Dashboard() {
     otherPreferences: '',
     airline: '',
     searchSites: '',
+    userId: null,
+    alertDisabled: false,
+    userName: '',
+    userEmail: '',
+    userCellphone: '',
+    userCurrency: '',
+    userCountry: '',
   };
 
-  const [alertData, setAlertData] = useState(initialFormData);
+  const [alertData, setAlertData] = useState(initialAlertData);
 
   const handleFieldChange = (fieldName, value) => {
     setAlertData({
@@ -212,12 +220,12 @@ function Dashboard() {
     event.preventDefault(); // Prevent the form from actually submitting
 
     console.log("INFO: " + alertData.alertName);
-
+    const requestPayload = convertRequest(alertData);
     if (isEditing) {
-      updateAlertData(alertData);
+      updateAlertData(requestPayload);
     }
     else{
-      createAlertData(alertData);
+      createAlertData(requestPayload);
     }
 
     setCleared(true);
