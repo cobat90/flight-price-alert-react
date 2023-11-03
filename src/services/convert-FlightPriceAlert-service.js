@@ -98,7 +98,6 @@ export const convertRequest = (alertData) => {
         country: userCountry, // You might need to adjust this based on your data
       },
     };
-    console.log("Payload: " + payload);
   
     return payload;
   }

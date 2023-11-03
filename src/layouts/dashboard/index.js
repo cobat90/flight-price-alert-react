@@ -1,19 +1,13 @@
-// @mui material components
-import Grid from "@mui/material/Grid";
-
-// Material Dashboard 2 React components
-import MDBox from "components/MDBox";
-import Icon from "@mui/material/Icon";
-
 import { Card, CardHeader,  CardContent, styled, List } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
-
+import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import CardMedia from '@mui/material/CardMedia';
 import Collapse from '@mui/material/Collapse';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
+import Icon from "@mui/material/Icon";
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -30,6 +24,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import Autocomplete from "@mui/material/Autocomplete";
 import Tooltip from "@mui/material/Tooltip";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -39,6 +35,7 @@ import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import FormField from "components/FormField";
 import selectData from "components/FormField/data/selectData";
 
+import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
 import MDTypography from "components/MDTypography";
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -53,9 +50,14 @@ import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 import { convertRequest } from '../../services/convert-FlightPriceAlert-service';
 
-import { useState, useEffect, useRef, React } from "react";
+import React, { useState, useEffect, useRef } from "react";
+
+const Notification = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
+});
 
 function Dashboard() {
+
   const { sales, tasks } = reportsLineChartData;
   const userId = localStorage.getItem("userId");
   const [alerts, setAlerts] = useState([]);
@@ -83,10 +85,6 @@ function Dashboard() {
   };
 
   const [flightType, setFlightType] = useState("One Way");
-
-  const handleFlightTypeChange = (event, value) => {
-    setFlightType(value);
-  };
   
   const [cleared, setCleared] = useState(false);
   useEffect(() => {
@@ -121,13 +119,29 @@ function Dashboard() {
     setIsEditing(false);
   }
 
+  const [snackBarState, setSnackBarState] = useState({
+    open: false,
+    vertical: 'top',
+    horizontal: 'center',
+  });
+ 
+  const { vertical, horizontal, open } = snackBarState;
+
+  const handleSnackBarOpen = (newState) => {
+    setSnackBarState({ ...newState, open: true });
+  };
+
+  const handleSnackBarClose = () => {
+    setSnackBarState({ ...snackBarState, open: false });
+  };
  
   const getAlertsData = async () => {
     try {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
-      if (Array.isArray(response)) {
+      if (response.status === 200 && Array.isArray(response.data)) {
 
-        setAlerts(response);
+        console.info("UEBA:", response);
+        setAlerts(response.data);
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -136,15 +150,17 @@ function Dashboard() {
     }
   };
 
-  const createAlertData = async (alertData) => {
+  const createAlertData = async (payload) => {
     try {
-      const response = await FlightPriceAlertService.createAlert(alertData);
+      const response = await FlightPriceAlertService.createAlert(payload);
       if (response.status === 201) {
 
-        console.info("Alert " + alertData.alertName +  " created with sucess");
+        console.info("Alert " + payload.alert.alertName +  " created with sucess");
+        closeModalEditAlert();
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
    
       } else {
-        console.error("Invalid data format in response:", response);
+        console.error("Invalid data format in response:", response.status + response);
       }
     } catch (error) {
       console.error("Error fetching alert:", error);
@@ -213,22 +229,31 @@ function Dashboard() {
       ...alertData,
       [fieldName]: value,
     });
-    console.log("ADDED: " + fieldName + value);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent the form from actually submitting
-
-    console.log("INFO: " + alertData.alertName);
     const requestPayload = convertRequest(alertData);
-    if (isEditing) {
-      updateAlertData(requestPayload);
-    }
-    else{
-      createAlertData(requestPayload);
-    }
 
-    setCleared(true);
+    if (validateForm()) {
+      if (isEditing) {
+        updateAlertData(requestPayload);
+      }
+      else{
+        createAlertData(requestPayload);
+      }
+    }
+  };
+
+  const validateForm = () => {
+    const alertName = document.querySelector('input[name="alertName"]').value;
+    console.info(alertName);
+  
+    if (!alertName) {
+      return false;
+    }
+  
+    return true; // Form is valid
   };
 
   const [modalEditAlert, setModalEditAlert] = useState(null);
@@ -271,7 +296,7 @@ function Dashboard() {
           <MDBox component="form" pb={3} px={3} ref={formRef}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={7}>
-                <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
+                <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" required
                   onChange={(e) => handleFieldChange('alertName', e.target.value)}
                   defaultValue={(isEditing ? (currentAlert?.alert?.alertName|| "").toString() : "")} />                                   
               </Grid>
@@ -280,7 +305,7 @@ function Dashboard() {
                   defaultValue={(isEditing
                     ? (currentAlert?.alert?.alertType|| "").toString()
                     : "")}
-                  options={selectData.alertType}
+                  options={selectData.alertType} required
                   renderInput={(params) => (
                     <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }}
                       onChange={(e, newValue) => handleFieldChange('alertType', newValue)}  />
@@ -750,6 +775,18 @@ function Dashboard() {
           </Grid>
         </Grid>    
       </MDBox>
+      <Box sx={{ width: 500 }}>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={open}
+          key={vertical + horizontal}
+          autoHideDuration={2000}
+          onClose={handleSnackBarClose}>     
+          <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
+            Flight Price Alert Saved!
+          </Notification >
+        </Snackbar>
+      </Box>
       <Footer />
     </DashboardLayout>
   );

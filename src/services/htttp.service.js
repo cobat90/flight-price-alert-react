@@ -46,8 +46,18 @@ export class HttpService {
     return new Promise((resolve, reject) => {
       this._axios
         .request(options)
-        .then((res) => resolve(res.data))
-        .catch((ex) => reject(ex.response.data));
+        .then((res) => {
+          resolve({
+            status: res.status, 
+            data: res.data,     
+          });
+        })
+        .catch((ex) => {
+          reject({
+            status: ex.response ? ex.response.status : 500, 
+            data: ex.response ? ex.response.data : null, 
+          });
+        });
     });
   }
 }
