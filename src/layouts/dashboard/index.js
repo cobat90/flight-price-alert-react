@@ -48,7 +48,7 @@ import "dayjs/locale/en-gb";
 // Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
-import { convertRequest } from '../../services/convert-FlightPriceAlert-service';
+import { convertRequest } from '../../services/convert-flight-price-alert-service';
 
 import React, { useState, useEffect, useRef } from "react";
 
@@ -186,74 +186,36 @@ function Dashboard() {
     getAlertsData();
   }, []);
 
-
-  const initialAlertData = {
-    alertName: '',
-    alertType: '',
-    alertDurationTime: '',
-    flightType: '',
-    departDate: null,
-    returnDate: null,
-    cabinClassType: '',
-    aiportFrom: '',
-    aiportTo: '',
-    adults: '',
-    children: '',
-    rangePriceStart: '',
-    rangePriceEnd: '',
-    scalesQuantity: '',
-    departRangeDate: null,
-    returnRangeDate: null,
-    departRangeTimeStart: null,
-    departRangeTimeEnd: null,
-    returnRangeTimeStart: null,
-    returnRangeTimeEnd: null,
-    paymentMethod: [],
-    paymentParcels: '',
-    otherPreferences: '',
-    airline: '',
-    searchSites: '',
-    userId: null,
-    alertDisabled: false,
-    userName: '',
-    userEmail: '',
-    userCellphone: '',
-    userCurrency: '',
-    userCountry: '',
-  };
-
-  const [alertData, setAlertData] = useState(initialAlertData);
-
-  const handleFieldChange = (fieldName, value) => {
-    setAlertData({
-      ...alertData,
-      [fieldName]: value,
-    });
-  };
+  const [departDate, setDepartDate] = useState(null);
+  const [returnDate, setReturnDate] = useState(null);
+  const [departRangeDate, setDepartRangeDate] = useState(null);
+  const [returnRangeDate, setReturnRangeDate] = useState(null);
 
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent the form from actually submitting
+
+    const formData = new FormData(event.target); // Create a FormData object from the form
+
+    formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : "");
+    formData.append('returnDate', returnDate ? dayjs(returnDate).format("YYYY/MM/DD") : "");
+    formData.append('departRangeDate', departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD") : "");
+    formData.append('returnRangeDate', returnRangeDate ? dayjs(returnRangeDate).format("YYYY/MM/DD") : "");
+
+    const alertData = {};
+    formData.forEach((value, key) => {
+      alertData[key] = value;
+    });
+    console.info(alertData);
+  
     const requestPayload = convertRequest(alertData);
 
-    if (validateForm()) {
-      if (isEditing) {
-        updateAlertData(requestPayload);
-      }
-      else{
-        createAlertData(requestPayload);
-      }
+    if (isEditing) {
+      updateAlertData(requestPayload);
     }
-  };
-
-  const validateForm = () => {
-    const alertName = document.querySelector('input[name="alertName"]').value;
-    console.info(alertName);
-  
-    if (!alertName) {
-      return false;
+    else{
+      createAlertData(requestPayload);
     }
-  
-    return true; // Form is valid
+    
   };
 
   const [modalEditAlert, setModalEditAlert] = useState(null);
@@ -265,6 +227,10 @@ function Dashboard() {
   
   const closeModalEditAlert = () => {
     setModalEditAlert(null);
+    setDepartDate(null);
+    setReturnDate(null);
+    setDepartRangeDate(null);
+    setReturnRangeDate(null);
     closeCardAlertMenu();
   }
 
@@ -293,11 +259,10 @@ function Dashboard() {
           <MDBox pb={3} px={3}>
             <MDTypography variant="h5">Flight Alert Info</MDTypography>
           </MDBox>
-          <MDBox component="form" pb={3} px={3} ref={formRef}>
+          <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={7}>
                 <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
-                  onChange={(e) => handleFieldChange('alertName', e.target.value)}
                   defaultValue={(isEditing ? (currentAlert?.alert?.alertName|| "").toString() : "")} />                                   
               </Grid>
               <Grid item xs={12} sm={3}>
@@ -308,8 +273,8 @@ function Dashboard() {
                   
                   options={selectData.alertType} 
                   renderInput={(params) => (
-                    <FormField {...params} name="alerType" label="Alert Types" InputLabelProps={{ shrink: true }}
-                      onChange={(e, newValue) => handleFieldChange('alertType', newValue)}  />
+                    <FormField {...params} name="alerType" label="Alert Types"
+                     InputLabelProps={{ shrink: true }}  />                      
                   )}
                 />
               </Grid>
@@ -325,7 +290,7 @@ function Dashboard() {
                       name="alertDurationTime"
                       label="Duration(Days)"
                       InputLabelProps={{ shrink: true }}
-                      onChange={(e, newValue) => handleFieldChange('alertDurationTime', newValue)} // Add onChange handler
+                      
                     />
                   )}
                 />
@@ -344,7 +309,7 @@ function Dashboard() {
                           name="flightType"
                           label="Flight Type"
                           InputLabelProps={{ shrink: true }}
-                          onChange={(e, newValue) => handleFieldChange('flightType', newValue)} // Add onChange handler
+                          
                         />
                       )}
                     />
@@ -357,10 +322,10 @@ function Dashboard() {
                         defaultValue={(isEditing
                           ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
                           : null)}
+                        onChange={date => setDepartDate(date)}
                         slotProps={{
-                          field: { clearable: true, onClear: () => setCleared(true) },
+                          field: {clearable: true, onClear: () => setCleared(true) },
                         }}
-                        onChange={(date) => handleFieldChange('departDate', date)} // Add onChange handler
                       />
                     </LocalizationProvider>
                   </Grid>
@@ -372,11 +337,11 @@ function Dashboard() {
                         defaultValue={(isEditing
                           ? dayjs(currentAlert?.mainFilter?.flight?.returnDate)
                           : null)}
+                        onChange={date => setReturnDate(date)}
                         disabled={flightType === 'One Way'}
                         slotProps={{
                           field: { clearable: true, onClear: () => setCleared(true) },
                         }}
-                        onChange={(date) => handleFieldChange('returnDate', date)} // Add onChange handler
                       />
                     </LocalizationProvider>
                   </Grid>
@@ -392,7 +357,7 @@ function Dashboard() {
                           name="cabinClassType"
                           label="Cabin Class"
                           InputLabelProps={{ shrink: true }}
-                          onChange={(e, newValue) => handleFieldChange('cabinClassType', newValue)} // Add onChange handler
+                          
                         />
                       )}
                     />
@@ -402,13 +367,13 @@ function Dashboard() {
               <Grid item xs={12}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={4.5}>
-                    <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)" required
+                    <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)" 
                      defaultValue={(isEditing
                       ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
                       : "")}  />              
                   </Grid>
                   <Grid item xs={12} sm={4.5}>
-                    <FormField name="aiportTo" label="To" placeholder="Bahamas" required
+                    <FormField name="aiportTo" label="To" placeholder="Bahamas" 
                     defaultValue={(isEditing
                       ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
                       : "")} />
@@ -420,7 +385,7 @@ function Dashboard() {
                           : "")}
                         options={selectData.passagers}
                         renderInput={(params) => (
-                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  />
+                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}   />
                     )}/>     
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
@@ -430,7 +395,7 @@ function Dashboard() {
                             : "")}
                           options={selectData.passagers}
                           renderInput={(params) => (
-                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }} />
+                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  />
                       )}/>    
                   </Grid>
                 </Grid>
@@ -450,13 +415,13 @@ function Dashboard() {
                 <MDBox pb={3} px={3}>
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={1.75}>
-                      <FormField name="rangePrice" label="$ Range Start" placeholder="200" 
+                      <FormField name="rangePriceStart" label="$ Range Start" placeholder="200" 
                         defaultValue={(isEditing
                         ? (currentAlert?.preferencesFilter?.rangePrice?.rangeStart || "").toString()
                         : "")} />
                     </Grid>
                     <Grid item xs={12} sm={1.75}>
-                      <FormField name="rangePrice" label="$ Range End" placeholder="500" 
+                      <FormField name="rangePriceEnd" label="$ Range End" placeholder="500" 
                       defaultValue={(isEditing
                         ? (currentAlert?.preferencesFilter?.rangePrice?.rangeEnd || "").toString()
                         : "")}/>        
@@ -473,32 +438,31 @@ function Dashboard() {
                     </Grid>
                     <Grid item xs={12} sm={3.5}>
                       <Tooltip title="End Date of the Departure Range. The first Departure Date is the Start of the Range." placement="bottom">
-                        <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                             <DatePicker name="departRangeDate" label="Depart Range Date" 
                               defaultValue={(isEditing
                                 ? dayjs(currentAlert?.preferencesFilter?.departRangeDate)
                                 : null)}
+                              onChange={date => setDepartRangeDate(date)}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }}/> 
                           </LocalizationProvider>  
-                        </div>
                       </Tooltip>
                     </Grid>
                     <Grid item xs={12} sm={3.5}>
                       <Tooltip title="End Date of the Return Range. The first Return Date is the Start of the Range." placement="bottom">
-                        <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                             <DatePicker name="returnRangeDate" label="Return Range Date" 
                               defaultValue={(isEditing
                                 ? dayjs(currentAlert?.preferencesFilter?.returnRangeDate)
                                 : null)}
+                              onChange={date => setReturnRangeDate(date)}
+                              disabled={flightType === 'One Way'}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }}/> 
                           </LocalizationProvider>  
-                        </div>
                       </Tooltip>
                     </Grid>
                     <Grid item xs={12}>
@@ -594,8 +558,8 @@ function Dashboard() {
                 <MDButton
                   variant="gradient"
                   color="info"
-                  type="button"
-                  onClick={handleSubmit}>                   
+                  type="submit"
+                  >                   
                   Save
                   </MDButton>
               </Grid>

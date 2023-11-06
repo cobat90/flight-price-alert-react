@@ -46,8 +46,8 @@ export const convertRequest = (alertData) => {
       mainFilter: {
         flight: {
           flightType: flightType,
-          departDate: departDate ? departDate.toISOString() : null,
-          returnDate: returnDate ? returnDate.toISOString() : null,
+          departDate: departDate ? departDate : null,
+          returnDate: returnDate ? returnDate : null,
           airports: [
             {
               aiportFrom: aiportFrom,
@@ -62,15 +62,15 @@ export const convertRequest = (alertData) => {
       },
       preferencesFilter: {
         scalesQuantity: parseInt(scalesQuantity), // Convert to an integer
-        departRangeDate: departRangeDate ? departRangeDate.toISOString() : null,
-        returnRangeDate: returnRangeDate ? returnRangeDate.toISOString() : null,
+        departRangeDate: departRangeDate ? departRangeDate : null,
+        returnRangeDate: returnRangeDate ? returnRangeDate : null,
         departRangeTime: {
-          rangeStart: departRangeTimeStart ? departRangeTimeStart.toISOString() : null,
-          rangeEnd: departRangeTimeEnd ? departRangeTimeEnd.toISOString() : null,
+          rangeStart: departRangeTimeStart ? departRangeTimeStart : null,
+          rangeEnd: departRangeTimeEnd ? departRangeTimeEnd : null,
         },
         returnRangeTime: {
-          rangeStart: returnRangeTimeStart ? returnRangeTimeStart.toISOString() : null,
-          rangeEnd: returnRangeTimeEnd ? returnRangeTimeEnd.toISOString() : null,
+          rangeStart: returnRangeTimeStart ? returnRangeTimeStart : null,
+          rangeEnd: returnRangeTimeEnd ? returnRangeTimeEnd : null,
         },
         travelDuration: {
           total: null, // You might need to calculate this based on your data
