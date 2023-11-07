@@ -140,9 +140,9 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
       if (response.status === 200 && Array.isArray(response.data)) {
-
         console.info("getAlertsData");
         setAlerts(response.data);
+
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -445,9 +445,9 @@ function Dashboard() {
                           <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} />
                       )}/>     
                     </Grid>
-                    <Grid item xs={12} sm={3.5}>
-                    <div>
+                    <Grid item xs={12} sm={3.5}>                  
                       <Tooltip title="End Date of the Departure Range. The first Departure Date is the Start of the Range." placement="bottom">
+                        <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                             <DatePicker name="departRangeDate" label="Depart Range Date" 
                               defaultValue={(isEditing
@@ -459,12 +459,12 @@ function Dashboard() {
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }}/> 
                           </LocalizationProvider>  
-                      </Tooltip>
-                    </div>
+                        </div>
+                      </Tooltip>                  
                     </Grid>
                     <Grid item xs={12} sm={3.5}>
-                    <div>
                       <Tooltip title="End Date of the Return Range. The first Return Date is the Start of the Range." placement="bottom">
+                        <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                             <DatePicker name="returnRangeDate" label="Return Range Date" 
                               defaultValue={(isEditing
@@ -478,8 +478,8 @@ function Dashboard() {
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }}/> 
                           </LocalizationProvider>  
+                        </div>            
                       </Tooltip>
-                      </div>            
                     </Grid>
                     <Grid item xs={12}>
                       <Grid container spacing={3}>
@@ -602,6 +602,8 @@ function Dashboard() {
     );
   };
 
+
+
   const cardAlertMenuContent = (alert) => (
     <Menu
       anchorEl={cardAlertMenu}
@@ -612,12 +614,12 @@ function Dashboard() {
       disableAutoFocusItem
       disableScrollLock={ true }
     >
-<MenuItem onClick={(e) => {
-  e.stopPropagation(); // Prevent the event from propagating further if necessary
-  openModalEditAlert(e);
-  setIsEditing(true);
-}}>Edit</MenuItem>
-
+      <MenuItem onClick={(e) => {
+        e.stopPropagation(); // Prevent the event from propagating further if necessary
+        openModalEditAlert(e);
+        setIsEditing(true);
+        }}>Edit
+      </MenuItem>
       {modalEditAlert && (
         <div>
           {modalEditAlertContent(alert, cardAlertIndex)}
@@ -740,8 +742,8 @@ function Dashboard() {
               </Card>
             </MDBox>
           </Grid>
-          ))}
           
+          ))}
           <Grid item xs={16} md={8} lg={4}>
             <MDBox display="flex" justifyContent="center" mb={3}>
               <Card >
