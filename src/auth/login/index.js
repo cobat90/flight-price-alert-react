@@ -80,10 +80,10 @@ function Login() {
     const myData = {
       ...newUser
     };
-
+    
     try {
       const response = await AuthService.login(myData);
-      authContext.login(response.id_token);
+      authContext.login(response.data.id_token);
     } catch (res) {
       if (res.hasOwnProperty("message")) {
         setCredentialsError(res.message);
@@ -91,8 +91,6 @@ function Login() {
         setCredentialsError(res.errors[0].detail);
       }
     }
-
-
 
     return () => {
       setInputs({

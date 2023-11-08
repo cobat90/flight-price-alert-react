@@ -39,20 +39,20 @@ export const convertRequest = (alertData) => {
       userId: userId,
       alert: {
         alertName: alertName,
-        alertType: [alertType], // Convert alertType to an array
+        alertType: alertType, // Convert alertType to an array
         alertDurationTime: parseInt(alertDurationTime), // Convert to an integer
         alertDisabled: alertDisabled,
       },
       mainFilter: {
         flight: {
-          flightType: flightType,
+          flightType: flightType === 'One Way' ? 'ONE_WAY' : flightType,
           departDate: departDate ? departDate : null,
           returnDate: returnDate ? returnDate : null,
           airports: [
             {
               aiportFrom: aiportFrom,
               aiportTo: aiportTo,
-              aiportScales: [aiportFrom], // You might need to adjust this based on your data
+              aiportScales: aiportFrom, // You might need to adjust this based on your data
             },
           ],
         },
@@ -91,11 +91,11 @@ export const convertRequest = (alertData) => {
         lowerCO2: null, // You might need to adjust this based on your data
       },
       alertUser: {
-        name: userName, // You might need to adjust this based on your data
-        cellphone: userCellphone, // You might need to adjust this based on your data
-        email: userEmail, // You might need to adjust this based on your data
-        currency: userCurrency, // You might need to adjust this based on your data
-        country: userCountry, // You might need to adjust this based on your data
+        name: "Fernando", //userName You might need to adjust this based on your data
+        cellphone: "55219934534643", //userCellphone You might need to adjust this based on your data
+        email: "email@email.com", //userEmail You might need to adjust this based on your data
+        currency: "BRL", //userCurrency You might need to adjust this based on your data
+        country: "BRA", //userCountry You might need to adjust this based on your data
       },
     };
   
