@@ -2,6 +2,11 @@ const selectData = {
   gender: ["Male", "Female"],
   alertType: ["Telegram", "Email"],
   flightType: ["One Way", "Roundtrip"],
+  flightTypeMapping: {
+    ONE_WAY: "One Way",
+    ROUND_TRIP: "Roundtrip",
+    // Add other Enum values and their corresponding labels as needed
+  },
   cabinClassType: ["Economy", "Premium Economy", "Business Class", "First Class"],
   paymentType: ["Credit Card", "Bank Transfer", "Paypal", "Ticket", "Pix", "Cryptocurrency"],
   otherPreferences: ["Wifi Flights", "Night Flights", "With Entertainment Flights"],

@@ -39,7 +39,7 @@ export const convertRequest = (alertData) => {
       userId: userId,
       alert: {
         alertName: alertName,
-        alertType: alertType, // Convert alertType to an array
+        alertType: [alertType === 'Telegram' ? 'TELEGRAM': 'TELEGRAM'], // Convert alertType to an array
         alertDurationTime: parseInt(alertDurationTime), // Convert to an integer
         alertDisabled: alertDisabled,
       },
@@ -52,13 +52,13 @@ export const convertRequest = (alertData) => {
             {
               aiportFrom: aiportFrom,
               aiportTo: aiportTo,
-              aiportScales: aiportFrom, // You might need to adjust this based on your data
+              aiportScales: null, // You might need to adjust this based on your data
             },
           ],
         },
         adults: parseInt(adults), // Convert to an integer
         children: parseInt(children), // Convert to an integer
-        cabinClassType: cabinClassType,
+        cabinClassType: cabinClassType === 'Economy' ? 'ECONOMY' : null,
       },
       preferencesFilter: {
         scalesQuantity: parseInt(scalesQuantity), // Convert to an integer

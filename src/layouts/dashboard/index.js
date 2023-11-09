@@ -200,6 +200,7 @@ function Dashboard() {
 
     const formData = new FormData(event.target); // Create a FormData object from the form
 
+    formData.append('userId', userId)
     formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : "");
     formData.append('returnDate', returnDate && flightType !== 'One Way' ? dayjs(returnDate).format("YYYY/MM/DD") : "");
     formData.append('departRangeDate', departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD") : "");
@@ -210,13 +211,13 @@ function Dashboard() {
       alertData[key] = value;
     });
     console.info(alertData);
-  
-    const requestPayload = convertRequest(alertData);
 
     if (isEditing) {
+      const requestPayload = convertRequest(alertData);
       updateAlertData(requestPayload);
     }
     else{
+      const requestPayload = convertRequest(alertData);
       createAlertData(requestPayload);
     }
 
@@ -726,7 +727,11 @@ function Dashboard() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
                           <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Flight: " + alert.mainFilter?.flight.flightType}</span>} />
                           <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Depart: " + alert.mainFilter?.flight.departDate}</span>} />
-                          <ListItemText primary={<span style={{ fontSize: '16px'}}>{"Return: " + alert.mainFilter?.flight.returnDate}</span>} />
+                          {alert.mainFilter?.flight.returnDate != null && (
+                            <ListItemText
+                              primary={<span style={{ fontSize: '16px' }}>{"Return: " + alert.mainFilter.flight.returnDate}</span>}
+                            /> 
+                          )}                       
                         </div>
                       </ListItem>
                       <ListItem disablePadding>
