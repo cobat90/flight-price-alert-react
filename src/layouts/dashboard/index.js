@@ -20,12 +20,15 @@ import MenuItem from '@mui/material/MenuItem';
 import Modal from '@mui/material/Modal';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Dialog from '@mui/material/Dialog';
 import Autocomplete from "@mui/material/Autocomplete";
 import Tooltip from "@mui/material/Tooltip";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -99,7 +102,6 @@ function Dashboard() {
   }, [cleared]);
 
   const [flightType, setFlightType] = useState(null);
-
   const formRef = useRef();
 
   const handleClearForm = () => {
@@ -110,6 +112,7 @@ function Dashboard() {
   const [cardAlertMenu, setCardAlertMenu] = useState(null);
   const [cardAlertIndex, setCardAlertIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+
   const openCardAlertMenu = (event, index) => { 
     setCardAlertMenu(event.currentTarget);
     setCardAlertIndex(index);
@@ -135,6 +138,38 @@ function Dashboard() {
   const handleSnackBarClose = () => {
     setSnackBarState({ ...snackBarState, open: false });
   };
+  
+  const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
+  const [dialogConfirmAlertName, setDialogConfirmAlertName] = useState();
+  const [dialogConfirmAction, setDialogConfirmAction] = useState();
+
+  const handleDialogConfirmOpen = (event, action, alertId, alertName) => {   
+    console.info("handleDialogConfirmOpen: " + alertId);
+    setFlightPriceAlertId(alertId);
+    setDialogConfirmAction(action);
+    setDialogConfirmAlertName(alertName);
+    setOpenDialogConfirm(true);
+  };
+
+  const handleDialogConfirmClose = () => {
+    setOpenDialogConfirm(false);
+  };
+
+  const handleDialogConfirmSubmit = () => {
+    if (dialogConfirmAction === "Disable"){
+      const alertData = {};
+      alertData["userId"] = userId;
+      alertData["alertDisabled"] = true;
+      const request = convertRequest(alertData);
+      console.info(request);
+      updateAlertData(convertRequest(request));
+    }
+
+    if (dialogConfirmAction === "Delete"){
+      deleteAlertData(flightPriceAlertId);
+    }
+    handleDialogConfirmClose();
+  };
  
   const getAlertsData = async () => {
     try {
@@ -142,7 +177,6 @@ function Dashboard() {
       if (response.status === 200 && Array.isArray(response.data)) {
         console.info("getAlertsData");
         setAlerts(response.data);
-
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -155,12 +189,10 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.createAlert(payload);
       if (response.status === 201) {
-
         console.info("Alert " + payload.alert.alertName +  " created with sucess");
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
-        getAlertsData();
-   
+        getAlertsData(); 
       } else {
         console.error("Invalid data format in response:", response.status + response);
       }
@@ -171,15 +203,13 @@ function Dashboard() {
 
   const updateAlertData = async (alertData) => {
     try {
-
+      console.info("Update globalFlightPriceAlertId: " + flightPriceAlertId);
       const response = await FlightPriceAlertService.updateAlert(flightPriceAlertId, userId, alertData);
       if (response.status === 200) {
-
-        console.info("Alert " + alertData.alert.alertName +  " updated with sucess");
+        console.info("Alert " + flightPriceAlertId +  " updated with sucess");
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData();
-
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -190,14 +220,12 @@ function Dashboard() {
 
   const deleteAlertData = async (flightPriceAlertId) => {
     try {
-      
+      console.info("Delete globalFlightPriceAlertId: " + flightPriceAlertId);     
       const response = await FlightPriceAlertService.deleteAlert(flightPriceAlertId, userId);
       if (response.status === 201) {
-
         console.info("Alert " + flightPriceAlertId +  " deleted with sucess");
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData();
-
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -230,7 +258,6 @@ function Dashboard() {
       alertData[key] = value;
     });
     const alertId = alertData.flightPriceAlertId;
-    // Now you can use flightPriceAlertId as needed
     setFlightPriceAlertId(alertId);
 
     if (isEditing) {
@@ -249,8 +276,6 @@ function Dashboard() {
   const openModalEditAlert = (event) => {
     setModalEditAlert(event.currentTarget);
   };
-
-  
   
   const closeModalEditAlert = () => {
     setModalEditAlert(null);
@@ -319,10 +344,8 @@ function Dashboard() {
                       name="alertDurationTime"
                       label="Duration(Days)"
                       InputLabelProps={{ shrink: true }}
-                 
-                    />
-                  )}
-                />
+                    /> )}
+                  />             
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
@@ -648,12 +671,12 @@ function Dashboard() {
       )}
       <MenuItem onClick={(e) => {
         e.stopPropagation(); // Prevent the event from propagating further if necessary
-        openModalConfirmAlert(e);
+        handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
         closeCardAlertMenu();
         }}> Disable</MenuItem>
       <MenuItem onClick={(e) => {
         e.stopPropagation(); // Prevent the event from propagating further if necessary
-        openModalConfirmAlert(e);
+        handleDialogConfirmOpen(e, "Delete", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
         closeCardAlertMenu();
         }}> Delete</MenuItem>
     </Menu>
@@ -777,6 +800,7 @@ function Dashboard() {
           </Grid>
           
           ))}
+          
           <Grid item xs={16} md={8} lg={4}>
             <MDBox display="flex" justifyContent="center" mb={3}>
               <Card >
@@ -804,12 +828,40 @@ function Dashboard() {
           open={open}
           key={vertical + horizontal}
           autoHideDuration={2000}
-          onClose={handleSnackBarClose}>     
+          onClose={handleSnackBarClose}
+          disableScrollLock={ true }>     
           <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
             Flight Price Alert Saved!
           </Notification >
         </Snackbar>
       </Box>
+      <Dialog
+        open={openDialogConfirm}
+        onClose={handleDialogConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        disableScrollLock={ true }>      
+        <DialogTitle id="alert-dialog-title">
+          {"Are you sure ?"}
+        </DialogTitle>
+        <DialogContent>
+  <DialogContentText id="alert-dialog-description">
+    You're about to{' '}
+    <MDTypography component="span" variant="inherit" color="primary">
+      {dialogConfirmAction}
+    </MDTypography>{' '}
+    the Alert{' '}
+    <MDTypography component="span" variant="inherit" color="primary">
+      {dialogConfirmAlertName}
+    </MDTypography>.
+    
+  </DialogContentText>
+</DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogConfirmClose}> Disagree </Button>
+          <Button onClick={handleDialogConfirmSubmit} autoFocus> Agree </Button>        
+        </DialogActions>
+      </Dialog>
       <Footer />
     </DashboardLayout>
   );
