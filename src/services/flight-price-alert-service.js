@@ -4,7 +4,7 @@ class FlightPriceAlertService {
   flightPriceAlertEndpoint = process.env.API_URL;
 
   createAlert = async (payload) => {
-    const createAlertEndpoint = 'api/alerts';
+    const createAlertEndpoint = `api/alerts`;
     return await HttpService.post(createAlertEndpoint, payload);
   };
 
@@ -14,17 +14,17 @@ class FlightPriceAlertService {
   };
 
   findAlert = async (alertId, userId) => {
-    const findAlertEndpoint = 'api/alerts/${alertId}/users/${userId}';
+    const findAlertEndpoint = `api/alerts/${alertId}/users/${userId}`;
     return await HttpService.get(findAlertEndpoint);
   };
 
-  updateAlert = async (alertId, userId, newInfo) => {
-    const updateAlertEndpoint = "api/alerts/${alertId}/users/${userId}";
-    return await HttpService.patch(updateAlertEndpoint, newInfo);
+  updateAlert = async (alertId, userId, payload) => {
+    const updateAlertEndpoint = `api/alerts/${alertId}/users/${userId}`;
+    return await HttpService.patch(updateAlertEndpoint, payload);
   }
 
   deleteAlert = async (alertId, userId) => {
-    const deleteAlertEndpoint = 'api/alerts/${alertId}/users/${userId}';
+    const deleteAlertEndpoint = `api/alerts/${alertId}/users/${userId}`;
     return await HttpService.delete(deleteAlertEndpoint);
   };
 }
