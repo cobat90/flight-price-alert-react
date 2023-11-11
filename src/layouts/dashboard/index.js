@@ -156,13 +156,17 @@ function Dashboard() {
   };
 
   const handleDialogConfirmSubmit = () => {
+    if (dialogConfirmAction === "Active"){
+      const alertData = {
+        alertDisabled: false
+      };
+      disableAlertData(alertData);
+    }
     if (dialogConfirmAction === "Disable"){
-      const alertData = {};
-      alertData["userId"] = userId;
-      alertData["alertDisabled"] = true;
-      const request = convertRequest(alertData);
-      console.info(request);
-      updateAlertData(convertRequest(request));
+      const alertData = {
+        alertDisabled: true
+      };
+      disableAlertData(alertData);
     }
 
     if (dialogConfirmAction === "Delete"){
@@ -218,11 +222,27 @@ function Dashboard() {
     }
   };
 
+  const disableAlertData = async (alertData) => {
+    try {
+      console.info("Disable globalFlightPriceAlertId: " + flightPriceAlertId);
+      const response = await FlightPriceAlertService.disableAlert(flightPriceAlertId, userId, alertData);
+      if (response.status === 200) {
+        console.info("Alert " + flightPriceAlertId +  " disabled with sucess");
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        getAlertsData();
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alert:", error);
+    }
+  };
+
   const deleteAlertData = async (flightPriceAlertId) => {
     try {
       console.info("Delete globalFlightPriceAlertId: " + flightPriceAlertId);     
       const response = await FlightPriceAlertService.deleteAlert(flightPriceAlertId, userId);
-      if (response.status === 201) {
+      if (response.status === 204) {
         console.info("Alert " + flightPriceAlertId +  " deleted with sucess");
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData();
@@ -648,7 +668,6 @@ function Dashboard() {
     );
   };
 
-
   const cardAlertMenuContent = (alert) => (
     <Menu
       anchorEl={cardAlertMenu}
@@ -669,11 +688,23 @@ function Dashboard() {
           {modalEditAlertContent(alert, cardAlertIndex)}
         </div>
       )}
-      <MenuItem onClick={(e) => {
-        e.stopPropagation(); // Prevent the event from propagating further if necessary
-        handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
-        closeCardAlertMenu();
-        }}> Disable</MenuItem>
+      { alerts[cardAlertIndex].alert.alertDisabled  ? 
+        (
+          <MenuItem onClick={(e) => {
+            e.stopPropagation(); // Prevent the event from propagating further if necessary
+            handleDialogConfirmOpen(e, "Active", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
+            closeCardAlertMenu();
+            }}> Active</MenuItem>
+        )
+        :
+        (
+          <MenuItem onClick={(e) => {
+            e.stopPropagation(); // Prevent the event from propagating further if necessary
+            handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
+            closeCardAlertMenu();
+            }}> Disable</MenuItem>
+          )
+      }
       <MenuItem onClick={(e) => {
         e.stopPropagation(); // Prevent the event from propagating further if necessary
         handleDialogConfirmOpen(e, "Delete", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
@@ -840,21 +871,20 @@ function Dashboard() {
         onClose={handleDialogConfirmClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        disableScrollLock={ true }>      
+        >      
         <DialogTitle id="alert-dialog-title">
           {"Are you sure ?"}
         </DialogTitle>
         <DialogContent>
   <DialogContentText id="alert-dialog-description">
     You're about to{' '}
-    <MDTypography component="span" variant="inherit" color="primary">
+    <Typography component="span" variant="inherit" color="primary">
       {dialogConfirmAction}
-    </MDTypography>{' '}
+    </Typography>{' '}
     the Alert{' '}
-    <MDTypography component="span" variant="inherit" color="primary">
+    <Typography component="span" variant="inherit" color="primary">
       {dialogConfirmAlertName}
-    </MDTypography>.
-    
+    </Typography>. 
   </DialogContentText>
 </DialogContent>
         <DialogActions>

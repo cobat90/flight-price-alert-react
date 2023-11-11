@@ -3,6 +3,7 @@ export const convertRequest = (alertData) => {
       alertName,
       alertType,
       alertDurationTime,
+      alertDisabled,
       flightType,
       departDate,
       returnDate,
@@ -26,7 +27,6 @@ export const convertRequest = (alertData) => {
       airline,
       searchSites,
       userId,
-      alertDisabled,
       userName,
       userEmail,
       userCellphone,
@@ -50,9 +50,9 @@ export const convertRequest = (alertData) => {
           returnDate: returnDate ? returnDate : null,
           airports: [
             {
-              aiportFrom: aiportFrom,
-              aiportTo: aiportTo,
-              aiportScales: null, // You might need to adjust this based on your data
+              airportFrom: aiportFrom,
+              airportTo: aiportTo,
+              airportScales: null, // You might need to adjust this based on your data
             },
           ],
         },

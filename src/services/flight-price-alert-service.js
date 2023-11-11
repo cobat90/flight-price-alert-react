@@ -20,6 +20,11 @@ class FlightPriceAlertService {
 
   updateAlert = async (alertId, userId, payload) => {
     const updateAlertEndpoint = `api/alerts/${alertId}/users/${userId}`;
+    return await HttpService.put(updateAlertEndpoint, payload);
+  }
+
+  disableAlert = async (alertId, userId, payload) => {
+    const updateAlertEndpoint = `api/alerts/${alertId}/users/${userId}/disable`;
     return await HttpService.patch(updateAlertEndpoint, payload);
   }
 
