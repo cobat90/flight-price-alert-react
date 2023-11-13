@@ -12,6 +12,8 @@ import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
+import AirplanemodeInactiveIcon from '@mui/icons-material/AirplanemodeInactive';
+import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
@@ -144,7 +146,6 @@ function Dashboard() {
   const [dialogConfirmAction, setDialogConfirmAction] = useState();
 
   const handleDialogConfirmOpen = (event, action, alertId, alertName) => {   
-    console.info("handleDialogConfirmOpen: " + alertId);
     setFlightPriceAlertId(alertId);
     setDialogConfirmAction(action);
     setDialogConfirmAlertName(alertName);
@@ -179,7 +180,6 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
       if (response.status === 200 && Array.isArray(response.data)) {
-        console.info("getAlertsData");
         setAlerts(response.data);
       } else {
         console.error("Invalid data format in response:", response);
@@ -193,7 +193,6 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.createAlert(payload);
       if (response.status === 201) {
-        console.info("Alert " + payload.alert.alertName +  " created with sucess");
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData(); 
@@ -207,10 +206,8 @@ function Dashboard() {
 
   const updateAlertData = async (alertData) => {
     try {
-      console.info("Update globalFlightPriceAlertId: " + flightPriceAlertId);
       const response = await FlightPriceAlertService.updateAlert(flightPriceAlertId, userId, alertData);
       if (response.status === 200) {
-        console.info("Alert " + flightPriceAlertId +  " updated with sucess");
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData();
@@ -224,10 +221,8 @@ function Dashboard() {
 
   const disableAlertData = async (alertData) => {
     try {
-      console.info("Disable globalFlightPriceAlertId: " + flightPriceAlertId);
       const response = await FlightPriceAlertService.disableAlert(flightPriceAlertId, userId, alertData);
       if (response.status === 200) {
-        console.info("Alert " + flightPriceAlertId +  " disabled with sucess");
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData();
       } else {
@@ -240,10 +235,8 @@ function Dashboard() {
 
   const deleteAlertData = async (flightPriceAlertId) => {
     try {
-      console.info("Delete globalFlightPriceAlertId: " + flightPriceAlertId);     
       const response = await FlightPriceAlertService.deleteAlert(flightPriceAlertId, userId);
       if (response.status === 204) {
-        console.info("Alert " + flightPriceAlertId +  " deleted with sucess");
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData();
       } else {
@@ -266,7 +259,6 @@ function Dashboard() {
 
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent the form from actually submitting
-    console.info(event.target);
     const formData = new FormData(event.target); // Create a FormData object from the form
     formData.append('userId', userId);
     formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : "");
@@ -290,6 +282,22 @@ function Dashboard() {
     }
   };
 
+  const IconContainer = ({ backgroundColor, children }) => (
+    <div
+      style={{
+        backgroundColor,
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '40px', // Adjust the width and height as needed
+        height: '40px',
+      }}
+    >
+      {children}
+    </div>
+  );
+
   const [modalEditAlert, setModalEditAlert] = useState(null);
   const [alert, setAlert] = useState(null);
   
@@ -309,7 +317,6 @@ function Dashboard() {
 
   const modalEditAlertContent = (alert, index) => {
     const currentAlert = alerts[index];
-    console.info(currentAlert);
     return ( 
       <Modal
       open={Boolean(modalEditAlert)}
@@ -334,7 +341,7 @@ function Dashboard() {
             <MDTypography variant="h5">Flight Alert Info</MDTypography>
           </MDBox>
           <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
-            <input type="text" name="flightPriceAlertId" value={currentAlert?.flightPriceAlertId}  readOnly/>  
+            <input type="hidden" name="flightPriceAlertId" value={currentAlert?.flightPriceAlertId}  readOnly/>  
             <Grid container spacing={3}>
               <Grid item xs={12} sm={7}>
                 <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
@@ -723,7 +730,14 @@ function Dashboard() {
             <MDBox mb={3}>
               <Card sx={{ maxWidth: 345, opacity: alert?.alert?.alertDisabled ? 0.6 : 1 }} id={`cardAlertMenu-${index}`}>
                 <CardHeader
-                  avatar={<Icon>flight</Icon>}            
+                  avatar={alert?.alert?.alertDisabled ? 
+                  <IconContainer backgroundColor="gray">
+                    <AirplanemodeInactiveIcon style={{ color: 'black' }} />
+                  </IconContainer>
+                  : 
+                  <IconContainer backgroundColor="#4169e1">
+                    <AirplanemodeActiveIcon style={{ color: 'white' }}/>
+                  </IconContainer> }           
                   action={
                     <div>
                       <IconButton aria-label="settings" onClick={(event) => openCardAlertMenu(event, index)}>
@@ -759,7 +773,7 @@ function Dashboard() {
                           </ListItemText>
                           {alert?.alert?.alertDisabled === true ? (
                             <ListItemText>
-                              <MDTypography variant="h6">{"Disabled: " + dayjs(alert?.alert?.alertDateDisabled).format("DD/MM/YYYY")}</MDTypography>
+                              <MDTypography variant="h6" color="primary">{"Disabled: " + dayjs(alert?.alert?.alertDateDisabled).format("DD/MM/YYYY")}</MDTypography>
                             </ListItemText>                 
                           ) : null}
                       </ListItem>
@@ -871,7 +885,7 @@ function Dashboard() {
         onClose={handleDialogConfirmClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        >      
+        disableScrollLock={ true } >             
         <DialogTitle id="alert-dialog-title">
           {"Are you sure ?"}
         </DialogTitle>
