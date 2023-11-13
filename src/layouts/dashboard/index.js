@@ -106,11 +106,6 @@ function Dashboard() {
   const [flightType, setFlightType] = useState(null);
   const formRef = useRef();
 
-  const handleClearForm = () => {
-    setCleared(true);
-    formRef.current.reset();   
-  };
-
   const [cardAlertMenu, setCardAlertMenu] = useState(null);
   const [cardAlertIndex, setCardAlertIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -404,7 +399,7 @@ function Dashboard() {
                         disablePast  
                         onChange={date => setDepartDate(date)}
                         slotProps={{
-                          field: {clearable: true, onClear: () => setCleared(true) },
+                        field: {clearable: true, onClear: () => setCleared(true) },
                         }}
                       />
                     </LocalizationProvider>
@@ -650,7 +645,7 @@ function Dashboard() {
               </Collapse>
             </Grid>
             <MDBox pb={3} px={3} display="flex" justifyContent="center" mb={3}>
-              <Grid item xs={12} md={11} >
+              <Grid item xs={12}  >
                 <MDButton
                   variant="gradient"
                   color="info"
@@ -658,16 +653,7 @@ function Dashboard() {
                   >                   
                   Save
                   </MDButton>
-              </Grid>
-              <Grid item xs={12} md={1} >
-                <MDButton
-                  variant="gradient"
-                  color="info"
-                  type="button"
-                  onClick={handleClearForm}>                      
-                  Clear
-                  </MDButton>
-              </Grid>
+              </Grid>             
             </MDBox>
           </MDBox>
         </Card>
