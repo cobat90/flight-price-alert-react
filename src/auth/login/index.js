@@ -37,8 +37,8 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const [inputs, setInputs] = useState({
-    username: "xiao1990",
-    password: "aquitempreco",
+    username: "admin",
+    password: "admin",
     rememberMe: false,
   });
 
@@ -69,7 +69,7 @@ function Login() {
       return;
     }
 
-    if (inputs.password.trim().length < 6) {
+    if (inputs.password.trim().length < 3) {
       setErrors({ ...errors, passwordError: true });
       return;
     }
@@ -80,10 +80,10 @@ function Login() {
     const myData = {
       ...newUser
     };
-
+    
     try {
       const response = await AuthService.login(myData);
-      authContext.login(response.id_token);
+      authContext.login(response.data.id_token);
     } catch (res) {
       if (res.hasOwnProperty("message")) {
         setCredentialsError(res.message);

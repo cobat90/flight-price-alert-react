@@ -12,17 +12,8 @@ import MDBox from "components/MDBox";
 
 import Sidenav from "examples/Sidenav";
 import Configurator from "examples/Configurator";
-
 import theme from "assets/theme";
-import themeRTL from "assets/theme/theme-rtl";
-
 import themeDark from "assets/theme-dark";
-import themeDarkRTL from "assets/theme-dark/theme-rtl";
-
-// RTL plugins
-import rtlPlugin from "stylis-plugin-rtl";
-import { CacheProvider } from "@emotion/react";
-import createCache from "@emotion/cache";
 
 import routes from "routes";
 
@@ -44,6 +35,7 @@ import UserManagement from "layouts/user-management";
 import { Helmet } from "react-helmet";
 
 export default function App() {
+
   const authContext = useContext(AuthContext);
 
   const [controller, dispatch] = useMaterialUIController();
@@ -58,18 +50,7 @@ export default function App() {
     darkMode,
   } = controller;
   const [onMouseEnter, setOnMouseEnter] = useState(false);
-  const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
-
-  // Cache for the rtl
-  useMemo(() => {
-    const cacheRtl = createCache({
-      key: "rtl",
-      stylisPlugins: [rtlPlugin],
-    });
-
-    setRtlCache(cacheRtl);
-  }, []);
 
   // Open sidenav when mouse enter on mini sidenav
   const handleOnMouseEnter = () => {
@@ -157,35 +138,7 @@ export default function App() {
 
   return (
     <>
-      {direction === "rtl" ? (
-        <CacheProvider value={rtlCache}>
-          <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
-            <CssBaseline />
-            {layout === "dashboard" && (
-              <>
-                <Sidenav
-                  color={sidenavColor}
-                  brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-                  brandName="Ittent"
-                  routes={routes}
-                  onMouseEnter={handleOnMouseEnter}
-                  onMouseLeave={handleOnMouseLeave}
-                />
-                <Configurator />
-                {configsButton}
-              </>
-            )}
-            {layout === "vr" && <Configurator />}
-            <Routes>
-              <Route path="login" element={<Navigate to="/auth/login" />} />
-              <Route path="register" element={<Navigate to="/auth/register" />} />
-              <Route path="forgot-password" element={<Navigate to="/auth/forgot-password" />} />
-              {getRoutes(routes)}
-              <Route path="*" element={<Navigate to="/dashboard" />} />
-            </Routes>
-          </ThemeProvider>
-        </CacheProvider>
-      ) : (
+      {
         <ThemeProvider theme={darkMode ? themeDark : theme}>
           <CssBaseline />
           {layout === "dashboard" && (
@@ -232,7 +185,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Routes>
         </ThemeProvider>
-      )}
+      }
     </>
   );
 }

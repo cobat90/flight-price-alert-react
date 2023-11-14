@@ -38,7 +38,7 @@ function ReportsLineChart({ color, title, description, date, chart }) {
   const { data, options } = configs(chart.labels || [], chart.datasets || {});
 
   return (
-    <Card sx={{ height: "100%" }}>
+    <Card sx={{ height: "100%", marginTop: '20px' }}>
       <MDBox padding="1rem">
         {useMemo(
           () => (
