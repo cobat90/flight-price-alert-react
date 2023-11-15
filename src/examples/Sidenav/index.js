@@ -128,8 +128,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     ({ type, name, icon, title, noCollapse, key, href, route }) => {
       let returnValue;
 
-      if (type === "examples") {
-        returnValue = href ? (
           <Link
             href={href}
             key={key}
@@ -144,13 +142,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
               noCollapse={noCollapse}
             />
           </Link>
-        ) : (
-          <NavLink key={key} to={route}>
-            <SidenavCollapse name={name} icon={icon} active={key === collapseName} />
-          </NavLink>
-        );
-      }
-      return returnValue;
+
     }
   );
 
@@ -195,16 +187,11 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       <List>
         <MDBox display="flex flex-col" alignItems="center">
           <MDTypography color={textColor} variant="body2" fontWeight="medium" pl="1.5rem">
-            User
+            Price Alerts
           </MDTypography>
           {renderExampleRoutes}
         </MDBox>
-        <Divider
-          light={
-            (!darkMode && !whiteSidenav && !transparentSidenav) ||
-            (darkMode && !transparentSidenav && whiteSidenav)
-          }
-        ></Divider>
+
         {renderRoutes}
       </List>
     </SidenavRoot>

@@ -3,16 +3,11 @@ import CardActions from '@mui/material/CardActions';
 import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import CardMedia from '@mui/material/CardMedia';
 import Collapse from '@mui/material/Collapse';
-import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
-import Icon from "@mui/material/Icon";
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
-import AirplanemodeInactiveIcon from '@mui/icons-material/AirplanemodeInactive';
 import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -32,7 +27,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-// Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -51,7 +45,6 @@ import { TimeField } from '@mui/x-date-pickers/TimeField';
 import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
 
-// Data
 import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 import { convertRequest } from '../../services/convert-flight-price-alert-service';
@@ -340,17 +333,17 @@ function Dashboard() {
             <Grid container spacing={3}>
               <Grid item xs={12} sm={7}>
                 <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
-                  defaultValue={(isEditing ? (currentAlert?.alert?.alertName || "").toString() : "")} />                                   
+                  defaultValue={(isEditing ? (currentAlert?.alert?.alertName || "").toString() : "")} required />                                   
               </Grid>
               <Grid item xs={12} sm={3}>
                 <Autocomplete
                   defaultValue={(isEditing
                     ? (selectDataMapping.alertType[currentAlert?.alert?.alertType] || "").toString()
                     : "")}          
-                  options={selectData.alertType} 
+                  options={selectData.alertType}
                   renderInput={(params) => (
                     <FormField {...params} name="alerType" label="Alert Types"
-                     InputLabelProps={{ shrink: true }}  />                      
+                     InputLabelProps={{ shrink: true }} required/>                      
                   )}
                 />
               </Grid>
@@ -361,13 +354,10 @@ function Dashboard() {
                     : '')}
                   options={selectData.days}
                   renderInput={(params) => (
-                    <FormField
-                      {...params}
-                      name="alertDurationTime"
-                      label="Duration(Days)"
-                      InputLabelProps={{ shrink: true }}
-                    /> )}
-                  />             
+                    <FormField {...params} name="alertDurationTime"                   
+                      label="Duration(Days)" required />                
+                  )}
+                />                            
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
@@ -379,11 +369,8 @@ function Dashboard() {
                       options={selectData.flightType}
                       onChange={(event, value) => setFlightType(value)}
                       renderInput={(params) => (
-                        <FormField
-                          {...params}
-                          name="flightType"
-                          label="Flight Type"
-                          InputLabelProps={{ shrink: true }}
+                        <FormField  {...params} name="flightType"      
+                          label="Flight Type" InputLabelProps={{ shrink: true }} required                      
                         />
                       )}
                     />
@@ -399,8 +386,8 @@ function Dashboard() {
                         disablePast  
                         onChange={date => setDepartDate(date)}
                         slotProps={{
-                        field: {clearable: true, onClear: () => setCleared(true) },
-                        }}
+                        field: {required: true, clearable: true, onClear: () => setCleared(true) },
+                        }} 
                       />
                     </LocalizationProvider>
                   </Grid>
@@ -425,16 +412,15 @@ function Dashboard() {
                   <Grid item xs={12} sm={2.9}>
                     <Autocomplete
                       defaultValue={(isEditing
-                        ? (selectDataMapping.cabinClassType[currentAlert?.mainFilter?.cabinClassType] || '').toString()
-                        : '')}
+                        ? (selectDataMapping.cabinClassType[currentAlert?.mainFilter?.cabinClassType] || 'Economy').toString()
+                        : 'Economy')}
                       options={selectData.cabinClassType}
                       renderInput={(params) => (
                         <FormField
                           {...params}
                           name="cabinClassType"
                           label="Cabin Class"
-                          InputLabelProps={{ shrink: true }}
-                          
+                          InputLabelProps={{ shrink: true }} required                        
                         />
                       )}
                     />
@@ -447,22 +433,22 @@ function Dashboard() {
                     <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)" 
                      defaultValue={(isEditing
                       ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
-                      : "")}  />              
+                      : "")}  required/>              
                   </Grid>
                   <Grid item xs={12} sm={4.5}>
                     <FormField name="aiportTo" label="To" placeholder="Bahamas" 
                     defaultValue={(isEditing
                       ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
-                      : "")} />
+                      : "")} required/>
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
                     <Autocomplete
                         defaultValue={(isEditing
-                          ? String(currentAlert?.mainFilter?.adults) || "0"
-                          : "0")}
+                          ? String(currentAlert?.mainFilter?.adults) || "1"
+                          : "1")}
                         options={selectData.passagers}
                         renderInput={(params) => (
-                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}   />
+                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  required />
                     )}/>     
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
@@ -472,7 +458,7 @@ function Dashboard() {
                             : "0")}
                           options={selectData.passagers}
                           renderInput={(params) => (
-                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  />
+                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  required/>
                       )}/>    
                   </Grid>
                 </Grid>
@@ -684,7 +670,7 @@ function Dashboard() {
       { alerts[cardAlertIndex].alert.alertDisabled  ? 
         (
           <MenuItem onClick={(e) => {
-            e.stopPropagation(); // Prevent the event from propagating further if necessary
+            e.stopPropagation(); 
             handleDialogConfirmOpen(e, "Active", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
             closeCardAlertMenu();
             }}> Active</MenuItem>
@@ -692,14 +678,14 @@ function Dashboard() {
         :
         (
           <MenuItem onClick={(e) => {
-            e.stopPropagation(); // Prevent the event from propagating further if necessary
+            e.stopPropagation(); 
             handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
             closeCardAlertMenu();
             }}> Disable</MenuItem>
           )
       }
       <MenuItem onClick={(e) => {
-        e.stopPropagation(); // Prevent the event from propagating further if necessary
+        e.stopPropagation(); 
         handleDialogConfirmOpen(e, "Delete", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
         closeCardAlertMenu();
         }}> Delete</MenuItem>
@@ -718,7 +704,7 @@ function Dashboard() {
                 <CardHeader
                   avatar={alert?.alert?.alertDisabled ? 
                   <IconContainer backgroundColor="gray">
-                    <AirplanemodeInactiveIcon style={{ color: 'black' }} />
+                    <AirplanemodeActiveIcon style={{ color: 'black' }} />
                   </IconContainer>
                   : 
                   <IconContainer backgroundColor="#4169e1">
@@ -737,7 +723,13 @@ function Dashboard() {
                     </div>
                   }
                   title={alert?.alert?.alertName}
-                  subheader={"Created: " + dayjs(alert?.alert?.alertDateCreated).format("DD/MM/YYYY")}
+                  subheader=
+                  {alert?.alert?.alertDisabled === false ? (
+                    "Created: " + dayjs(alert?.alert?.alertDateCreated).format("DD/MM/YYYY")                      
+                    ) : <MDTypography variant="h6" color="primary">
+                          {"Disabled: " + dayjs(alert?.alert?.alertDateDisabled).format("DD/MM/YYYY")}
+                        </MDTypography>                  
+                  }
                 />
                 <ReportsLineChart
                   color="success"
@@ -756,12 +748,7 @@ function Dashboard() {
                       <ListItem disablePadding >
                           <ListItemText >
                             <MDTypography variant="h6">{"Type: " + selectDataMapping.alertType[alert?.alert?.alertType]}</MDTypography>
-                          </ListItemText>
-                          {alert?.alert?.alertDisabled === true ? (
-                            <ListItemText>
-                              <MDTypography variant="h6" color="primary">{"Disabled: " + dayjs(alert?.alert?.alertDateDisabled).format("DD/MM/YYYY")}</MDTypography>
-                            </ListItemText>                 
-                          ) : null}
+                          </ListItemText>                        
                       </ListItem>
                       <ListItem disablePadding>
                         <ListItemText>
