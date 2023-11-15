@@ -23,7 +23,14 @@ const routes = [
     route: "/dashboard",
     component: <Dashboard />,
   },
-
+  {
+    type: "examples",
+    name: "User Management",
+    key: "user-management",
+    icon: <Icon fontSize="small">list</Icon>,
+    route: "/user-management",
+    component: <UserManagement />,
+  },
 ];
 
 export default routes;

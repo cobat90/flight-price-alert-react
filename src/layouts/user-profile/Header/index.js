@@ -2,6 +2,8 @@ import React from 'react';
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Autocomplete from "@mui/material/Autocomplete";
+import MDButton from "components/MDButton";
+
 
 // Material Dashboard 2 PRO React components
 import MDBox from "components/MDBox";
@@ -28,6 +30,12 @@ function Header() {
             <FormField label="Last Name" placeholder="Thompson" />
           </Grid>
           <Grid item xs={12} sm={6}>
+            <FormField label="Country" placeholder="Brazil" />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormField label="City" placeholder="Rio de Janeiro" />
+          </Grid>
+          <Grid item xs={12} sm={6}>
             <FormField
               label="Email"
               placeholder="example@email.com"
@@ -42,9 +50,6 @@ function Header() {
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormField label="Country" placeholder="Brazil" />
-          </Grid>
-          <Grid item xs={12} sm={6}>
             <FormField
               label="Phone Number"
               placeholder="+40 735 631 620"
@@ -54,9 +59,28 @@ function Header() {
           <Grid item xs={12} md={6}>
             <FormField label="Currency" placeholder="USD" />
           </Grid>
+          <Grid item xs={12} md={6}>
+            <MDButton
+              variant="gradient"
+              color="info"
+              type="submit"
+              >                   
+              Save
+              </MDButton>
+          </Grid>    
+          <Grid item xs={12} md={6}>
+            <MDButton
+              variant="gradient"
+              color="info"
+              type="button"
+              >                   
+              Clear
+            </MDButton>
+          </Grid>    
         </Grid>
       </MDBox>
     </Card>
+    
   );
 }
 
