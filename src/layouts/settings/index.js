@@ -29,6 +29,39 @@ function Settings() {
     );
   });
 
+  const [user, setUser] = useState({
+    firstName: "",
+    email: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [errors, setErrors] = useState({
+    firstNameError: false,
+    emailError: false,
+    newPassError: false,
+    confirmPassError: false,
+  });
+
+  if (user.confirmPassword || user.newPassword) {
+    // in the api the confirmed password should be the same with the current password, not the new one
+    if (user.confirmPassword.trim() !== user.newPassword.trim()) {
+      setErrors({ ...errors, confirmPassError: true });
+      return;
+    }
+    if (user.newPassword.trim().length < 8) {
+      setErrors({ ...errors, newPassError: true });
+      return;
+    }
+  }
+
+  if (user.newPassword.length > 0) {
+    userData = {
+      ...user,
+      newPassword: user.newPassword,
+    };
+  }
+
   return (
     <DashboardLayout>
       < DashboardNavbar />
