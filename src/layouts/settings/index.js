@@ -5,9 +5,14 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
+import Snackbar from '@mui/material/Snackbar';
+import FormField from "components/FormField";
+import MuiAlert from '@mui/material/Alert';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer"
+
+import AuthService from "../../services/auth-service";
 
 function Settings() {
   const passwordRequirements = [
@@ -29,38 +34,114 @@ function Settings() {
     );
   });
 
-  const [user, setUser] = useState({
-    firstName: "",
-    email: "",
-    newPassword: "",
-    confirmPassword: "",
+  const Notification = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
   });
 
+  const [snackBarState, setSnackBarState] = useState({
+    open: false,
+    vertical: 'top',
+    horizontal: 'center',
+  });
+  const { vertical, horizontal, open } = snackBarState;
+
   const [errors, setErrors] = useState({
-    firstNameError: false,
-    emailError: false,
     newPassError: false,
     confirmPassError: false,
   });
 
-  if (user.confirmPassword || user.newPassword) {
-    // in the api the confirmed password should be the same with the current password, not the new one
-    if (user.confirmPassword.trim() !== user.newPassword.trim()) {
-      setErrors({ ...errors, confirmPassError: true });
-      return;
-    }
-    if (user.newPassword.trim().length < 8) {
-      setErrors({ ...errors, newPassError: true });
-      return;
-    }
-  }
+  const handleSnackBarOpen = (newState) => {
+    setSnackBarState({ ...newState, open: true });
+  };
 
-  if (user.newPassword.length > 0) {
-    userData = {
-      ...user,
-      newPassword: user.newPassword,
-    };
-  }
+  const handleSnackBarClose = () => {
+    setSnackBarState({ ...snackBarState, open: false });
+  };
+
+  const formRef = useRef();
+
+  const handleClearForm = () => {
+    const inputs =  formRef.current.querySelectorAll('input');
+    inputs.forEach((input) => {
+      input.value = '';
+    });   
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target); 
+    let userData = {};
+    formData.forEach((value, key) => {
+      userData[key] = value;
+    });
+    console.info("userData", userData);
+    
+    if (userData.confirmPassword || userData.newPassword) {
+      if (userData.confirmPassword.trim() !== userData.newPassword.trim()) {
+        setErrors({ ...errors, confirmPassError: true, newPassError: false,});
+        return;
+       
+      }
+      if (userData.currentPassword === userData.newPassword) {
+        setErrors({ ...errors, newPassError: true,  confirmPassError: false});
+        return;
+      }
+    }
+
+    if (userData.newPassword.length > 0 && userData.confirmPassword.length > 0 ) {
+      const passData = {
+        currentPassword: userData.currentPassword,
+        newPassword: userData.newPassword,
+      };
+      console.info(passData);
+      changePassword(passData);
+    }
+
+    setErrors({
+      passwordError: false,
+      newPassError: false,
+      confirmPassError: false,
+    });
+  };
+
+  const changePassword = async (userData) => {
+    try {
+      const response = await AuthService.changePassword(userData);
+      if (response.status === 200) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alert:", error);
+    }
+  };
+
+  const deleteAccount = async (login) => {
+    try {
+      const response = await AuthService.deleteAccount(login);
+      if (response.status === 200) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+    }
+  };
+
+  const updateUserData = async (userData) => {
+    try {
+      const response = await AuthService.updateProfile(userData);
+      if (response.status === 200) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alert:", error);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -70,28 +151,46 @@ function Settings() {
       <MDBox p={3}>
         <MDTypography variant="h5">Change Password</MDTypography>
       </MDBox>
-      <MDBox component="form" pb={3} px={3}>
+      <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <MDInput
+            <FormField
               fullWidth
+              name="currentPassword"
               label="Current Password"
-              inputProps={{ type: "password", autoComplete: "" }}
+              required
+              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
             />
           </Grid>
           <Grid item xs={12}>
-            <MDInput
+            <FormField
               fullWidth
+              name="newPassword"
               label="New Password"
-              inputProps={{ type: "password", autoComplete: "" }}
+              required
+              error={errors.newPassError}
+              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
             />
+            {errors.newPassError && (
+                    <MDTypography variant="caption" color="error" fontWeight="light">
+                      The password must be different from the current password
+                    </MDTypography>
+                  )}
           </Grid>
           <Grid item xs={12}>
-            <MDInput
+            <FormField
               fullWidth
+              name="confirmPassword"
               label="Confirm New Password"
-              inputProps={{ type: "password", autoComplete: "" }}
+              required
+              error={errors.confirmPassError}
+              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
             />
+             {errors.confirmPassError && (
+                    <MDTypography variant="caption" color="error" fontWeight="light">
+                      The password confirmation must match the current password
+                    </MDTypography>
+                  )}
           </Grid>
         </Grid>
         <MDBox mt={6} mb={1}>
@@ -107,10 +206,17 @@ function Settings() {
             {renderPasswordRequirements}
           </MDBox>
           <MDBox ml="auto">
-            <MDButton variant="gradient" color="dark" size="small">
+            <MDButton variant="gradient" color="dark" size="small" type="submit">
               Update Password
             </MDButton>
           </MDBox>
+          <MDButton
+            variant="gradient"
+            color="info"
+            type="button"
+            onClick={handleClearForm}>                  
+            Clear
+          </MDButton>
         </MDBox>
       </MDBox>
     </Card>
@@ -144,6 +250,19 @@ function Settings() {
         </MDBox>
       </MDBox>
     </Card>
+    </MDBox>
+    <MDBox sx={{ width: 500 }}>
+      <Snackbar
+        anchorOrigin={{ vertical, horizontal }}
+        open={open}
+        key={vertical + horizontal}
+        autoHideDuration={2000}
+        onClose={handleSnackBarClose}
+        disablescrolllock="true">     
+        <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
+          User Settings Saved!
+        </Notification >
+      </Snackbar>
     </MDBox>
     <Footer />
   </DashboardLayout>
