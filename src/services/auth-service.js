@@ -34,8 +34,8 @@ class AuthService {
   }
 
   updateProfile = async (newInfo) => {
-    const updateProfile = "api/admin/users";
-    return await HttpService.put(updateProfile, newInfo);
+    const updateProfile = "api/account";
+    return await HttpService.post(updateProfile, newInfo);
   }
 }
 

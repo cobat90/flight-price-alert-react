@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -8,9 +8,10 @@ import MDAlert from "components/MDAlert";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Autocomplete from "@mui/material/Autocomplete";
-
+import Snackbar from '@mui/material/Snackbar';
 // Settings page components
 import FormField from "components/FormField";
+import MuiAlert from '@mui/material/Alert';
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -19,28 +20,28 @@ import Footer from "examples/Footer";
 
 // Overview page components
 import selectData from "components/FormField/data/selectData";
-
+import { convertRequest } from '../../services/convert-price-alert-user-service';
 import AuthService from "../../services/auth-service";
 
-const UserProfile = () => {
-  const [notification, setNotification] = useState(false);
-  const [user, setUser] = useState({
-    email: "",
-  });
+const Notification = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
+});
 
-  const [errors, setErrors] = useState({
-    firstNameError: false,
-    emailError: false,
+const UserProfile = () => {
+  const userId = localStorage.getItem("userId");
+  const [user, setUser] = useState(null);
+  const [snackBarState, setSnackBarState] = useState({
+    open: false,
+    vertical: 'top',
+    horizontal: 'center',
   });
-  
+  const { vertical, horizontal, open } = snackBarState;
+
   const getUserData = async () => {
     try {
       const response = await AuthService.getProfile();
       if (response.status === 200 && response.data !== null) {
-        setUser((prevUser) => ({
-          ...prevUser,
-          ...response,
-        }));
+        setUser(response.data);
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -62,8 +63,6 @@ const UserProfile = () => {
     }
   };
 
-
-
   useEffect(() => {
     getUserData();
   }, []);
@@ -71,94 +70,104 @@ const UserProfile = () => {
   const changeHandler = (e) => {
     setUser({
       ...user,
-      [e.target.firstName]: e.target.value,
+      email: e.target.value,
     });
   };
 
-  useEffect(() => {
-    if (notification === true) {
-      setTimeout(() => {
-        setNotification(false);
-      }, 5000);
-    }
-  }, [notification]);
+  const handleSnackBarOpen = (newState) => {
+    setSnackBarState({ ...newState, open: true });
+  };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const handleSnackBarClose = () => {
+    setSnackBarState({ ...snackBarState, open: false });
+  };
 
-    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  const formRef = useRef();
 
-    if (user.email.trim().length === 0 || !user.email.trim().match(mailFormat)) {
-      setErrors({ ...errors, emailError: true });
-      return;
-    }
+  const handleClearForm = () => {
+    const inputs =  formRef.current.querySelectorAll('input');
+    inputs.forEach((input) => {
+      input.value = '';
+    });   
+  };
 
-    let userData = {
-      firstName: user.firstName,
-      email: user.email,
-    };
-    // set new user data for call
-
-    // call api for update
-    const response = await AuthService.updateProfile(JSON.stringify(userData));
-
-    // reset errors
-    setErrors({
-      firstNameError: false,
-      emailError: false,
-      passwordError: false,
-      newPassError: false,
-      confirmPassError: false,
+  const handleSubmit = (event) => {
+    event.preventDefault(); 
+    const formData = new FormData(event.target); 
+    formData.append('userId', userId);
+    const userData = {};
+    formData.forEach((value, key) => {
+      userData[key] = value;
     });
-
-    setNotification(true);
+    const requestPayload = convertRequest(userData);
+    console.info(requestPayload);
+    updateUserData(requestPayload);
+   
   };
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox mb={2} />
+      {user ? (  
         <Card id="profile-info" sx={{ overflow: "visible" }}>
           <MDBox p={3}>
             <MDTypography variant="h5">Profile Info</MDTypography>
           </MDBox>
-          <MDBox component="form" pb={3} px={3}>
+          <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
-                <FormField label="First Name" placeholder="Fernando" />
+                <FormField name="firstName"  defaultValue={(user?.firstName ? (user.firstName || "").toString() : "")}
+                  label="First Name" placeholder="Fernando" inputProps={{ type: "text" }}/>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormField label="Last Name" placeholder="Silva" />
+                <FormField name="lastName"  defaultValue={(user?.lastName ? (user.lastName || "").toString() : "")}
+                label="Last Name" placeholder="Silva" inputProps={{ type: "text" }}/>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormField label="Country" placeholder="Brazil" />
+                <FormField name="login" defaultValue={(user?.login ? (user.login || "").toString() : "")}
+                  label="Login"
+                  placeholder="User"
+                  inputProps={{ type: "text" }}
+                />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormField label="City" placeholder="Rio de Janeiro" />
+                <FormField name="phoneNumber" defaultValue={(user?.phoneNumber ? (user.phoneNumber || "").toString() : "")}
+                  label="Phone Number"
+                  placeholder="+55 99765 4646"
+                  inputProps={{ type: "text" }}
+                />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormField
+                <FormField name="email" defaultValue={(user?.email ? (user.email || "").toString() : "")}
                   label="Email"
                   placeholder="example@email.com"
+                  onChange={changeHandler}
                   inputProps={{ type: "email" }}
-                />
+                />  
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormField
+                <FormField name="emailConfirmation" defaultValue={(user?.email ? (user.email || "").toString() : "")}
                   label="Confirmation Email"
                   placeholder="example@email.com"
-                  inputProps={{ type: "email" }}
+                  inputProps={{ type: "email", pattern: user.email }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormField
-                  label="Phone Number"
-                  placeholder="+40 735 631 620"
-                  inputProps={{ type: "number" }}
-                />
+                <FormField name="country"  defaultValue={(user?.country ? (user.country || "").toString() : "")}
+                label="Country" placeholder="Brazil" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="city"  defaultValue={(user?.city ? (user.city || "").toString() : "")}
+                label="City" placeholder="Rio de Janeiro" inputProps={{ type: "text" }}/>
               </Grid>
               <Grid item xs={12} md={6}>
-                <FormField label="Currency" placeholder="USD" />
+                <FormField name="currency" defaultValue={(user?.currency ? (user.currency || "").toString() : "")}
+                label="Currency" placeholder="USD" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormField name="langKey" defaultValue={(user?.langKey ? (user.langKey || "").toString() : "")}
+                label="Language" placeholder="PTBR" inputProps={{ type: "text" }}/>
               </Grid>
               <Grid item xs={12} md={6}>
                 <MDButton
@@ -174,14 +183,30 @@ const UserProfile = () => {
                   variant="gradient"
                   color="info"
                   type="button"
-                  >                   
+                  onClick={handleClearForm}>                  
                   Clear
                 </MDButton>
               </Grid>    
             </Grid>
           </MDBox>
         </Card>
-        <Footer />
+        ) : (
+        null    
+      )}
+      <MDBox sx={{ width: 500 }}>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={open}
+          key={vertical + horizontal}
+          autoHideDuration={2000}
+          onClose={handleSnackBarClose}
+          disablescrolllock="true">     
+          <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
+            User Profile Saved!
+          </Notification >
+        </Snackbar>
+      </MDBox>
+      <Footer />
     </DashboardLayout>
   );
 };

@@ -2,7 +2,6 @@ import { Card, CardHeader,  CardContent, styled, List } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
 import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -840,7 +839,7 @@ function Dashboard() {
           </Grid>
         </Grid>    
       </MDBox>
-      <Box sx={{ width: 500 }}>
+      <MDBox sx={{ width: 500 }}>
         <Snackbar
           anchorOrigin={{ vertical, horizontal }}
           open={open}
@@ -852,7 +851,7 @@ function Dashboard() {
             Flight Price Alert Saved!
           </Notification >
         </Snackbar>
-      </Box>
+      </MDBox>
       <Dialog
         open={openDialogConfirm}
         onClose={handleDialogConfirmClose}
@@ -863,17 +862,17 @@ function Dashboard() {
           {"Are you sure ?"}
         </DialogTitle>
         <DialogContent>
-  <DialogContentText id="alert-dialog-description">
-    You're about to{' '}
-    <Typography component="span" variant="inherit" color="primary">
-      {dialogConfirmAction}
-    </Typography>{' '}
-    the Alert{' '}
-    <Typography component="span" variant="inherit" color="primary">
-      {dialogConfirmAlertName}
-    </Typography>. 
-  </DialogContentText>
-</DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            You're about to{' '}
+            <Typography component="span" variant="inherit" color="primary">
+              {dialogConfirmAction}
+            </Typography>{' '}
+            the Alert{' '}
+            <Typography component="span" variant="inherit" color="primary">
+              {dialogConfirmAlertName}
+            </Typography>. 
+          </DialogContentText>
+        </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogConfirmClose}> Disagree </Button>
           <Button onClick={handleDialogConfirmSubmit} autoFocus> Agree </Button>        

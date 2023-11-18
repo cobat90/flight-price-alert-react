@@ -1,26 +1,27 @@
 export const convertRequest = (userData) => {
     const {
+      userId,
       firstName,
       lastName,
-      email,
-      langKey,
+      phoneNumber,
       login,
+      email,
       country,
       city,
-      phoneNumber,
+      langKey,
       currency,
     } = userData;
   
-    // Create the payload structure
     const payload = {
+      id: userId,
       firstName: firstName,
       lastName: lastName,
-      email: email,
-      langKey: langKey,
+      phoneNumber: phoneNumber,
       login: login,
+      email: email,
       country: country,
       city: city,
-      phoneNumber: phoneNumber,
+      langKey: langKey,
       currency: currency,
     };
   
