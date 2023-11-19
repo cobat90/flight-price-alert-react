@@ -25,7 +25,6 @@ const Notification = React.forwardRef(function Alert(props, ref) {
 });
 
 const UserProfile = () => {
-  const userId = localStorage.getItem("userId");
   const [user, setUser] = useState(null);
   const [snackBarState, setSnackBarState] = useState({
     open: false,
@@ -91,7 +90,7 @@ const UserProfile = () => {
   const handleSubmit = (event) => {
     event.preventDefault(); 
     const formData = new FormData(event.target); 
-    formData.append('userId', userId);
+    formData.append('userId', localStorage.getItem("userId"));
     const userData = {};
     formData.forEach((value, key) => {
       userData[key] = value;

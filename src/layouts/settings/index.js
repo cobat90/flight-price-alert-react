@@ -3,11 +3,18 @@ import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import Typography from '@mui/material/Typography';
 import MDButton from "components/MDButton";
+import Button from '@mui/material/Button';
 import MDInput from "components/MDInput";
 import Snackbar from '@mui/material/Snackbar';
 import FormField from "components/FormField";
 import MuiAlert from '@mui/material/Alert';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer"
@@ -24,7 +31,6 @@ function Settings() {
 
   const renderPasswordRequirements = passwordRequirements.map((item, key) => {
     const itemKey = `element-${key}`;
-
     return (
       <MDBox key={itemKey} component="li" color="text" fontSize="1.25rem" lineHeight={1}>
         <MDTypography variant="button" color="text" fontWeight="regular" verticalAlign="middle">
@@ -58,6 +64,18 @@ function Settings() {
     setSnackBarState({ ...snackBarState, open: false });
   };
 
+  const [dialogConfirmAction, setDialogConfirmAction] = useState();
+  const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
+
+  const handleDialogConfirmOpen = (event, action) => {   
+    setDialogConfirmAction(action);
+    setOpenDialogConfirm(true);
+  };
+
+  const handleDialogConfirmClose = () => {
+    setOpenDialogConfirm(false);
+  };
+
   const formRef = useRef();
 
   const handleClearForm = () => {
@@ -67,6 +85,20 @@ function Settings() {
     });   
   };
 
+  const handleDialogConfirmSubmit = () => {
+    if (dialogConfirmAction === "Disable"){
+      const userData = {
+        activated: false
+      };
+      updateUserData(userData);
+    }
+    if (dialogConfirmAction === "Delete"){
+      deleteAccount(localStorage.getItem("login"));
+    }
+
+    handleDialogConfirmClose();
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target); 
@@ -74,7 +106,6 @@ function Settings() {
     formData.forEach((value, key) => {
       userData[key] = value;
     });
-    console.info("userData", userData);
     
     if (userData.confirmPassword || userData.newPassword) {
       if (userData.confirmPassword.trim() !== userData.newPassword.trim()) {
@@ -82,7 +113,7 @@ function Settings() {
         return;
        
       }
-      if (userData.currentPassword === userData.newPassword) {
+      if (userData.currentPassword.trim() === userData.newPassword.trim()) {
         setErrors({ ...errors, newPassError: true,  confirmPassError: false});
         return;
       }
@@ -93,12 +124,9 @@ function Settings() {
         currentPassword: userData.currentPassword,
         newPassword: userData.newPassword,
       };
-      console.info(passData);
       changePassword(passData);
     }
-
     setErrors({
-      passwordError: false,
       newPassError: false,
       confirmPassError: false,
     });
@@ -202,23 +230,27 @@ function Settings() {
           </MDTypography>
         </MDBox>
         <MDBox display="flex" justifyContent="space-between" alignItems="flex-end" flexWrap="wrap">
-          <MDBox component="ul" m={0} pl={3.25} mb={{ xs: 8, sm: 0 }}>
+          <MDBox component="ul" m={0} pl={3.25} mb={{ xs: 1, sm: 0 }}>
             {renderPasswordRequirements}
           </MDBox>
-          <MDBox ml="auto">
-            <MDButton variant="gradient" color="dark" size="small" type="submit">
-              Update Password
+        <MDBox display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="flex-end">
+          <MDButton variant="gradient" color="error" sx={{ height: "100%" }} type="submit">
+            Change Password
+          </MDButton>
+          <MDBox ml={{ xs: 0, sm: 0.5 }} mt={{ xs: 1, sm: 0 }}>
+            <MDButton
+              variant="gradient"
+              color="info"
+              type="button"
+              onClick={handleClearForm}
+            >
+              Clear
             </MDButton>
           </MDBox>
-          <MDButton
-            variant="gradient"
-            color="info"
-            type="button"
-            onClick={handleClearForm}>                  
-            Clear
-          </MDButton>
         </MDBox>
       </MDBox>
+      </MDBox>
+
     </Card>
     </MDBox>
     <MDBox mb={2} >
@@ -232,20 +264,26 @@ function Settings() {
       >
         <MDBox p={3} lineHeight={1}>
           <MDBox mb={1}>
-            <MDTypography variant="h5">Delete Account</MDTypography>
+            <MDTypography variant="h5">Disable or Delete Account</MDTypography>
           </MDBox>
           <MDTypography variant="button" color="text">
             Once you delete your account, there is no going back. Please be certain.
           </MDTypography>
         </MDBox>
         <MDBox display="flex" flexDirection={{ xs: "column", sm: "row" }}>
-          <MDButton variant="outlined" color="secondary">
-            Deactivate
+          <MDButton variant="gradient" color="error" sx={{ height: "100%" }} onClick={(e) => {
+            e.stopPropagation(); 
+            handleDialogConfirmOpen(e, "Delete");
+            }}>
+              Delete
           </MDButton>
           <MDBox ml={{ xs: 0, sm: 1 }} mt={{ xs: 1, sm: 0 }}>
-            <MDButton variant="gradient" color="error" sx={{ height: "100%" }}>
-              Delete Account
-            </MDButton>
+          <MDButton variant="outlined" color="secondary" onClick={(e) => {
+            e.stopPropagation(); 
+            handleDialogConfirmOpen(e, "Disable");
+          }}>
+            Disable
+          </MDButton>
           </MDBox>
         </MDBox>
       </MDBox>
@@ -264,6 +302,29 @@ function Settings() {
         </Notification >
       </Snackbar>
     </MDBox>
+    <Dialog
+      open={openDialogConfirm}
+      onClose={handleDialogConfirmClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      disableScrollLock={ true } >             
+      <DialogTitle id="alert-dialog-title">
+        {"Are you sure ?"}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          You're about to{' '}
+          <Typography component="span" variant="inherit" color="primary">
+            {dialogConfirmAction}
+          </Typography>{' '}
+          Account?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleDialogConfirmClose}> Disagree </Button>
+        <Button onClick={handleDialogConfirmSubmit} autoFocus> Agree </Button>        
+      </DialogActions>
+    </Dialog>
     <Footer />
   </DashboardLayout>
   );
