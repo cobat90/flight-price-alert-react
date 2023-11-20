@@ -25,6 +25,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import airportsList from 'path/to/airportsList';
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -429,10 +430,21 @@ function Dashboard() {
               <Grid item xs={12}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={4.5}>
-                    <FormField name="aiportFrom" label="From" placeholder="Rio de Janeiro(Todos)" 
-                     defaultValue={(isEditing
-                      ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
-                      : "")}  required/>              
+                  <Autocomplete
+                    options={airportsList}
+                    renderInput={(params) => (
+                      <FormField
+                        {...params}
+                        name="aiportFrom"
+                        label="From"
+                        placeholder="Rio de Janeiro(Todos)"
+                        defaultValue={(isEditing
+                          ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
+                          : "")}
+                        required
+                      />
+                    )}
+                  />              
                   </Grid>
                   <Grid item xs={12} sm={4.5}>
                     <FormField name="aiportTo" label="To" placeholder="Bahamas" 

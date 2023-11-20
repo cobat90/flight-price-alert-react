@@ -12,6 +12,9 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MDBadge from "components/MDBadge";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -142,21 +145,25 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 disableRipple
                 color="inherit"
                 sx={navbarIconButton}
-                onClick={handleOpenMenu}
+                aria-controls="notification-menu"
+                aria-haspopup="true"
+                variant="contained"
               >
-                <Icon sx={iconsStyle}>account_circle</Icon>
+                <MDBadge badgeContent={parseInt(localStorage.getItem("alertTime"))} color="error" size="xs" circular>
+                  <AccessTimeIcon sx={iconsStyle} />
+                </MDBadge>
               </IconButton>
               <IconButton
                 size="medium"
                 disableRipple
                 color="inherit"
                 sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
+                onClick={handleOpenMenu}
               >
-                <Icon sx={iconsStyle}>notifications</Icon>
+                
+                <AccountCircleIcon sx={iconsStyle}/>
               </IconButton>
+
               {renderMenu()}
             </MDBox>
           </MDBox>

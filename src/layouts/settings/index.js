@@ -137,6 +137,7 @@ function Settings() {
       const response = await AuthService.changePassword(userData);
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleClearForm();
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -249,8 +250,7 @@ function Settings() {
           </MDBox>
         </MDBox>
       </MDBox>
-      </MDBox>
-
+    </MDBox>
     </Card>
     </MDBox>
     <MDBox mb={2} >
