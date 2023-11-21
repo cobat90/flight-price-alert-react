@@ -25,8 +25,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import airportsList from 'path/to/airportsList';
-
+import TextField from "@mui/material/TextField";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -34,6 +33,7 @@ import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import FormField from "components/FormField";
 import selectData from "components/FormField/data/selectData";
 import selectDataMapping from "components/FormField/data/selectDataMapping";
+import AutoCompleteAirports  from "components/AutoCompleteAirports";
 
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
@@ -95,6 +95,8 @@ function Dashboard() {
     }
     return () => {};
   }, [cleared]);
+
+
 
   const [flightType, setFlightType] = useState(null);
   const formRef = useRef();
@@ -430,24 +432,21 @@ function Dashboard() {
               <Grid item xs={12}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={4.5}>
-                  <Autocomplete
-                    options={airportsList}
-                    renderInput={(params) => (
-                      <FormField
-                        {...params}
-                        name="aiportFrom"
-                        label="From"
-                        placeholder="Rio de Janeiro(Todos)"
-                        defaultValue={(isEditing
+                    <AutoCompleteAirports 
+                      name="aiportFrom"
+                      label="From"
+                      placeholder="Rio de Janeiro(Todos)"
+                      defaultValue={(isEditing
                           ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
                           : "")}
                         required
-                      />
-                    )}
-                  />              
+                    />       
                   </Grid>
                   <Grid item xs={12} sm={4.5}>
-                    <FormField name="aiportTo" label="To" placeholder="Bahamas" 
+                  <AutoCompleteAirports 
+                    name="aiportTo" 
+                    label="To" 
+                    placeholder="Bahamas" 
                     defaultValue={(isEditing
                       ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
                       : "")} required/>
