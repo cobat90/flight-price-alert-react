@@ -4,7 +4,7 @@ import 'components/AutoCompleteAirports/style/style.css';
 import airports from "components/AutoCompleteAirports/data/airports.json";
 import FormField from "components/FormField";
 
-const AutoCompleteAirports = ({ ...otherProps }) => {
+const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
   const options = {
     shouldSort: true,
     threshold: 0.4,
@@ -22,7 +22,6 @@ const AutoCompleteAirports = ({ ...otherProps }) => {
   const [numResults, setNumResults] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  const acRef = useRef(null);
 
   
   const clearResults = () => {
@@ -32,10 +31,11 @@ const AutoCompleteAirports = ({ ...otherProps }) => {
 
   const handleSelectIndex = (index) => {
     if (results.length >= index + 1) {
-      acRef.current.value = results[index].item.IATA;
+      ref.current.value = results[index].item.IATA;
       clearResults();
     }
   };
+  
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -65,25 +65,24 @@ const AutoCompleteAirports = ({ ...otherProps }) => {
         return;
       }
 
-      if (acRef.current.value.length > 0) {
-        const searchResults = fuse.search(acRef.current.value);
+      if (ref.current.value.length > 0) {
+        const searchResults = fuse.search(ref.current.value);
         setResults(searchResults.slice(0, 7));
         setNumResults(searchResults.length);
         setSelectedIndex(-1);
-        console.info("results",results);
       } else {
         setNumResults(0);
         setResults([]);
       }
     };
 
-    acRef.current.addEventListener('keydown', handleKeyDown);
-    acRef.current.addEventListener('keyup', handleSearch);
+    ref.current.addEventListener('keydown', handleKeyDown);
+    ref.current.addEventListener('keyup', handleSearch);
 
     return () => {
-      if (acRef.current) {
-        acRef.current.removeEventListener('keydown', handleKeyDown);
-        acRef.current.removeEventListener('keyup', handleSearch);
+      if (ref.current) {
+        ref.current.removeEventListener('keydown', handleKeyDown);
+        ref.current.removeEventListener('keyup', handleSearch);
       }
     };
   }, [fuse, results, numResults, selectedIndex]);
@@ -91,11 +90,10 @@ const AutoCompleteAirports = ({ ...otherProps }) => {
   return (
     <div className="autocomplete-wrapper">
       <FormField
-        ref={acRef}
         type="text"
         onClick={(e) => e.stopPropagation()}
         onFocus={clearResults}
-        inputRef={acRef}
+        inputRef={ref}
         {...otherProps}
       />
 
@@ -121,6 +119,6 @@ const AutoCompleteAirports = ({ ...otherProps }) => {
       </div>
     </div>
   );
-};
+});
 
 export default AutoCompleteAirports;

@@ -26,14 +26,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from "@mui/material/TextField";
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
-import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
-import FormField from "components/FormField";
-import selectData from "components/FormField/data/selectData";
-import selectDataMapping from "components/FormField/data/selectDataMapping";
-import AutoCompleteAirports  from "components/AutoCompleteAirports";
 
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
@@ -42,12 +34,21 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimeField } from '@mui/x-date-pickers/TimeField';
+import FormField from "components/FormField";
+import selectData from "components/FormField/data/selectData";
+import selectDataMapping from "components/FormField/data/selectDataMapping";
+import AutoCompleteAirports  from "components/AutoCompleteAirports";
 import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
 
-import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 import { convertRequest } from '../../services/convert-flight-price-alert-service';
+
+import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Footer from "examples/Footer";
+import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
+import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
 import React, { useState, useEffect, useRef } from "react";
 
@@ -60,7 +61,9 @@ function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
   const userId = localStorage.getItem("userId");
   const [alerts, setAlerts] = useState([]);
-  
+  const airportRefTo = useRef(null);
+  const airportRefFrom = useRef(null);
+
   const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
     return <IconButton {...other} />;
@@ -96,14 +99,13 @@ function Dashboard() {
     return () => {};
   }, [cleared]);
 
-
-
   const [flightType, setFlightType] = useState(null);
   const formRef = useRef();
 
   const [cardAlertMenu, setCardAlertMenu] = useState(null);
   const [cardAlertIndex, setCardAlertIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const acRef = useRef(null);
 
   const openCardAlertMenu = (event, index) => { 
     setCardAlertMenu(event.currentTarget);
@@ -433,6 +435,7 @@ function Dashboard() {
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={4.5}>
                     <AutoCompleteAirports 
+                      ref={airportRefFrom}
                       name="aiportFrom"
                       label="From"
                       placeholder="Rio de Janeiro(Todos)"
@@ -443,13 +446,14 @@ function Dashboard() {
                     />       
                   </Grid>
                   <Grid item xs={12} sm={4.5}>
-                  <AutoCompleteAirports 
-                    name="aiportTo" 
-                    label="To" 
-                    placeholder="Bahamas" 
-                    defaultValue={(isEditing
-                      ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
-                      : "")} required/>
+                    <AutoCompleteAirports 
+                      ref={airportRefTo}
+                      name="aiportTo" 
+                      label="To" 
+                      placeholder="Bahamas" 
+                      defaultValue={(isEditing
+                        ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
+                        : "")} required/>
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
                     <Autocomplete
