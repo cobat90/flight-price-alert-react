@@ -97,15 +97,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
       disableScrollLock={ true }
     >
       
-      <Link to="/user-profile"
-            rel="noreferrer"
-            sx={{ textDecoration: "none" }}
-            ><NotificationItem icon={<Icon>person</Icon>} title="User Profile" /></Link>
-       <Link to="/settings"
-            rel="noreferrer"
-            sx={{ textDecoration: "none" }}
-            >
-      <NotificationItem icon={<Icon>settings</Icon>} title="Settings" /></Link>     
+      <NotificationItem icon={<Icon>person</Icon>} title="User Profile" link="/user-profile" />
+
+      <NotificationItem icon={<Icon>settings</Icon>} title="Settings" link='/settings' />    
       <NotificationItem icon={<Icon>logout</Icon>} title="Logout" onClick={handleLogOut}/>
     </Menu>
   );
@@ -159,8 +153,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 color="inherit"
                 sx={navbarIconButton}
                 onClick={handleOpenMenu}
-              >
-                
+              >                
                 <AccountCircleIcon sx={iconsStyle}/>
               </IconButton>
 
