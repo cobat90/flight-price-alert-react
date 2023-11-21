@@ -23,9 +23,9 @@ class AuthService {
     return await HttpService.post(forgotPassword, payload);
   }
 
-  resetPassword = async (credentials) => {
-    const resetPassword = 'api/account/change-password';
-    return await HttpService.post(resetPassword, credentials);
+  changePassword = async (payload) => {
+    const changePassword = 'api/account/change-password';
+    return await HttpService.post(changePassword, payload);
   }
 
   getProfile = async() => {
@@ -34,9 +34,15 @@ class AuthService {
   }
 
   updateProfile = async (newInfo) => {
-    const updateProfile = "api/admin/users";
-    return await HttpService.put(updateProfile, newInfo);
+    const updateProfile = "api/account";
+    return await HttpService.post(updateProfile, newInfo);
   }
+
+  deleteAccount = async (login) => {
+    const deleteAccount = `api/admin/users/${login}`;
+    return await HttpService.delete(deleteAccount);
+  }
+
 }
 
 export default new AuthService();

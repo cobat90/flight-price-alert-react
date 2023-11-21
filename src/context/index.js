@@ -42,10 +42,11 @@ const AuthContextProvider = ({ children }) => {
 
   const login = async (token, userId) => {
     localStorage.setItem("token", token);
-    console.info("Salva Token");
     try {
       const response = await AuthService.getProfile();
       localStorage.setItem("userId", response.data.id);
+      localStorage.setItem("login", response.data.login);
+      localStorage.setItem("alertTime", response.data.alertTime);
       setIsAuthenticated(true);
       navigate("/dashboard");
     } catch (error) {

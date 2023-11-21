@@ -26,7 +26,7 @@ const UserManagement = () => {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <RoleGuard allowedRoles={'ROLE_ADMIN'} userRole={userRole}>
+      <RoleGuard allowedRoles={"ROLE_ADMIN"} userRole={userRole}>
         <MDBox pt={6} pb={3}>
           <Grid container spacing={6}>
             <Grid item xs={12}>

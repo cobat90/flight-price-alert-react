@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
-import MDAlert from "components/MDAlert";
+import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
+import Snackbar from '@mui/material/Snackbar';
+// Settings page components
+import FormField from "components/FormField";
+import MuiAlert from '@mui/material/Alert';
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -12,263 +16,192 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 // Overview page components
-import Header from "layouts/user-profile/Header";
-
+import selectData from "components/FormField/data/selectData";
+import { convertRequest } from '../../services/convert-price-alert-user-service';
 import AuthService from "../../services/auth-service";
 
-const UserProfile = () => {
-  const [notification, setNotification] = useState(false);
-  const [user, setUser] = useState({
-    firstName: "",
-    email: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
+const Notification = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
+});
 
-  const [errors, setErrors] = useState({
-    firstNameError: false,
-    emailError: false,
-    newPassError: false,
-    confirmPassError: false,
+const UserProfile = () => {
+  const [user, setUser] = useState(null);
+  const [snackBarState, setSnackBarState] = useState({
+    open: false,
+    vertical: 'top',
+    horizontal: 'center',
   });
+  const { vertical, horizontal, open } = snackBarState;
 
   const getUserData = async () => {
-    const response = await AuthService.getProfile();
-    setUser((prevUser) => ({
-      ...prevUser,
-      ...response,
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    }));
+    try {
+      const response = await AuthService.getProfile();
+      if (response.status === 200 && response.data !== null) {
+        setUser(response.data);
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+    }
+  };
+
+  const updateUserData = async (userData) => {
+    try {
+      const response = await AuthService.updateProfile(userData);
+      if (response.status === 200) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+      } else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching alert:", error);
+    }
   };
 
   useEffect(() => {
     getUserData();
   }, []);
 
-  useEffect(() => {
-    if (notification === true) {
-      setTimeout(() => {
-        setNotification(false);
-      }, 5000);
-    }
-  }, [notification]);
-
   const changeHandler = (e) => {
     setUser({
       ...user,
-      [e.target.firstName]: e.target.value,
+      email: e.target.value,
     });
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const handleSnackBarOpen = (newState) => {
+    setSnackBarState({ ...newState, open: true });
+  };
 
-    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  const handleSnackBarClose = () => {
+    setSnackBarState({ ...snackBarState, open: false });
+  };
 
-    if (user.nafirstNameme.trim().length === 0) {
-      setErrors({ ...errors, firstNameError: true });
-      return;
-    }
+  const formRef = useRef();
 
-    if (user.email.trim().length === 0 || !user.email.trim().match(mailFormat)) {
-      setErrors({ ...errors, emailError: true });
-      return;
-    }
+  const handleClearForm = () => {
+    const inputs =  formRef.current.querySelectorAll('input');
+    inputs.forEach((input) => {
+      input.value = '';
+    });   
+  };
 
-    if (user.confirmPassword || user.newPassword) {
-      // in the api the confirmed password should be the same with the current password, not the new one
-      if (user.confirmPassword.trim() !== user.newPassword.trim()) {
-        setErrors({ ...errors, confirmPassError: true });
-        return;
-      }
-      if (user.newPassword.trim().length < 8) {
-        setErrors({ ...errors, newPassError: true });
-        return;
-      }
-    }
-
-    let userData = {
-      firstName: user.firstName,
-      email: user.email,
-      imageUrl: user.imageUrl,
-    };
-    // set new user data for call
-    if (user.newPassword.length > 0) {
-      userData = {
-        ...user,
-        imageUrl: user.imageUrl,
-        newPassword: user.newPassword,
-      };
-    }
-
-    // call api for update
-    const response = await AuthService.updateProfile(JSON.stringify(userData));
-
-    // reset errors
-    setErrors({
-      firstNameError: false,
-      emailError: false,
-      passwordError: false,
-      newPassError: false,
-      confirmPassError: false,
+  const handleSubmit = (event) => {
+    event.preventDefault(); 
+    const formData = new FormData(event.target); 
+    formData.append('userId', localStorage.getItem("userId"));
+    const userData = {};
+    formData.forEach((value, key) => {
+      userData[key] = value;
     });
-
-    setNotification(true);
+    const requestPayload = convertRequest(userData);
+    console.info(requestPayload);
+    updateUserData(requestPayload);
+   
   };
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox mb={2} />
-      <Header firstName={user.firstName}>
-        {notification && (
-          <MDAlert color="info" mt="20px">
-            <MDTypography variant="body2" color="white">
-              Your profile has been updated
-            </MDTypography>
-          </MDAlert>
-        )}
-        <MDBox
-          component="form"
-          role="form"
-          onSubmit={submitHandler}
-          display="flex"
-          flexDirection="column"
-        >
-          <MDBox display="flex" flexDirection="row" mt={5} mb={3}>
-            <MDBox
-              display="flex"
-              flexDirection="column"
-              alignItems="flex-start"
-              width="100%"
-              mr={2}
-            >
-              <MDTypography variant="body2" color="text" ml={1} fontWeight="regular">
-                Name
-              </MDTypography>
-              <MDBox mb={2} width="100%">
-                <MDInput
-                  type="firstName"
-                  fullWidth
-                  firstName="firstName"
-                  value={user.firstName}
-                  onChange={changeHandler}
-                  error={errors.firstNameError}
-                />
-                {errors.firstNameError && (
-                  <MDTypography variant="caption" color="error" fontWeight="light">
-                    The firstName can not be null
-                  </MDTypography>
-                )}
-              </MDBox>
-            </MDBox>
-            <MDBox
-              display="flex"
-              flexDirection="column"
-              alignItems="flex-start"
-              width="100%"
-              ml={2}
-            >
-              <MDTypography variant="body2" color="text" ml={1} fontWeight="regular">
-                Email
-              </MDTypography>
-              <MDBox mb={1} width="100%">
-                <MDInput
-                  type="email"
-                  fullWidth
-                  name="email"
-                  value={user.email}
-                  onChange={changeHandler}
-                  error={errors.emailError}
-                />
-                {errors.emailError && (
-                  <MDTypography variant="caption" color="error" fontWeight="light">
-                    The email must be valid
-                  </MDTypography>
-                )}
-              </MDBox>
-            </MDBox>
+      {user ? (  
+        <Card id="profile-info" sx={{ overflow: "visible" }}>
+          <MDBox p={3}>
+            <MDTypography variant="h5">Profile Info</MDTypography>
           </MDBox>
-
-          <MDBox display="flex" flexDirection="column" mb={3}>
-            <MDBox display="flex" flexDirection="row">
-              <MDBox
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-start"
-                width="100%"
-                mr={2}
-              >
-                <MDTypography variant="body2" color="text" ml={1} fontWeight="regular">
-                  New Password
-                </MDTypography>
-                <MDBox mb={2} width="100%">
-                  <MDInput
-                    type="password"
-                    fullWidth
-                    name="newPassword"
-                    placeholder="New Password"
-                    value={user.newPassword}
-                    onChange={changeHandler}
-                    error={errors.newPassError}
-                    inputProps={{
-                      autoComplete: "new-password",
-                      form: {
-                        autoComplete: "off",
-                      },
-                    }}
-                  />
-                  {errors.newPassError && (
-                    <MDTypography variant="caption" color="error" fontWeight="light">
-                      The password must be of at least 8 characters
-                    </MDTypography>
-                  )}
-                </MDBox>
-              </MDBox>
-              <MDBox
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-start"
-                width="100%"
-                ml={2}
-              >
-                <MDTypography variant="body2" color="text" ml={1} fontWeight="regular">
-                  Password Confirmation
-                </MDTypography>
-                <MDBox mb={1} width="100%">
-                  <MDInput
-                    type="password"
-                    fullWidth
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    value={user.confirmPassword}
-                    onChange={changeHandler}
-                    error={errors.confirmPassError}
-                    inputProps={{
-                      autoComplete: "confirmPassword",
-                      form: {
-                        autoComplete: "off",
-                      },
-                    }}
-                  />
-                  {errors.confirmPassError && (
-                    <MDTypography variant="caption" color="error" fontWeight="light">
-                      The password confirmation must match the current password
-                    </MDTypography>
-                  )}
-                </MDBox>
-              </MDBox>
-            </MDBox>
-            <MDBox mt={4} display="flex" justifyContent="end">
-              <MDButton variant="gradient" color="info" type="submit">
-                Save changes
-              </MDButton>
-            </MDBox>
+          <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <FormField name="firstName"  defaultValue={(user?.firstName ? (user.firstName || "").toString() : "")}
+                  label="First Name" placeholder="Fernando" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="lastName"  defaultValue={(user?.lastName ? (user.lastName || "").toString() : "")}
+                label="Last Name" placeholder="Silva" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="login" defaultValue={(user?.login ? (user.login || "").toString() : "")}
+                  label="Login"
+                  placeholder="User"
+                  inputProps={{ type: "text" }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="phoneNumber" defaultValue={(user?.phoneNumber ? (user.phoneNumber || "").toString() : "")}
+                  label="Phone Number"
+                  placeholder="+55 99765 4646"
+                  inputProps={{ type: "text" }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="email" defaultValue={(user?.email ? (user.email || "").toString() : "")}
+                  label="Email"
+                  placeholder="example@email.com"
+                  onChange={changeHandler}
+                  inputProps={{ type: "email" }}
+                />  
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="emailConfirmation" defaultValue={(user?.email ? (user.email || "").toString() : "")}
+                  label="Confirmation Email"
+                  placeholder="example@email.com"
+                  inputProps={{ type: "email", pattern: user.email }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="country"  defaultValue={(user?.country ? (user.country || "").toString() : "")}
+                label="Country" placeholder="Brazil" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="city"  defaultValue={(user?.city ? (user.city || "").toString() : "")}
+                label="City" placeholder="Rio de Janeiro" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormField name="currency" defaultValue={(user?.currency ? (user.currency || "").toString() : "")}
+                label="Currency" placeholder="USD" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormField name="langKey" defaultValue={(user?.langKey ? (user.langKey || "").toString() : "")}
+                label="Language" placeholder="PTBR" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <MDButton
+                  variant="gradient"
+                  color="info"
+                  type="submit"
+                  >                   
+                  Save
+                  </MDButton>
+              </Grid>    
+              <Grid item xs={12} md={6}>
+                <MDButton
+                  variant="gradient"
+                  color="info"
+                  type="button"
+                  onClick={handleClearForm}>                  
+                  Clear
+                </MDButton>
+              </Grid>    
+            </Grid>
           </MDBox>
-        </MDBox>
-      </Header>
+        </Card>
+        ) : (
+        null    
+      )}
+      <MDBox sx={{ width: 500 }}>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={open}
+          key={vertical + horizontal}
+          autoHideDuration={2000}
+          onClose={handleSnackBarClose}
+          disablescrolllock="true">     
+          <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
+            User Profile Saved!
+          </Notification >
+        </Snackbar>
+      </MDBox>
       <Footer />
     </DashboardLayout>
   );

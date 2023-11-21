@@ -195,17 +195,10 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       <List>
         <MDBox display="flex flex-col" alignItems="center">
           <MDTypography color={textColor} variant="body2" fontWeight="medium" pl="1.5rem">
-            User
+            Price Alerts
           </MDTypography>
-          {renderExampleRoutes}
+          {renderRoutes}
         </MDBox>
-        <Divider
-          light={
-            (!darkMode && !whiteSidenav && !transparentSidenav) ||
-            (darkMode && !transparentSidenav && whiteSidenav)
-          }
-        ></Divider>
-        {renderRoutes}
       </List>
     </SidenavRoot>
   );
