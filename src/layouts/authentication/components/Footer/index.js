@@ -43,8 +43,7 @@ function Footer({ light }) {
               </MDTypography>
             </Link>
             for a better web.
-          </MDBox>
-          
+          </MDBox>       
         </MDBox>
       </Container>
     </MDBox>

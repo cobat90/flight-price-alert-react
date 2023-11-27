@@ -17,7 +17,7 @@ import Footer from "examples/Footer";
 
 // Overview page components
 import selectData from "components/FormField/data/selectData";
-import { convertRequest } from '../../services/convert-price-alert-user-service';
+import { convertRequest } from '../../services/convert-user-price-alert-service';
 import AuthService from "../../services/auth-service";
 
 const Notification = React.forwardRef(function Alert(props, ref) {
@@ -96,7 +96,6 @@ const UserProfile = () => {
       userData[key] = value;
     });
     const requestPayload = convertRequest(userData);
-    console.info(requestPayload);
     updateUserData(requestPayload);
    
   };

@@ -109,7 +109,7 @@ function Settings() {
     
     if (userData.confirmPassword || userData.newPassword) {
       if (userData.confirmPassword.trim() !== userData.newPassword.trim()) {
-        setErrors({ ...errors, confirmPassError: true, newPassError: false,});
+        setErrors({ ...errors, confirmPassError: true, newPassError: false});
         return;
        
       }

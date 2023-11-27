@@ -3,13 +3,14 @@ export const convertRequest = (userData) => {
       userId,
       firstName,
       lastName,
+      email,
       phoneNumber,
       login,
-      email,
       country,
       city,
-      langKey,
       currency,
+      langKey,
+      password,
     } = userData;
   
     const payload = {
@@ -23,6 +24,7 @@ export const convertRequest = (userData) => {
       city: city,
       langKey: langKey,
       currency: currency,
+      password: password,
     };
   
     return payload;

@@ -5,6 +5,13 @@ import { Link } from "react-router-dom";
 // @mui material components
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -21,25 +28,37 @@ import bgImage from "assets/images/bg-sign-up-cover.jpeg";
 import AuthService from "services/auth-service";
 import { AuthContext } from "context";
 import { InputLabel } from "@mui/material";
+import { convertRequest } from '../../services/convert-user-price-alert-service';
 
 function Register() {
   const authContext = useContext(AuthContext);
 
   const [inputs, setInputs] = useState({
-    name: "",
-    email: "",
-    password: "",
     agree: false,
   });
 
   const [errors, setErrors] = useState({
-    nameError: false,
+    firstNameError: false,
     emailError: false,
+    emailExistsError: false,
+    phoneNumberError: false,
+    loginExistsError: false,
     passwordError: false,
+    confirmPasswordError: false,
     agreeError: false,
     error: false,
     errorText: "",
   });
+
+  const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
+
+  const handleDialogConfirmOpen = () => {   
+    setOpenDialogConfirm(true);
+  };
+
+  const handleDialogConfirmClose = () => {
+    setOpenDialogConfirm(false);
+  };
 
   const changeHandler = (e) => {
     setInputs({
@@ -52,69 +71,79 @@ function Register() {
     e.preventDefault();
 
     const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const phoneFormat = /^\+(?:[0-9] ?){7,25}[0-9]$/;
 
-    if (inputs.name.trim().length === 0) {
-      setErrors({ ...errors, nameError: true });
-      return;
+    const formData = new FormData(e.target); 
+    let userData = {};
+    formData.forEach((value, key) => {
+      userData[key] = value;
+    });
+
+    if (userData.email){
+      if (userData.email.trim().length === 0 || !userData.email.trim().match(mailFormat)) {
+        setErrors({ ...errors, emailError: true });
+        return;
+      }
     }
-
-    if (inputs.email.trim().length === 0 || !inputs.email.trim().match(mailFormat)) {
-      setErrors({ ...errors, emailError: true });
-      return;
+    if (userData.phoneNumber){
+      if (userData.phoneNumber.trim().length === 0 || !userData.phoneNumber.trim().match(phoneFormat)) {
+        setErrors({ ...errors, phoneNumberError: true });
+        return;
+      }
     }
-
-    if (inputs.password.trim().length < 8) {
-      setErrors({ ...errors, passwordError: true });
-      return;
-    }
-
     if (inputs.agree === false) {
       setErrors({ ...errors, agreeError: true });
       return;
     }
+    if (userData.confirmPassword || userData.password) {     
+      if (userData.password.trim().length < 8) {
+        setErrors({ ...errors, passwordError: true });
+        return;
+      }
+      if (userData.confirmPassword.trim() !== userData.password.trim()) {
+        setErrors({ ...errors, confirmPasswordError: true, passwordError: false,});
+        return;
+      }
 
-    // here will be the post action to add a user to the db
-    const newUser = { name: inputs.name, email: inputs.email, password: inputs.password };
+      if (userData.password.length > 0 && userData.confirmPassword.length > 0 ) {
+        const requestPayload = convertRequest(userData);
+        console.info("requestPayload: ",requestPayload);
+        registerUserData(requestPayload);
+        
+        setErrors({
+          firstNameError: false,
+          emailError: false,
+          emailExistsError: false,
+          phoneNumberError: false,
+          loginExistsError: false,
+          passwordError: false,
+          confirmPasswordError: false,
+          agreeError: false,
+          error: false,
+          errorText: "",
+        });     
+      }
+    }
+  };
 
-    const myData = {
-      data: {
-        type: "users",
-        attributes: { ...newUser, password_confirmation: newUser.password },
-        relationships: {
-          roles: {
-            data: [
-              {
-                type: "roles",
-                id: "1",
-              },
-            ],
-          },
-        },
-      },
-    };
-
+  const registerUserData = async (userData) => {
     try {
-      const response = await AuthService.register(myData);
-      authContext.login(response.access_token, response.refresh_token);
-
-      setInputs({
-        name: "",
-        email: "",
-        password: "",
-        agree: false,
-      });
-
-      setErrors({
-        nameError: false,
-        emailError: false,
-        passwordError: false,
-        agreeError: false,
-        error: false,
-        errorText: "",
-      });
-    } catch (err) {
-      setErrors({ ...errors, error: true, errorText: err.message });
-      console.error(err);
+      const response = await AuthService.register(userData);
+      if (response.status === 201) {
+        handleDialogConfirmOpen();
+      } 
+      else {
+        console.error("Invalid data format in response:", response);
+      }
+    } catch (error) {
+      if (error.response.data.message === "error.emailexists"){
+        console.info("EAS");
+        setErrors({
+          emailError: true,
+          emailExistsError: true,
+        })
+      }
+      console.error("Error fetching alert:", error);
     }
   };
 
@@ -133,10 +162,10 @@ function Register() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Join us today
+            Sing up
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            Enter your email and password to register
+            Join now and receive free 10 days
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
@@ -144,21 +173,16 @@ function Register() {
             <MDBox mb={2}>
               <MDInput
                 type="text"
-                label="Name"
+                label="First Name"
                 variant="standard"
                 fullWidth
-                name="name"
-                value={inputs.name}
-                onChange={changeHandler}
-                error={errors.nameError}
-                inputProps={{
-                  autoComplete: "name",
-                  form: {
-                    autoComplete: "off",
-                  },
-                }}
+                name="firstName"
+                error={errors.firstNameError}
+                required
+                minLength={3}
+                maxLength={45}
               />
-              {errors.nameError && (
+              {errors.firstNameError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
                   The name can not be empty
                 </MDTypography>
@@ -170,20 +194,51 @@ function Register() {
                 label="Email"
                 variant="standard"
                 fullWidth
-                value={inputs.email}
                 name="email"
-                onChange={changeHandler}
                 error={errors.emailError}
-                inputProps={{
-                  autoComplete: "email",
-                  form: {
-                    autoComplete: "off",
-                  },
-                }}
+                required
+                minLength={5}
+                maxLength={100}
               />
               {errors.emailError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
-                  The email must be valid
+                  {errors.emailExistsError ? 'Email must be valid.' : 'The Login already in use'}
+                </MDTypography>
+              )}
+            </MDBox>
+            <MDBox mb={2}>
+              <MDInput
+                type="text"
+                label="Phone Number"
+                variant="standard"
+                fullWidth
+                name="phoneNumber"
+                error={errors.phoneNumberError}
+                required
+                minLength={7}
+                maxLength={25}
+              />
+              {errors.phoneNumberError && (
+                <MDTypography variant="caption" color="error" fontWeight="light">
+                  Invalid Phone Number. Ex: +99 99 9999 9999.
+                </MDTypography>
+              )}
+            </MDBox>
+            <MDBox mb={2}>
+              <MDInput
+                type="text"
+                label="Login"
+                variant="standard"
+                fullWidth
+                name="login"
+                error={errors.loginExistsError}
+                required
+                minLength={3}
+                maxLength={50}
+              />
+              {errors.loginExistsError && (
+                <MDTypography variant="caption" color="error" fontWeight="light">
+                  The Login already in use
                 </MDTypography>
               )}
             </MDBox>
@@ -194,13 +249,32 @@ function Register() {
                 variant="standard"
                 fullWidth
                 name="password"
-                value={inputs.password}
-                onChange={changeHandler}
                 error={errors.passwordError}
+                required
+                minLength={8}
+                maxLength={50}
               />
               {errors.passwordError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
                   The password must be of at least 8 characters
+                </MDTypography>
+              )}
+            </MDBox>
+            <MDBox mb={2}>
+              <MDInput
+                type="password"
+                label="Confirm Password"
+                variant="standard"
+                fullWidth
+                name="confirmPassword"
+                error={errors.confirmPasswordError}
+                required
+                minLength={8}
+                maxLength={50}
+              />
+              {errors.confirmPasswordError && (
+                <MDTypography variant="caption" color="error" fontWeight="light">
+                  The pass confirmation must match the current password
                 </MDTypography>
               )}
             </MDBox>
@@ -259,6 +333,30 @@ function Register() {
           </MDBox>
         </MDBox>
       </Card>
+      <Dialog
+      open={openDialogConfirm}
+      onClose={handleDialogConfirmClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      disableScrollLock={ true } >             
+      <DialogTitle id="alert-dialog-title">
+        {"Check your email"}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+           An email was sent for active your account.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+      <Button
+          component={Link}
+          to="/auth/login"
+          onClick={handleDialogConfirmClose}
+        >
+          Ok
+        </Button>
+      </DialogActions>
+    </Dialog>
     </CoverLayout>
   );
 }

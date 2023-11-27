@@ -1,7 +1,15 @@
 import Axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL;
-Axios.defaults.baseURL = API_URL;
+const API_URL_FLIGHT = process.env.REACT_APP_API_URL_FLIGHT;
+const API_URL_USER = process.env.REACT_APP_API_URL_USER;
+
+export const flightAxiosInstance = Axios.create({
+  baseURL: API_URL_FLIGHT
+});
+
+export const userAxiosInstance = Axios.create({
+  baseURL: API_URL_USER
+});
 
 export class HttpService {
   _axios = Axios.create();
