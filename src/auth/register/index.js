@@ -42,6 +42,7 @@ function Register() {
     emailError: false,
     emailExistsError: false,
     phoneNumberError: false,
+    phoneNumberExistsError: false,
     loginExistsError: false,
     passwordError: false,
     confirmPasswordError: false,
@@ -115,6 +116,7 @@ function Register() {
           emailError: false,
           emailExistsError: false,
           phoneNumberError: false,
+          phoneNumberExistsError: false,
           loginExistsError: false,
           passwordError: false,
           confirmPasswordError: false,
@@ -137,10 +139,20 @@ function Register() {
       }
     } catch (error) {
       if (error.response.data.message === "error.emailexists"){
-        console.info("EAS");
         setErrors({
           emailError: true,
           emailExistsError: true,
+        })
+      }
+      else if (error.response.data.message === "error.userexists"){
+        setErrors({
+          loginExistsError: true,
+        })
+      }
+      else if (error.response.data.message === "error.phonenumberexists"){
+        setErrors({
+          phoneNumberError: true,
+          phoneNumberExistsError: true,
         })
       }
       console.error("Error fetching alert:", error);
@@ -165,7 +177,7 @@ function Register() {
             Sing up
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            Join now and receive free 10 days
+            Join now and receive free 10 alert days
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
@@ -202,7 +214,7 @@ function Register() {
               />
               {errors.emailError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
-                  {errors.emailExistsError ? 'Email must be valid.' : 'The Login already in use'}
+                  {errors.emailExistsError ? 'The Login already in use' : 'Email must be valid.'}
                 </MDTypography>
               )}
             </MDBox>
@@ -220,7 +232,7 @@ function Register() {
               />
               {errors.phoneNumberError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
-                  Invalid Phone Number. Ex: +99 99 9999 9999.
+                  {errors.phoneNumberExistsError ? 'The Phone Number already in use' : 'Invalid Phone Number. Ex: +99 99 9999 9999.'}
                 </MDTypography>
               )}
             </MDBox>
@@ -353,7 +365,7 @@ function Register() {
           to="/auth/login"
           onClick={handleDialogConfirmClose}
         >
-          Ok
+          Sign in
         </Button>
       </DialogActions>
     </Dialog>
