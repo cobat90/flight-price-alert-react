@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
 import Card from "@mui/material/Card";
+import { Link } from "react-router-dom";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
-import MDAlert from "components/MDAlert";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+
 
 // Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
@@ -16,7 +23,6 @@ import bgImage from "assets/images/bg-reset-cover.jpeg";
 import authService from "services/auth-service";
 
 function ForgotPassword() {
-  const [notification, setNotification] = useState(false);
   const [input, setEmail] = useState({
     email: "",
   });
@@ -25,13 +31,22 @@ function ForgotPassword() {
     textError: "",
   });
 
+  const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
+
+  const handleDialogConfirmOpen = () => {   
+    setOpenDialogConfirm(true);
+  };
+
+  const handleDialogConfirmClose = () => {
+    setOpenDialogConfirm(false);
+  };
 
   const changeHandler = (e) => {
     setEmail({
       [e.target.name]: e.target.value,
     });
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -42,22 +57,19 @@ function ForgotPassword() {
       return;
     }
 
-    // somthing not right with the data
-    const myData = {
-      data: {
-        type: "password-forgot",
-        attributes: {
-          redirect_url: `${process.env.REACT_APP_URL}/auth/reset-password`,
-          ...input,
-        },
-      },
+    const email = input.email.trim();
+
+    const passwordForgotData = {
+      email
     };
 
     try {
-      const response = await authService.forgotPassword(myData);
-      setError({ err: false, textError: "" });
-      
-      setNotification(true);
+      const response = await authService.forgotPasswordInit(passwordForgotData);
+      if (response.status === 200) {
+        handleDialogConfirmOpen();
+        setError({ err: false, textError: "" });     
+      } 
+
     } catch (err) {
       console.error(err);
       if (err.hasOwnProperty("errors")) {
@@ -89,7 +101,7 @@ function ForgotPassword() {
             Reset Password
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            You will receive an e-mail in maximum 60 seconds
+            You will receive an e-mail for Reset Password
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
@@ -119,6 +131,30 @@ function ForgotPassword() {
           </MDBox>
         </MDBox>
       </Card>
+      <Dialog
+      open={openDialogConfirm}
+      onClose={handleDialogConfirmClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      disableScrollLock={ true } >             
+      <DialogTitle id="alert-dialog-title">
+        {"Check your email"}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+           An email was sent for active your account.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+      <Button
+          component={Link}
+          to="/auth/login"
+          onClick={handleDialogConfirmClose}
+        >
+          Sign in
+        </Button>
+      </DialogActions>
+    </Dialog>
     </CoverLayout>
   );
 }

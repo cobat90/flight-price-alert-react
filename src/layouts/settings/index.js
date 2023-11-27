@@ -176,83 +176,83 @@ function Settings() {
     <DashboardLayout>
       < DashboardNavbar />
       <MDBox mb={2} >
-    <Card id="change-password">
-      <MDBox p={3}>
-        <MDTypography variant="h5">Change Password</MDTypography>
-      </MDBox>
-      <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <FormField
-              fullWidth
-              name="currentPassword"
-              label="Current Password"
-              required
-              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <FormField
-              fullWidth
-              name="newPassword"
-              label="New Password"
-              required
-              error={errors.newPassError}
-              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
-            />
-            {errors.newPassError && (
-                    <MDTypography variant="caption" color="error" fontWeight="light">
-                      The password must be different from the current password
-                    </MDTypography>
-                  )}
-          </Grid>
-          <Grid item xs={12}>
-            <FormField
-              fullWidth
-              name="confirmPassword"
-              label="Confirm New Password"
-              required
-              error={errors.confirmPassError}
-              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
-            />
-             {errors.confirmPassError && (
-                    <MDTypography variant="caption" color="error" fontWeight="light">
-                      The password confirmation must match the current password
-                    </MDTypography>
-                  )}
-          </Grid>
-        </Grid>
-        <MDBox mt={6} mb={1}>
-          <MDTypography variant="h5">Password requirements</MDTypography>
-        </MDBox>
-        <MDBox mb={1}>
-          <MDTypography variant="body2" color="text">
-            Please follow this guide for a strong password
-          </MDTypography>
-        </MDBox>
-        <MDBox display="flex" justifyContent="space-between" alignItems="flex-end" flexWrap="wrap">
-          <MDBox component="ul" m={0} pl={3.25} mb={{ xs: 1, sm: 0 }}>
-            {renderPasswordRequirements}
+        <Card id="change-password">
+          <MDBox p={3}>
+            <MDTypography variant="h5">Change Password</MDTypography>
           </MDBox>
-        <MDBox display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="flex-end">
-          <MDButton variant="gradient" color="error" sx={{ height: "100%" }} type="submit">
-            Change Password
-          </MDButton>
-          <MDBox ml={{ xs: 0, sm: 0.5 }} mt={{ xs: 1, sm: 0 }}>
-            <MDButton
-              variant="gradient"
-              color="info"
-              type="button"
-              onClick={handleClearForm}
-            >
-              Clear
-            </MDButton>
-          </MDBox>
-        </MDBox>
+            <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <FormField
+                    fullWidth
+                    name="currentPassword"
+                    label="Current Password"
+                    required
+                    inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <FormField
+                    fullWidth
+                    name="newPassword"
+                    label="New Password"
+                    required
+                    error={errors.newPassError}
+                    inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
+                  />
+                  {errors.newPassError && (
+                          <MDTypography variant="caption" color="error" fontWeight="light">
+                            The password must be different from the current password
+                          </MDTypography>
+                        )}
+                </Grid>
+                <Grid item xs={12}>
+                  <FormField
+                    fullWidth
+                    name="confirmPassword"
+                    label="Confirm New Password"
+                    required
+                    error={errors.confirmPassError}
+                    inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
+                  />
+                  {errors.confirmPassError && (
+                          <MDTypography variant="caption" color="error" fontWeight="light">
+                            The password confirmation must match the current password
+                          </MDTypography>
+                        )}
+                </Grid>
+              </Grid>
+              <MDBox mt={6} mb={1}>
+                <MDTypography variant="h5">Password requirements</MDTypography>
+              </MDBox>
+              <MDBox mb={1}>
+                <MDTypography variant="body2" color="text">
+                  Please follow this guide for a strong password
+                </MDTypography>
+              </MDBox>
+              <MDBox display="flex" justifyContent="space-between" alignItems="flex-end" flexWrap="wrap">
+                <MDBox component="ul" m={0} pl={3.25} mb={{ xs: 1, sm: 0 }}>
+                  {renderPasswordRequirements}
+                </MDBox>
+                <MDBox display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="flex-end">
+                  <MDButton variant="gradient" color="error" sx={{ height: "100%" }} type="submit">
+                    Change Password
+                  </MDButton>
+                  <MDBox ml={{ xs: 0, sm: 0.5 }} mt={{ xs: 1, sm: 0 }}>
+                    <MDButton
+                      variant="gradient"
+                      color="info"
+                      type="button"
+                      onClick={handleClearForm}
+                    >
+                      Clear
+                    </MDButton>
+                  </MDBox>
+                </MDBox>
+              </MDBox>
+            </MDBox>
+        </Card>
       </MDBox>
-    </MDBox>
-    </Card>
-    </MDBox>
     <MDBox mb={2} >
     <Card id="delete-account">
       <MDBox

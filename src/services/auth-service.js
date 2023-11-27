@@ -17,9 +17,14 @@ class AuthService {
     return await userAxiosInstance.post(logoutEndpoint);
   };
 
-  forgotPassword = async (payload) => {
-    const forgotPassword = 'api/account/reset-password/init';
-    return await userAxiosInstance.post(forgotPassword, payload);
+  forgotPasswordInit = async (payload) => {
+    const forgotPasswordInit = 'api/account/reset-password/init';
+    return await userAxiosInstance.post(forgotPasswordInit, payload);
+  }
+
+  forgotPasswordFinish = async (payload) => {
+    const forgotPasswordFinish = 'api/account/reset-password/finish';
+    return await userAxiosInstance.post(forgotPasswordFinish, payload);
   }
 
   changePassword = async (payload) => {

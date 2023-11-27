@@ -62,8 +62,6 @@ function Login() {
     // check rememeber me?
     e.preventDefault();
 
-    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
     if (inputs.username.trim().length === 0) {
       setErrors({ ...errors, usernameError: true });
       return;
@@ -84,14 +82,14 @@ function Login() {
     try {
       const response = await AuthService.login(myData);
       authContext.login(response.data.id_token);
-    } catch (res) {
-      if (res.hasOwnProperty("message")) {
-        setCredentialsError(res.message);
+    } catch (error) {
+      if (error.response.data.hasOwnProperty("detail")) {
+        setCredentialsError(error.response.data.detail);
       } else {
-        setCredentialsError(res.errors[0].detail);
+        setCredentialsError("Aconteceu um erro inesperado", error);
       }
     }
-
+  
     return () => {
       setInputs({
         username: "",
@@ -178,11 +176,11 @@ function Login() {
             </MDBox>
             <MDBox mt={4} mb={1}>
               <MDButton variant="gradient" color="info" fullWidth type="submit">
-                sign in
+                Sign in
               </MDButton>
             </MDBox>
             {credentialsErros && (
-              <MDTypography variant="caption" color="error" fontWeight="light">
+              <MDTypography variant="caption" color="error" fontWeight="medium" >
                 {credentialsErros}
               </MDTypography>
             )}
@@ -191,7 +189,7 @@ function Login() {
                 Forgot your password? Reset it{" "}
                 <MDTypography
                   component={Link}
-                  to="/auth/forgot-password"
+                  to="/auth/forgot-password-init"
                   variant="button"
                   color="info"
                   fontWeight="medium"
