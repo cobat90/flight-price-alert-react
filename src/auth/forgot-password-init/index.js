@@ -72,13 +72,11 @@ function ForgotPassword() {
 
     } catch (err) {
       console.error(err);
-      if (err.hasOwnProperty("errors")) {
-        if (err.errors.hasOwnProperty("email")) {
-          setError({ err: true, textError: err.errors.email[0] });
+        if (err.response.data.hasOwnProperty("error")) {
+          setError({ err: true, textError: err.response.data.error });
         } else {
-          setError({ err: true, textError: "An error occured" });
+          setError({ err: true, textError: "An unexpected error occurred" });
         }
-      }
       return null;
     }
   };
@@ -119,7 +117,7 @@ function ForgotPassword() {
               />
             </MDBox>
             {error.err && (
-              <MDTypography variant="caption" color="error" fontWeight="light">
+              <MDTypography variant="caption" color="error" fontWeight="medium">
                 {error.textError}
               </MDTypography>
             )}
@@ -147,11 +145,9 @@ function ForgotPassword() {
       </DialogContent>
       <DialogActions>
       <Button
-          component={Link}
-          to="/auth/login"
-          onClick={handleDialogConfirmClose}
+        onClick={handleDialogConfirmClose}
         >
-          Sign in
+          Ok
         </Button>
       </DialogActions>
     </Dialog>

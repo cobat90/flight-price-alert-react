@@ -54,13 +54,6 @@ function ForgotPasswordFinish() {
 
   console.info("key: ", key);
 
-  const handleClearForm = () => {
-    const inputs =  formRef.current.querySelectorAll('input');
-    inputs.forEach((input) => {
-      input.value = '';
-    });   
-  };
-
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
 
   const handleDialogConfirmOpen = () => {   
@@ -111,14 +104,10 @@ function ForgotPasswordFinish() {
       } 
     } catch (error) {
       console.error("error: ", error);
-      if (error.response.data.hasOwnProperty("detail")) {
-        console.info("error 1: " + error.response.data.detail);
-
-        setCredentialsError(error.response.data.detail);
+      if (error.response.data.hasOwnProperty("error")) {
+        setCredentialsError(error.response.data.error);
       } else {
-        console.info("error 2: " + error.response.data.detail);
-
-        setCredentialsError("Aconteceu um erro inesperado", error);
+        setCredentialsError("An unexpected error occurred", error);
       }
     }
   }
@@ -153,14 +142,9 @@ function ForgotPasswordFinish() {
                   name="newPassword"
                   label="New Password"
                   required
-                  error={errors.newPassError}
                   inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
                 />
-                {errors.newPassError && (
-                  <MDTypography variant="caption" color="error" fontWeight="medium">
-                    The password must be different from the current password
-                  </MDTypography>
-                )}
+
               </Grid>
               <Grid item xs={12}>
                 <FormField
@@ -176,6 +160,13 @@ function ForgotPasswordFinish() {
                     The password confirmation must match
                   </MDTypography>
                 )}
+                {credentialsErros && (
+                  <MDBox mt={2} mb={1} display="flex" alignItems="center" >
+                    <MDTypography variant="caption" color="error" fontWeight="medium"  >
+                      {credentialsErros}
+                    </MDTypography>
+                  </MDBox>
+                )}
               </Grid>
             </Grid>
             <MDBox mt={2} mb={2}>
@@ -185,17 +176,9 @@ function ForgotPasswordFinish() {
                 </MDBox>
                   <MDButton variant="gradient" color="error" sx={{ height: "100%" }} fullWidth type="submit">
                     Change Password
-                  </MDButton>
-          
+                  </MDButton>       
               </MDBox>
-            </MDBox>
-            {credentialsErros && (
-              <MDBox mt={2} mb={1} display="flex" alignItems="center" >
-                <MDTypography variant="caption" color="error" fontWeight="medium"  >
-                  {credentialsErros}
-                </MDTypography>
-              </MDBox>
-            )}
+            </MDBox>          
           </MDBox>
         </MDBox>
       </Card>
