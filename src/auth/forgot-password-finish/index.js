@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import Card from "@mui/material/Card";
@@ -44,16 +43,19 @@ function ForgotPasswordFinish() {
     newPassError: false,
     confirmPassError: false,
   });
-  
+
   const [credentialsErros, setCredentialsError] = useState(null);
-
-  const formRef = useRef();
-
+  const [resetKey, setResetKey] = useState(null);
   const location = useLocation();
-  const { key } = queryString.parse(location.search);
+  const parsedQueryString = queryString.parse(location.search);
+  
+  useEffect(() => {
+    if (Object.keys(parsedQueryString).length > 0) {
+      setResetKey(parsedQueryString.key);
+    }
+  }, [parsedQueryString]); // Add parsedQueryString as a dependency to useEffect
 
-  console.info("key: ", key);
-
+  
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
 
   const handleDialogConfirmOpen = () => {   
@@ -63,7 +65,7 @@ function ForgotPasswordFinish() {
   const handleDialogConfirmClose = () => {
     setOpenDialogConfirm(false);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target); 
@@ -71,7 +73,6 @@ function ForgotPasswordFinish() {
     formData.forEach((value, key) => {
       userData[key] = value;
     });
-    console.info("userData", userData);
     
     if (userData.confirmPassword || userData.newPassword) {
       if (userData.confirmPassword.trim() !== userData.newPassword.trim()) {
@@ -82,7 +83,7 @@ function ForgotPasswordFinish() {
 
     if (userData.newPassword.length > 0 && userData.confirmPassword.length > 0 ) {
       const newPassData = {
-        key: key,
+        key: resetKey,
         newPassword: userData.newPassword,
       };
       console.info("newPassData: ", newPassData);
@@ -100,7 +101,7 @@ function ForgotPasswordFinish() {
       console.info("response: ", response);
       if (response.status === 200) {
         handleDialogConfirmOpen();
-        setError({ err: false, textError: "" });     
+        setErrors({ err: false, textError: "" });     
       } 
     } catch (error) {
       console.error("error: ", error);
@@ -134,7 +135,7 @@ function ForgotPasswordFinish() {
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form" method="POST" ref={formRef} onSubmit={handleSubmit}>
+          <MDBox component="form" role="form" method="POST" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <FormField
@@ -142,7 +143,7 @@ function ForgotPasswordFinish() {
                   name="newPassword"
                   label="New Password"
                   required
-                  inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
+                  inputProps={{ type: "password", minLength: 8 }}
                 />
 
               </Grid>
@@ -153,7 +154,7 @@ function ForgotPasswordFinish() {
                   label="Confirm New Password"
                   required
                   error={errors.confirmPassError}
-                  inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
+                  inputProps={{ type: "password", minLength: 8 }}
                 />
                 {errors.confirmPassError && (
                   <MDTypography variant="caption" color="error" fontWeight="medium">

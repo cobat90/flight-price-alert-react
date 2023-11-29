@@ -86,7 +86,7 @@ function Login() {
       if (error.response.data.hasOwnProperty("detail")) {
         setCredentialsError(error.response.data.detail);
       } else {
-        setCredentialsError("Aconteceu um erro inesperado", error);
+        setCredentialsError("An unexpected error occurred", error);
       }
     }
   
