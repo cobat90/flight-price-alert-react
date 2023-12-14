@@ -86,7 +86,6 @@ function ForgotPasswordFinish() {
         key: resetKey,
         newPassword: userData.newPassword,
       };
-      console.info("newPassData: ", newPassData);
       handleForgotPasswordFinish(newPassData);
     }
     setErrors({
@@ -98,13 +97,11 @@ function ForgotPasswordFinish() {
   const handleForgotPasswordFinish = async (newPassData) => {
     try {
       const response = await authService.forgotPasswordFinish(newPassData);
-      console.info("response: ", response);
       if (response.status === 200) {
         handleDialogConfirmOpen();
         setErrors({ err: false, textError: "" });     
       } 
     } catch (error) {
-      console.error("error: ", error);
       if (error.response.data.hasOwnProperty("error")) {
         setCredentialsError(error.response.data.error);
       } else {

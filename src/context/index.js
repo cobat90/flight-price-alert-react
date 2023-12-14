@@ -40,7 +40,8 @@ const AuthContextProvider = ({ children }) => {
   }, [isAuthenticated]);
 
 
-  const login = async (token, userId) => {
+  const login = async (token) => {					
+    console.info("token:" + token);			   
     localStorage.setItem("token", token);
     try {
       const response = await AuthService.getProfile();

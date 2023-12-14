@@ -34,13 +34,12 @@ class AuthService {
 
   getProfile = async() => {
     const getProfile = 'api/account';
-    console.info(getProfile);
     return await userAxiosInstance.get(getProfile);
   }
 
   updateProfile = async (newInfo) => {
     const updateProfile = "api/account";
-    return await userAxiosInstance.post(updateProfile, newInfo);
+    return await userAxiosInstance.put(updateProfile, newInfo);
   }
 
   deleteAccount = async (login) => {

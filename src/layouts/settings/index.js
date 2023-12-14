@@ -23,10 +23,11 @@ import AuthService from "../../services/auth-service";
 
 function Settings() {
   const passwordRequirements = [
+    "Min 8 characters",
     "One special character",
-    "Min 6 characters",
-    "One number (2 are recommended)",
-    "Change it often",
+    "One number",
+    "Contains at least 1 uppercase letter",
+    "Contains at least 1 lowercase letter"
   ];
 
   const renderPasswordRequirements = passwordRequirements.map((item, key) => {
@@ -55,6 +56,8 @@ function Settings() {
     newPassError: false,
     confirmPassError: false,
   });
+
+  const [credentialsErros, setCredentialsError] = useState(null);
 
   const handleSnackBarOpen = (newState) => {
     setSnackBarState({ ...newState, open: true });
@@ -142,9 +145,19 @@ function Settings() {
         console.error("Invalid data format in response:", response);
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
+      if (error.response.data.hasOwnProperty("detail")) {
+        setCredentialsError(extractTextOutsideParentheses(error.response.data.detail));
+      } else {
+        setCredentialsError("An unexpected error occurred", error);
+      }
     }
   };
+
+  function extractTextOutsideParentheses(inputString) {
+    const regex = /\(([^)]+)\)/;
+    const matches = regex.exec(inputString);
+    return matches ? inputString.replace(matches[0], '').trim() : inputString;
+  }
 
   const deleteAccount = async (login) => {
     try {
@@ -222,6 +235,11 @@ function Settings() {
                         )}
                 </Grid>
               </Grid>
+              {credentialsErros && (
+              <MDTypography variant="caption" color="error" fontWeight="medium" >
+                {credentialsErros}
+              </MDTypography>
+            )}
               <MDBox mt={6} mb={1}>
                 <MDTypography variant="h5">Password requirements</MDTypography>
               </MDBox>

@@ -59,7 +59,6 @@ function Login() {
   };
 
   const submitHandler = async (e) => {
-    // check rememeber me?
     e.preventDefault();
 
     if (inputs.username.trim().length === 0) {
@@ -81,10 +80,11 @@ function Login() {
     
     try {
       const response = await AuthService.login(myData);
+      console.info("response.data.id_token: " + response.data.id_token);
       authContext.login(response.data.id_token);
     } catch (error) {
       if (error.response.data.hasOwnProperty("detail")) {
-        setCredentialsError(error.response.data.detail);
+        setCredentialsError(extractTextOutsideParentheses(error.response.data.detail));
       } else {
         setCredentialsError("An unexpected error occurred", error);
       }
@@ -102,6 +102,12 @@ function Login() {
       });
     };
   };
+
+  function extractTextOutsideParentheses(inputString) {
+    const regex = /\(([^)]+)\)/;
+    const matches = regex.exec(inputString);
+    return matches ? inputString.replace(matches[0], '').trim() : inputString;
+  }
 
   return (
     <BasicLayoutLanding image={bgImage}>
