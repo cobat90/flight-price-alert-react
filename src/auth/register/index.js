@@ -142,21 +142,34 @@ function Register() {
         setErrors({
           emailError: true,
           emailExistsError: true,
-        })
+        });
       }
       else if (error.response.data.message === "error.userexists"){
         setErrors({
           loginExistsError: true,
-        })
+        });
       }
       else if (error.response.data.message === "error.phonenumberexists"){
         setErrors({
           phoneNumberError: true,
           phoneNumberExistsError: true,
-        })
+        });
       }
-      console.error("Error fetching alert:", error);
+      else if (error.response.data.hasOwnProperty("detail")) 
+      {
+        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.detail) });
+      } 
+      else if (error.response.data.hasOwnProperty("error")) 
+      {
+        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.error) });
+      } 
     }
+  };
+
+  function extractTextOutsideParentheses(inputString) {
+    const regex = /\(([^)]+)\)/;
+    const matches = regex.exec(inputString);
+    return matches ? inputString.replace(matches[0], '').trim() : inputString;
   };
 
   return (
@@ -231,7 +244,7 @@ function Register() {
                 maxLength={25}
               />
               {errors.phoneNumberError && (
-                <MDTypography variant="caption" color="error" fontWeight="light">
+                <MDTypography variant="caption" color="error" fontWeight="medium">
                   {errors.phoneNumberExistsError ? 'The Phone Number already in use' : 'Invalid Phone Number. Ex: +99 99 9999 9999.'}
                 </MDTypography>
               )}
@@ -249,7 +262,7 @@ function Register() {
                 maxLength={50}
               />
               {errors.loginExistsError && (
-                <MDTypography variant="caption" color="error" fontWeight="light">
+                <MDTypography variant="caption" color="error" fontWeight="medium">
                   The Login already in use
                 </MDTypography>
               )}
@@ -267,7 +280,7 @@ function Register() {
                 maxLength={50}
               />
               {errors.passwordError && (
-                <MDTypography variant="caption" color="error" fontWeight="light">
+                <MDTypography variant="caption" color="error" fontWeight="medium">
                   The password must be of at least 8 characters
                 </MDTypography>
               )}
@@ -285,7 +298,7 @@ function Register() {
                 maxLength={50}
               />
               {errors.confirmPasswordError && (
-                <MDTypography variant="caption" color="error" fontWeight="light">
+                <MDTypography variant="caption" color="error" fontWeight="medium">
                   The pass confirmation must match the current password
                 </MDTypography>
               )}
@@ -313,12 +326,12 @@ function Register() {
               </MDTypography>
             </MDBox>
             {errors.agreeError && (
-              <MDTypography variant="caption" color="error" fontWeight="light">
+              <MDTypography variant="caption" color="error" fontWeight="medium">
                 You must agree to the Terms and Conditions
               </MDTypography>
             )}
             {errors.error && (
-              <MDTypography variant="caption" color="error" fontWeight="light">
+              <MDTypography variant="caption" color="error" fontWeight="medium">
                 {errors.errorText}
               </MDTypography>
             )}

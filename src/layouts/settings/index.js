@@ -90,13 +90,10 @@ function Settings() {
 
   const handleDialogConfirmSubmit = () => {
     if (dialogConfirmAction === "Disable"){
-      const userData = {
-        activated: false
-      };
-      updateUserData(userData);
+      disableAccount();
     }
     if (dialogConfirmAction === "Delete"){
-      deleteAccount(localStorage.getItem("login"));
+      deleteAccount();
     }
 
     handleDialogConfirmClose();
@@ -133,6 +130,7 @@ function Settings() {
       newPassError: false,
       confirmPassError: false,
     });
+    setCredentialsError(null);
   };
 
   const changePassword = async (userData) => {
@@ -141,6 +139,7 @@ function Settings() {
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         handleClearForm();
+        setCredentialsError(null);
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -148,7 +147,7 @@ function Settings() {
       if (error.response.data.hasOwnProperty("detail")) {
         setCredentialsError(extractTextOutsideParentheses(error.response.data.detail));
       } else {
-        setCredentialsError("An unexpected error occurred", error);
+        setCredentialsError(error.response.data.error);
       }
     }
   };
@@ -168,20 +167,20 @@ function Settings() {
         console.error("Invalid data format in response:", response);
       }
     } catch (error) {
-      console.error("Error fetching alerts:", error);
+      console.error(error.response.data.error);
     }
   };
 
-  const updateUserData = async (userData) => {
+  const disableAccount = async () => {
     try {
-      const response = await AuthService.updateProfile(userData);
+      const response = await AuthService.disableAccount();
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
       } else {
         console.error("Invalid data format in response:", response);
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
+      console.error(error.response.data.error);
     }
   };
 

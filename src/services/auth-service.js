@@ -42,9 +42,14 @@ class AuthService {
     return await userAxiosInstance.put(updateProfile, newInfo);
   }
 
-  deleteAccount = async (login) => {
-    const deleteAccount = `api/admin/users/${login}`;
+  deleteAccount = async () => {
+    const deleteAccount = `api/account`;
     return await userAxiosInstance.delete(deleteAccount);
+  }
+
+  disableAccount = async () => {
+    const disableAccount = `api/account/disable`;
+    return await userAxiosInstance.get(disableAccount);
   }
 
 }
