@@ -64,7 +64,7 @@ function Register() {
   const changeHandler = (e) => {
     setInputs({
       ...inputs,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.checked,
     });
   };
 
@@ -112,18 +112,17 @@ function Register() {
         registerUserData(requestPayload);
         
         setErrors({
+          ...errors,
           firstNameError: false,
           emailError: false,
-          emailExistsError: false,
           phoneNumberError: false,
-          phoneNumberExistsError: false,
           loginExistsError: false,
           passwordError: false,
           confirmPasswordError: false,
           agreeError: false,
           error: false,
           errorText: "",
-        });     
+        });  
       }
     }
   };
@@ -325,11 +324,11 @@ function Register() {
                 Terms and Conditions
               </MDTypography>
             </MDBox>
-            {errors.agreeError && (
+            {errors.agreeError ? (
               <MDTypography variant="caption" color="error" fontWeight="medium">
                 You must agree to the Terms and Conditions
               </MDTypography>
-            )}
+            ) : null}
             {errors.error && (
               <MDTypography variant="caption" color="error" fontWeight="medium">
                 {errors.errorText}
