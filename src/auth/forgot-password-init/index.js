@@ -26,8 +26,8 @@ function ForgotPassword() {
   const [input, setEmail] = useState({
     email: "",
   });
-  const [error, setError] = useState({
-    err: false,
+  const [errors, setError] = useState({
+    error: false,
     textError: "",
   });
 
@@ -53,7 +53,7 @@ function ForgotPassword() {
     const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
     if (input.email.trim().length === 0 || !input.email.trim().match(mailFormat)) {
-      setError({ err: true, textError: "The email must be valid" });
+      setError({ ...errors, error: true, textError: "The email must be valid" });
       return;
     }
 
@@ -67,18 +67,28 @@ function ForgotPassword() {
       const response = await authService.forgotPasswordInit(passwordForgotData);
       if (response.status === 200) {
         handleDialogConfirmOpen();
-        setError({ err: false, textError: "" });     
+        setError({ ...errors, error: false, textError: "" });     
       } 
 
-    } catch (err) {
-      console.error(err);
-        if (err.response.data.hasOwnProperty("error")) {
-          setError({ err: true, textError: err.response.data.error });
-        } else {
-          setError({ err: true, textError: "An unexpected error occurred" });
+    } catch (error) {
+        if (error.response.data.hasOwnProperty("error")) {
+          setError({ ...errors, error: true, textError: error.response.data.error });
+        }
+        else if (error.response.data.hasOwnProperty("detail")) 
+        {
+          setError({ ...errors, error: true, textError: extractTextOutsideParentheses(error.response.data.detail) });
+        } 
+        else {
+          setError({ ...errors, error: true, textError: "An unexpected error occurred" });
         }
       return null;
     }
+  };
+
+  function extractTextOutsideParentheses(inputString) {
+    const regex = /\(([^)]+)\)/;
+    const matches = regex.exec(inputString);
+    return matches ? inputString.replace(matches[0], '').trim() : inputString;
   };
 
   return (
@@ -113,18 +123,48 @@ function ForgotPassword() {
                 value={input.email}
                 name="email"
                 onChange={changeHandler}
-                error={error.err}
+                error={errors.error}
               />
             </MDBox>
-            {error.err && (
+            {errors.error && (
               <MDTypography variant="caption" color="error" fontWeight="medium">
-                {error.textError}
+                {errors.textError}
               </MDTypography>
             )}
             <MDBox mt={6} mb={1}>
               <MDButton variant="gradient" color="info" fullWidth type="submit">
                 reset
               </MDButton>
+            </MDBox>
+            <MDBox mt={3} mb={1} textAlign="center">
+              <MDTypography variant="button" color="text">
+                Already reseted password? Login in{" "}
+                <MDTypography
+                  component={Link}
+                  to="/auth/login"
+                  variant="button"
+                  color="info"
+                  fontWeight="medium"
+                  textGradient
+                >
+                  here
+                </MDTypography>
+              </MDTypography>
+            </MDBox>
+            <MDBox mb={1} textAlign="center">
+              <MDTypography variant="button" color="text">
+                Don&apos;t have an account?{" "}
+                <MDTypography
+                  component={Link}
+                  to="/auth/register"
+                  variant="button"
+                  color="info"
+                  fontWeight="medium"
+                  textGradient
+                >
+                  Sign up
+                </MDTypography>
+              </MDTypography>
             </MDBox>
           </MDBox>
         </MDBox>

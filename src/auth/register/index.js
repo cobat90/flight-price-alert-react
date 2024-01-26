@@ -329,16 +329,16 @@ function Register() {
                 You must agree to the Terms and Conditions
               </MDTypography>
             ) : null}
-            {errors.error && (
-              <MDTypography variant="caption" color="error" fontWeight="medium">
-                {errors.errorText}
-              </MDTypography>
-            )}
             <MDBox mt={4} mb={1}>
               <MDButton variant="gradient" color="info" fullWidth type="submit">
                 sign in
               </MDButton>
             </MDBox>
+            {errors.error && (
+              <MDTypography variant="caption" color="error" fontWeight="medium">
+                {errors.errorText}
+              </MDTypography>
+            )}
             <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
                 Already have an account?{" "}

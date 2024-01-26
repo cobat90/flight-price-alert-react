@@ -294,7 +294,12 @@ function Dashboard() {
   const [alert, setAlert] = useState(null);
   
   const openModalEditAlert = (event) => {
-    setModalEditAlert(event.currentTarget);
+    if (alerts.length == 0 && localStorage.getItem("accountType") == "FREE"){
+      setModalEditAlert(event.currentTarget);
+    }
+    else {
+    console.info("Only allowed one Alert for Free account. Upgrade your account to add more Alerts.");
+    }
   };
   
   const closeModalEditAlert = () => {
@@ -829,10 +834,8 @@ function Dashboard() {
                 </Collapse>
               </Card>
             </MDBox>
-          </Grid>
-          
-          ))}
-          
+          </Grid>          
+          ))}          
           <Grid item xs={16} md={8} lg={4}>
             <MDBox display="flex" justifyContent="center" mb={3}>
               <Card >

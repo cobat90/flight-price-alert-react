@@ -102,13 +102,23 @@ function ForgotPasswordFinish() {
         setErrors({ err: false, textError: "" });     
       } 
     } catch (error) {
-      if (error.response.data.hasOwnProperty("error")) {
+      if (error.response.data.hasOwnProperty("detail")) {
+        setCredentialsError(extractTextOutsideParentheses(error.response.data.detail));
+      }
+      else if (error.response.data.hasOwnProperty("error")) {
         setCredentialsError(error.response.data.error);
-      } else {
+      }
+      else {
         setCredentialsError("An unexpected error occurred", error);
       }
     }
   }
+
+  function extractTextOutsideParentheses(inputString) {
+    const regex = /\(([^)]+)\)/;
+    const matches = regex.exec(inputString);
+    return matches ? inputString.replace(matches[0], '').trim() : inputString;
+  };
 
   return (
     <CoverLayout coverHeight="50vh" image={bgImage}>

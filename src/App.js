@@ -26,7 +26,6 @@ import { setupAxiosInterceptors } from "./services/interceptor";
 import ProtectedRoute from "examples/ProtectedRoute";
 import ForgotPasswordInit from "auth/forgot-password-init";
 import ForgotPasswordFinish from "auth/forgot-password-finish";
-import ResetPassword from "auth/reset-password";
 import Login from "auth/login";
 import Register from "auth/register";
 import { AuthContext } from "context";
@@ -132,7 +131,6 @@ export default function App() {
             <Route path="/auth/register" element={<Register />} />
             <Route path="/auth/forgot-password-init" element={<ForgotPasswordInit />} />
             <Route path="/auth/forgot-password-finish" element={<ForgotPasswordFinish />} />           
-            <Route path="/auth/reset-password" element={<ResetPassword />} />
             <Route exact path="/settings" element={<Settings />} />
             <Route
               exact
