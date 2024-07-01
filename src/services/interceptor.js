@@ -4,7 +4,6 @@ export const setupAxiosInterceptors = (onUnauthenticated) => {
   const onRequestSuccess = async (config) => {
     const token = localStorage.getItem("token");
     config.headers.Authorization = `Bearer ${token}`;
-    console.info("config: ", config);
     return config;
   };
 
