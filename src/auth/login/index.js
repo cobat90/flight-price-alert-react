@@ -71,7 +71,15 @@ function Login() {
       return;
     }
 
-    const newUser = { username: inputs.username, password: inputs.password, rememberMe: inputs.rememberMe };
+    const newUser = {
+      AuthParameters: {
+        USERNAME: inputs.username,
+        PASSWORD: inputs.password,
+      },
+      AuthFlow: "USER_PASSWORD_AUTH",
+      ClientId: process.env.COGNITO_CLIENTID
+    };
+    
     addUserHandler(newUser);
 
     const myData = {

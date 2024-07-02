@@ -40,22 +40,41 @@ const AuthContextProvider = ({ children }) => {
   }, [isAuthenticated]);
 
 
-  const login = async (token) => {					
-    console.info("token:" + token);			   
+  const login = async (token) => {
+    console.info("token:" + token);
     localStorage.setItem("token", token);
+
     try {
-      const response = await AuthService.getProfile();
-      localStorage.setItem("userId", response.data.id);
-      localStorage.setItem("login", response.data.login);
-      localStorage.setItem("alertTime", response.data.alertTime);
-      localStorage.setItem("accountType", response.data.accountType);
-      setIsAuthenticated(true);
-      navigate("/dashboard");
+        const response = await AuthService.getProfile();
+        const userAttributes = response.UserAttributes;
+        
+        let alertTime = "";
+        let accountType = "";
+        let userId = "";
+        
+        userAttributes.forEach(attribute => {
+            if (attribute.Name === "sub") {
+                userId = attribute.Value;
+            }
+            if (attribute.Name === "custom:alertTime") {
+                alertTime = attribute.Value;
+            }
+            if (attribute.Name === "custom:accountType") {
+                accountType = attribute.Value;
+            }
+        });
+
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("login", response.Username);
+        localStorage.setItem("alertTime", alertTime);
+        localStorage.setItem("accountType", accountType);
+        
+        setIsAuthenticated(true);
+        navigate("/dashboard");
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+        console.error("Error fetching user profile:", error);
     }
-  };
-  
+};
 
   const logout = () => {
     localStorage.removeItem("token");

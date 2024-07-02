@@ -121,8 +121,9 @@ function Settings() {
 
     if (userData.newPassword.length > 0 && userData.confirmPassword.length > 0 ) {
       const passData = {
-        currentPassword: userData.currentPassword,
-        newPassword: userData.newPassword,
+        PreviousPassword: userData.currentPassword,
+        ProposedPassword: userData.newPassword,
+        AccessToken: localStorage.getItem("accessToken"),
       };
       changePassword(passData);
     }
@@ -158,9 +159,14 @@ function Settings() {
     return matches ? inputString.replace(matches[0], '').trim() : inputString;
   }
 
-  const deleteAccount = async (login) => {
+  const deleteAccount = async () => {
+    let userDataDelete = {
+      Username: localStorage.getItem("login"),
+      UserPoolId: process.env.COGNITO_USERPOOLID,
+      AccessToken: localStorage.getItem("token"),
+    }
     try {
-      const response = await AuthService.deleteAccount(login);
+      const response = await AuthService.deleteAccount(userDataDelete);
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
       } else {

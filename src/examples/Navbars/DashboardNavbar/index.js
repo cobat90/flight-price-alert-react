@@ -24,8 +24,6 @@ import MDInput from "components/MDInput";
 import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
 
-import AuthService from "services/auth-service";
-
 // Custom styles for DashboardNavbar
 import {
   navbar,
