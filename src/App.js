@@ -70,7 +70,10 @@ export default function App() {
   // if the token expired or other errors it logs out and goes to the login page
   const navigate = useNavigate();
   setupAxiosInterceptors(() => {
-      authContext.logout();
+      let userData= {
+        AccessToken: localStorage.getItem("token"),
+      }
+      authContext.logout(userData);
       navigate("/auth/login");
   });
 

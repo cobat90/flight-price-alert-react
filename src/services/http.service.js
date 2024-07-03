@@ -24,7 +24,7 @@ export class HttpService {
 
   get = async (url) => await this.request(this.getOptionsConfigGET("get", url));
 
-  post = async (url, data, header) => await this.request(this.getOptionsConfig("post", url, data, header));
+  post = async (url, headers, data) => await this.request(this.getOptionsConfig("post", url, headers, data));
 
   put = async (url, data) => await this.request(this.getOptionsConfig("put", url, data));
 
@@ -32,12 +32,12 @@ export class HttpService {
 
   delete = async (url) => await this.request(this.getOptionsConfig("delete", url));
 
-  getOptionsConfig = (method, url, data, header) => {
+  getOptionsConfig = (method, url, headers, data) => {
     return {
       method,
       url,
+      headers,
       data,
-      headers: { "Content-Type": "application/x-amz-json-1.1", "Accept": "application/x-amz-json-1.1", 'Access-Control-Allow-Credentials': true, header },
     };
   };
   
@@ -46,7 +46,7 @@ export class HttpService {
       method,
       url,
       data,
-      headers: { "Content-Type": "application/x-amz-json-1.1", 'Access-Control-Allow-Credentials': true },
+      headers: { "Content-Type": "application/json", 'Access-Control-Allow-Credentials': true },
     };
   };
 

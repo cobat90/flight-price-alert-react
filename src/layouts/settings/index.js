@@ -123,7 +123,7 @@ function Settings() {
       const passData = {
         PreviousPassword: userData.currentPassword,
         ProposedPassword: userData.newPassword,
-        AccessToken: localStorage.getItem("accessToken"),
+        AccessToken: localStorage.getItem("token"),
       };
       changePassword(passData);
     }
@@ -160,13 +160,13 @@ function Settings() {
   }
 
   const deleteAccount = async () => {
-    let userDataDelete = {
+    let userData = {
       Username: localStorage.getItem("login"),
       UserPoolId: process.env.COGNITO_USERPOOLID,
       AccessToken: localStorage.getItem("token"),
     }
     try {
-      const response = await AuthService.deleteAccount(userDataDelete);
+      const response = await AuthService.deleteAccount(userData);
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
       } else {
@@ -179,7 +179,12 @@ function Settings() {
 
   const disableAccount = async () => {
     try {
-      const response = await AuthService.disableAccount();
+      let userData = {
+        Username: localStorage.getItem("login"),
+        UserPoolId: process.env.COGNITO_USERPOOLID,
+        AccessToken: localStorage.getItem("token"),
+      }
+      const response = await AuthService.disableAccount(userData);
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
       } else {

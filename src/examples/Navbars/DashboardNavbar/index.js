@@ -116,7 +116,10 @@ function DashboardNavbar({ absolute, light, isMini }) {
   });
 
   const handleLogOut = async () => {
-    authContext.logout();
+    let userData= {
+      AccessToken: localStorage.getItem("token"),
+    }
+    authContext.logout(userData);
   };
 
   return (

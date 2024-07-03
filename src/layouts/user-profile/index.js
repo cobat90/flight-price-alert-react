@@ -35,7 +35,10 @@ const UserProfile = () => {
 
   const getUserData = async () => {
     try {
-      const response = await AuthService.getProfile();
+      let userData={
+        AccessToken: localStorage.getItem("token"),
+      }
+      const response = await AuthService.getProfile(userData);
       if (response.status === 200 && response.data !== null) {
         setUser(response.data);
       } else {
@@ -91,7 +94,7 @@ const UserProfile = () => {
     event.preventDefault(); 
     const formData = new FormData(event.target); 
     formData.append('userId', localStorage.getItem("userId"));
-    const userData = {};
+    let userData = {};
     formData.forEach((value, key) => {
       userData[key] = value;
     });

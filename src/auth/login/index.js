@@ -71,7 +71,7 @@ function Login() {
       return;
     }
 
-    const newUser = {
+    let newUser = {
       AuthParameters: {
         USERNAME: inputs.username,
         PASSWORD: inputs.password,
@@ -82,17 +82,18 @@ function Login() {
     
     addUserHandler(newUser);
 
-    const myData = {
+    let myData = {
       ...newUser
     };
-    
+   
     try {
       const response = await AuthService.login(myData);
-      console.info("response.data.id_token: " + response.data.id_token);
-      authContext.login(response.data.id_token);
+      authContext.login(response.AuthenticationResult.AccessToken);
+      console.info("token: " + response.AuthenticationResult.AccessToken);
+
     } catch (error) {
-      if (error.response.data.hasOwnProperty("detail")) {
-        setCredentialsError(extractTextOutsideParentheses(error.response.data.detail));
+      if (error.response.hasOwnProperty("__type")) {
+        setCredentialsError(extractTextOutsideParentheses(error.response.message));
       } else {
         setCredentialsError("An unexpected error occurred", error);
       }

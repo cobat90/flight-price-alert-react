@@ -1,65 +1,72 @@
 import { userAxiosInstance } from "./http.service";
+const API_COGNITO_URL = process.env.COGNITO_URL;
 
 class AuthService {
 
   login = async (payload) => {
-    const loginEndpoint = '';
-    const loginHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth' };
-    return await userAxiosInstance.post(loginEndpoint, payload, loginHeader);
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+       'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth' };
+    return await userAxiosInstance.post(API_COGNITO_URL, headers, payload);
   };
 
   register = async (credentials) => {
-    const registerEndpoint = '';
-    const registerHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.SignUp' };
-    return await userAxiosInstance.post(registerEndpoint, credentials, registerHeader);
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.SignUp' };
+    return await userAxiosInstance.post(API_COGNITO_URL, headers, credentials);
   };
 
-  logout = async () => {
-    const logoutEndpoint = '';
-    const logoutHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.GlobalSignOut' };
-    return await userAxiosInstance.post(logoutEndpoint, logoutHeader);
+  logout = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.GlobalSignOut' };
+    return await userAxiosInstance.post(API_COGNITO_URL, headers, payload);
   };
 
   forgotPasswordInit = async (payload) => {
-    const forgotPasswordInit = '';
-    const forgotPasswordHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.ForgotPassword' };
-    return await userAxiosInstance.post(forgotPasswordInit, payload, forgotPasswordHeader);
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ForgotPassword' };
+    return await userAxiosInstance.post(API_COGNITO_URL, headers, payload);
   }
 
   forgotPasswordFinish = async (payload) => {
-    const forgotPasswordFinish = '';
-    const forgotPasswordFinishHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.ConfirmForgotPassword' };
-    return await userAxiosInstance.post(forgotPasswordFinish, forgotPasswordFinishHeader, payload);
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ConfirmForgotPassword' };
+    return await userAxiosInstance.post(API_COGNITO_URL, headers, payload);
   }
 
   changePassword = async (payload) => {
-    const changePassword = '';
-    const changePasswordHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.ChangePassword' };
-    return await userAxiosInstance.post(changePassword, changePasswordHeader, payload);
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ChangePassword' };
+    return await userAxiosInstance.post(API_COGNITO_URL, headers, payload);
   }
 
-  getProfile = async() => {
-    const getProfile = '';
-    const getProfileHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.GetUser' };
-    return await userAxiosInstance.get(getProfile, getProfileHeader);
+  getProfile = async(payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.GetUser' };
+    return await userAxiosInstance.post(API_COGNITO_URL, headers, payload);
   }
 
-  updateProfile = async (newInfo) => {
-    const updateProfile = '';
-    const updateProfileHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.AdminUpdateUserAttributes' };
-    return await userAxiosInstance.put(updateProfile, updateProfileHeader, newInfo);
+  updateProfile = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.UpdateUserAttributes' };
+    return await userAxiosInstance.put(API_COGNITO_URL, headers, payload);
   }
 
-  deleteAccount = async () => {
-    const deleteAccount = '';
-    const deleteAccountHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.DeleteUser' };
-    return await userAxiosInstance.delete(deleteAccount, deleteAccountHeader);
+  deleteAccount = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.DeleteUser' };
+    return await userAxiosInstance.delete(API_COGNITO_URL, headers, payload);
   }
 
-  disableAccount = async () => {
-    const disableAccount = '';
-    const disableAccountHeader = { 'X-Amz-Target': 'AWSCognitoIdentityProviderService.AdminDisableUser' };
-    return await userAxiosInstance.get(disableAccount, disableAccountHeader);
+  disableAccount = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.AdminDisableUser' };
+    return await userAxiosInstance.get(API_COGNITO_URL, headers, payload);
+  }
+
+  resendConfirmationCode = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1', 'Access-Control-Allow-Credentials': true,
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ResendConfirmationCode' };
+    return await userAxiosInstance.get(API_COGNITO_URL, headers, payload);
   }
 
 }

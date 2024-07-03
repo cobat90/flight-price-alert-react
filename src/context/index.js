@@ -45,7 +45,10 @@ const AuthContextProvider = ({ children }) => {
     localStorage.setItem("token", token);
 
     try {
-        const response = await AuthService.getProfile();
+        let userData={
+          AccessToken: localStorage.getItem("token"),
+        }
+        const response = await AuthService.getProfile(userData);
         const userAttributes = response.UserAttributes;
         
         let alertTime = "";

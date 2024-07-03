@@ -23,7 +23,7 @@ export const convertRequest = (userData) => {
       { Name: 'custom:country', Value: country }, // Custom attribute 'country'
       { Name: 'custom:city', Value: city }, // Custom attribute 'city'
       { Name: 'custom:currency', Value: currency }, // Custom attribute 'currency'
-      { Name: 'custom:langKey', Value: langKey }, // Custom attribute 'langKey'
+      { Name: 'custom:lang_key', Value: langKey }, // Custom attribute 'langKey'
     ],
     ClientId: process.env.COGNITO_CLIENTID,
     UserPoolId: process.env.COGNITO_USERPOOLID,  
