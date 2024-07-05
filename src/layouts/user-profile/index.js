@@ -16,8 +16,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 // Overview page components
-import selectData from "components/FormField/data/selectData";
-import { convertRequest } from '../../services/convert-user-price-alert-service';
+import { convertUserUpdateRequest, convertUserResponse } from '../../services/convert-user-service';
 import AuthService from "../../services/auth-service";
 
 const Notification = React.forwardRef(function Alert(props, ref) {
@@ -39,13 +38,15 @@ const UserProfile = () => {
         AccessToken: localStorage.getItem("token"),
       }
       const response = await AuthService.getProfile(userData);
-      if (response.status === 200 && response.data !== null) {
-        setUser(response.data);
+      if (response.status === 200 && response.data && response.data.UserAttributes) {
+        console.info("Response data: ", response.data);
+
+        setUser(convertUserResponse(response.data));
       } else {
-        console.error("Invalid data format in response:", response);
+        console.error("Invalid data format in response: ", response);
       }
     } catch (error) {
-      console.error("Error fetching alerts:", error);
+      console.error("Error fetching user data: ", error);
     }
   };
 
@@ -94,13 +95,14 @@ const UserProfile = () => {
     event.preventDefault(); 
     const formData = new FormData(event.target); 
     formData.append('userId', localStorage.getItem("userId"));
-    let userData = {};
+    let userData = {
+      AccessToken: localStorage.getItem("token"),
+    };
     formData.forEach((value, key) => {
       userData[key] = value;
     });
-    const requestPayload = convertRequest(userData);
+    const requestPayload = convertUserUpdateRequest(userData);
     updateUserData(requestPayload);
-   
   };
 
   return (

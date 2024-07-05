@@ -28,7 +28,7 @@ import bgImage from "assets/images/bg-sign-up-cover.jpeg";
 import AuthService from "services/auth-service";
 import { AuthContext } from "context";
 import { InputLabel } from "@mui/material";
-import { convertRequest } from '../../services/convert-user-price-alert-service';
+import { convertUserSignupRequest } from '../../services/convert-user-service';
 
 function Register() {
   const authContext = useContext(AuthContext);
@@ -107,7 +107,7 @@ function Register() {
       }
 
       if (userData.password.length > 0 && userData.confirmPassword.length > 0 ) {
-        const requestPayload = convertRequest(userData);
+        const requestPayload = convertUserSignupRequest(userData);
         console.info("requestPayload: ",requestPayload);
         registerUserData(requestPayload);
         

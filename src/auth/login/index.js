@@ -71,29 +71,30 @@ function Login() {
       return;
     }
 
-    let newUser = {
+    let userData = {
       AuthParameters: {
         USERNAME: inputs.username,
         PASSWORD: inputs.password,
       },
       AuthFlow: "USER_PASSWORD_AUTH",
-      ClientId: process.env.COGNITO_CLIENTID
-    };
-    
-    addUserHandler(newUser);
-
-    let myData = {
-      ...newUser
+      ClientId: "3nsactkkn1eepvpc8hg5j9n5md",
     };
    
     try {
-      const response = await AuthService.login(myData);
-      authContext.login(response.AuthenticationResult.AccessToken);
-      console.info("token: " + response.AuthenticationResult.AccessToken);
-
+      const response = await AuthService.login(userData);
+      console.info("response: ", response);
+      if (response && response.data && response.data.AuthenticationResult && response.data.AuthenticationResult.AccessToken) {
+        const accessToken = response.data.AuthenticationResult.AccessToken;
+        authContext.login(accessToken);
+        console.info("token: " + accessToken);
+      } else {
+        console.error("AuthenticationResult or AccessToken missing in the response");
+        setCredentialsError("Invalid login response");
+      }
     } catch (error) {
-      if (error.response.hasOwnProperty("__type")) {
-        setCredentialsError(extractTextOutsideParentheses(error.response.message));
+      console.error("Login error: ", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        setCredentialsError(error.response.data.message);
       } else {
         setCredentialsError("An unexpected error occurred", error);
       }

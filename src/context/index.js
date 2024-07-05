@@ -49,31 +49,37 @@ const AuthContextProvider = ({ children }) => {
           AccessToken: localStorage.getItem("token"),
         }
         const response = await AuthService.getProfile(userData);
-        const userAttributes = response.UserAttributes;
-        
-        let alertTime = "";
-        let accountType = "";
-        let userId = "";
-        
-        userAttributes.forEach(attribute => {
-            if (attribute.Name === "sub") {
-                userId = attribute.Value;
-            }
-            if (attribute.Name === "custom:alertTime") {
-                alertTime = attribute.Value;
-            }
-            if (attribute.Name === "custom:accountType") {
-                accountType = attribute.Value;
-            }
-        });
 
-        localStorage.setItem("userId", userId);
-        localStorage.setItem("login", response.Username);
-        localStorage.setItem("alertTime", alertTime);
-        localStorage.setItem("accountType", accountType);
+        if (response && response.data && response.data.UserAttributes) {
+          const userAttributes = response.data.UserAttributes;
         
-        setIsAuthenticated(true);
-        navigate("/dashboard");
+          let alertTime = "";
+          let accountType = "";
+          let userId = "";
+          
+          userAttributes.forEach(attribute => {
+              if (attribute.Name === "sub") {
+                  userId = attribute.Value;
+              }
+              if (attribute.Name === "custom:alertTime") {
+                  alertTime = attribute.Value;
+              }
+              if (attribute.Name === "custom:accountType") {
+                  accountType = attribute.Value;
+              }
+          });
+
+          localStorage.setItem("userId", userId);
+          localStorage.setItem("login", response.Username);
+          localStorage.setItem("alertTime", alertTime);
+          localStorage.setItem("accountType", accountType);
+          
+          setIsAuthenticated(true);
+          navigate("/dashboard");
+        } else {
+          console.error("UserAttributes missing in the response");
+          setCredentialsError("Invalid profile response");
+        }
     } catch (error) {
         console.error("Error fetching user profile:", error);
     }

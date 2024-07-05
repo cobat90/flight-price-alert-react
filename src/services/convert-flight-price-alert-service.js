@@ -1,4 +1,4 @@
-export const convertRequest = (alertData) => {
+export const convertFlightRequest = (alertData) => {
     const {
       alertName,
       alertType,

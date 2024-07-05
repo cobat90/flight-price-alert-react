@@ -6,7 +6,6 @@ import MDTypography from "components/MDTypography";
 import Typography from '@mui/material/Typography';
 import MDButton from "components/MDButton";
 import Button from '@mui/material/Button';
-import MDInput from "components/MDInput";
 import Snackbar from '@mui/material/Snackbar';
 import FormField from "components/FormField";
 import MuiAlert from '@mui/material/Alert';
@@ -162,7 +161,7 @@ function Settings() {
   const deleteAccount = async () => {
     let userData = {
       Username: localStorage.getItem("login"),
-      UserPoolId: process.env.COGNITO_USERPOOLID,
+      UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
       AccessToken: localStorage.getItem("token"),
     }
     try {
@@ -181,7 +180,7 @@ function Settings() {
     try {
       let userData = {
         Username: localStorage.getItem("login"),
-        UserPoolId: process.env.COGNITO_USERPOOLID,
+        UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
         AccessToken: localStorage.getItem("token"),
       }
       const response = await AuthService.disableAccount(userData);

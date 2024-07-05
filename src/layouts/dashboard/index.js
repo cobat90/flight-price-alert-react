@@ -42,7 +42,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
 
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
-import { convertRequest } from '../../services/convert-flight-price-alert-service';
+import { convertFlightRequest } from '../../services/convert-flight-price-alert-service';
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -265,11 +265,11 @@ function Dashboard() {
     setFlightPriceAlertId(alertId);
 
     if (isEditing) {
-      const requestPayload = convertRequest(alertData);
+      const requestPayload = convertFlightRequest(alertData);
       updateAlertData(requestPayload);
     }
     else{
-      const requestPayload = convertRequest(alertData);
+      const requestPayload = convertFlightRequest(alertData);
       createAlertData(requestPayload);
     }
   };
