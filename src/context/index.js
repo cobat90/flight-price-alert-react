@@ -61,16 +61,16 @@ const AuthContextProvider = ({ children }) => {
               if (attribute.Name === "sub") {
                   userId = attribute.Value;
               }
-              if (attribute.Name === "custom:alertTime") {
+              if (attribute.Name === "custom:alert_time") {
                   alertTime = attribute.Value;
               }
-              if (attribute.Name === "custom:accountType") {
+              if (attribute.Name === "custom:account_type") {
                   accountType = attribute.Value;
               }
           });
 
           localStorage.setItem("userId", userId);
-          localStorage.setItem("login", response.Username);
+          localStorage.setItem("login", response.data.Username);
           localStorage.setItem("alertTime", alertTime);
           localStorage.setItem("accountType", accountType);
           

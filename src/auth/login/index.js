@@ -86,7 +86,6 @@ function Login() {
       if (response && response.data && response.data.AuthenticationResult && response.data.AuthenticationResult.AccessToken) {
         const accessToken = response.data.AuthenticationResult.AccessToken;
         authContext.login(accessToken);
-        console.info("token: " + accessToken);
       } else {
         console.error("AuthenticationResult or AccessToken missing in the response");
         setCredentialsError("Invalid login response");

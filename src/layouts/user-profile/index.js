@@ -96,7 +96,6 @@ const UserProfile = () => {
     const formData = new FormData(event.target); 
     formData.append('userId', localStorage.getItem("userId"));
     let userData = {
-      AccessToken: localStorage.getItem("token"),
     };
     formData.forEach((value, key) => {
       userData[key] = value;

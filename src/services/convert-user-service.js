@@ -12,10 +12,12 @@ export const convertUserSignupRequest = (userData) => {
     UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID, 
     Username: login,
     Password: password,
-    attributes: [
+    UserAttributes: [
       { Name: 'name', Value: firstName },
       { Name: 'email', Value: email },
       { Name: 'phone_number', Value: phoneNumber },
+      { Name: 'custom:alert_time', Value: "5" },
+      { Name: 'custom:account_type', Value: "free" },
     ],
   };
 
@@ -24,7 +26,6 @@ export const convertUserSignupRequest = (userData) => {
 
 export const convertUserUpdateRequest = (userData) => {
   const {
-    acessToken,
     firstName,
     lastName,
     email,
@@ -37,10 +38,10 @@ export const convertUserUpdateRequest = (userData) => {
   } = userData;
 
   const payload = {
-    AccessToken: acessToken,
+    AccessToken: localStorage.getItem("token"),
     UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
     username: login,
-    attributes: [
+    UserAttributes: [
       { Name: 'name', Value: firstName }, // 'given_name' corresponds to first name
       { Name: 'family_name', Value: lastName }, // 'family_name' corresponds to last name
       { Name: 'email', Value: email },
@@ -94,3 +95,15 @@ export const convertUserResponse = (responseData) => {
   return userData;
 };
 
+export const convertUserForgotPasswordRequest = (userData) => {
+  const {
+    login,
+  } = userData;
+
+  const payload = {
+    ClientId: process.env.REACT_APP_COGNITO_CLIENTID,
+    Username: login,
+  };
+
+  return payload;
+};

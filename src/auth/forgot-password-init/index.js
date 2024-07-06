@@ -59,24 +59,26 @@ function ForgotPassword() {
 
     const email = input.email.trim();
 
-    const passwordForgotData = {
-      email
+    let userData = {
+      login: email,
     };
 
+    console.info("User data: ", userData);
+
     try {
-      const response = await authService.forgotPasswordInit(passwordForgotData);
+      const response = await authService.forgotPasswordInit(convertUserForgotPasswordRequest(userData));
       if (response.status === 200) {
         handleDialogConfirmOpen();
         setError({ ...errors, error: false, textError: "" });     
       } 
 
     } catch (error) {
-        if (error.response.data.hasOwnProperty("error")) {
-          setError({ ...errors, error: true, textError: error.response.data.error });
+        if (error.response.data.message) {
+          setError({ ...errors, error: true, textError: error.response.data.message });
         }
-        else if (error.response.data.hasOwnProperty("detail")) 
+        else if (error.response.data.__type) 
         {
-          setError({ ...errors, error: true, textError: extractTextOutsideParentheses(error.response.data.detail) });
+          setError({ ...errors, error: true, textError: extractTextOutsideParentheses(error.response.data.__type) });
         } 
         else {
           setError({ ...errors, error: true, textError: "An unexpected error occurred" });

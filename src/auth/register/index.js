@@ -108,7 +108,6 @@ function Register() {
 
       if (userData.password.length > 0 && userData.confirmPassword.length > 0 ) {
         const requestPayload = convertUserSignupRequest(userData);
-        console.info("requestPayload: ",requestPayload);
         registerUserData(requestPayload);
         
         setErrors({
@@ -130,37 +129,35 @@ function Register() {
   const registerUserData = async (userData) => {
     try {
       const response = await AuthService.register(userData);
-      if (response.status === 201) {
+      console.info("response: ", response);
+      if (response.status === 200) {
         handleDialogConfirmOpen();
       } 
-      else {
-        console.error("Invalid data format in response:", response);
-      }
     } catch (error) {
-      if (error.response.data.message === "error.emailexists"){
+      if (error.response.data.__type === "EmailExistsException"){
         setErrors({
           emailError: true,
           emailExistsError: true,
         });
       }
-      else if (error.response.data.message === "error.userexists"){
+      else if (error.response.data.__type === "UsernameExistsException"){
         setErrors({
           loginExistsError: true,
         });
       }
-      else if (error.response.data.message === "error.phonenumberexists"){
+      else if (error.response.data.message === "PhoneNumberExistsException"){
         setErrors({
           phoneNumberError: true,
           phoneNumberExistsError: true,
         });
       }
-      else if (error.response.data.hasOwnProperty("detail")) 
+      else if (error.response.data.message) 
       {
-        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.detail) });
+        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.message) });
       } 
-      else if (error.response.data.hasOwnProperty("error")) 
+      else if (error.response.data.__type) 
       {
-        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.error) });
+        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.__type) });
       } 
     }
   };
