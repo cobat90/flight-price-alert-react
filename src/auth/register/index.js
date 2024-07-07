@@ -43,7 +43,6 @@ function Register() {
     emailExistsError: false,
     phoneNumberError: false,
     phoneNumberExistsError: false,
-    loginExistsError: false,
     passwordError: false,
     confirmPasswordError: false,
     agreeError: false,
@@ -115,7 +114,6 @@ function Register() {
           firstNameError: false,
           emailError: false,
           phoneNumberError: false,
-          loginExistsError: false,
           passwordError: false,
           confirmPasswordError: false,
           agreeError: false,
@@ -142,7 +140,7 @@ function Register() {
       }
       else if (error.response.data.__type === "UsernameExistsException"){
         setErrors({
-          loginExistsError: true,
+          emailExistsError: true,
         });
       }
       else if (error.response.data.message === "PhoneNumberExistsException"){
@@ -242,24 +240,6 @@ function Register() {
               {errors.phoneNumberError && (
                 <MDTypography variant="caption" color="error" fontWeight="medium">
                   {errors.phoneNumberExistsError ? 'The Phone Number already in use' : 'Invalid Phone Number. Ex: +99 99 9999 9999.'}
-                </MDTypography>
-              )}
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput
-                type="text"
-                label="Login"
-                variant="standard"
-                fullWidth
-                name="login"
-                error={errors.loginExistsError}
-                required
-                minLength={3}
-                maxLength={50}
-              />
-              {errors.loginExistsError && (
-                <MDTypography variant="caption" color="error" fontWeight="medium">
-                  The Login already in use
                 </MDTypography>
               )}
             </MDBox>

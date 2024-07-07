@@ -13,14 +13,11 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-
-
-// Authentication layout components
+import { convertUserForgotPasswordRequest } from '../../services/convert-user-service';
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
-// Images
 import bgImage from "assets/images/bg-reset-cover.jpeg";
-import authService from "services/auth-service";
+import AuthService from "services/auth-service";
 
 function ForgotPassword() {
   const [input, setEmail] = useState({
@@ -58,15 +55,12 @@ function ForgotPassword() {
     }
 
     const email = input.email.trim();
-
-    let userData = {
-      login: email,
-    };
-
-    console.info("User data: ", userData);
+    const userData = { email };
+    const requestPayload = convertUserForgotPasswordRequest(userData);
 
     try {
-      const response = await authService.forgotPasswordInit(convertUserForgotPasswordRequest(userData));
+      const response = await AuthService.forgotPasswordInit(requestPayload);
+
       if (response.status === 200) {
         handleDialogConfirmOpen();
         setError({ ...errors, error: false, textError: "" });     

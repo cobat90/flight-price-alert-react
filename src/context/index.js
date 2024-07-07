@@ -53,26 +53,8 @@ const AuthContextProvider = ({ children }) => {
         if (response && response.data && response.data.UserAttributes) {
           const userAttributes = response.data.UserAttributes;
         
-          let alertTime = "";
-          let accountType = "";
-          let userId = "";
-          
-          userAttributes.forEach(attribute => {
-              if (attribute.Name === "sub") {
-                  userId = attribute.Value;
-              }
-              if (attribute.Name === "custom:alert_time") {
-                  alertTime = attribute.Value;
-              }
-              if (attribute.Name === "custom:account_type") {
-                  accountType = attribute.Value;
-              }
-          });
-
-          localStorage.setItem("userId", userId);
+          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
           localStorage.setItem("login", response.data.Username);
-          localStorage.setItem("alertTime", alertTime);
-          localStorage.setItem("accountType", accountType);
           
           setIsAuthenticated(true);
           navigate("/dashboard");

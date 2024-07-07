@@ -3,14 +3,13 @@ export const convertUserSignupRequest = (userData) => {
     firstName,
     email,
     phoneNumber,
-    login,
     password,
   } = userData;
 
   const payload = {
     ClientId: process.env.REACT_APP_COGNITO_CLIENTID,
     UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID, 
-    Username: login,
+    Username: email,
     Password: password,
     UserAttributes: [
       { Name: 'name', Value: firstName },
@@ -97,12 +96,12 @@ export const convertUserResponse = (responseData) => {
 
 export const convertUserForgotPasswordRequest = (userData) => {
   const {
-    login,
+    email,
   } = userData;
-
+  
   const payload = {
     ClientId: process.env.REACT_APP_COGNITO_CLIENTID,
-    Username: login,
+    Username: email,
   };
 
   return payload;
