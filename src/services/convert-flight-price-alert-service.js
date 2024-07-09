@@ -1,4 +1,4 @@
-export const convertRequest = (alertData) => {
+export const convertFlightRequest = (alertData) => {
     const {
       alertName,
       alertType,
@@ -27,21 +27,21 @@ export const convertRequest = (alertData) => {
       airline,
       searchSites,
       userId,
-      userName,
-      userEmail,
-      userCellphone,
-      userCurrency,
-      userCountry,
+      total,
+      scales,
+      airplaneModel,
+      lowerCO2,
     } = alertData;
   
-    // Create the payload structure
+    const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
+
     const payload = {
       userId: userId,
       alert: {
         alertName: alertName,
-        alertType: [alertType === 'Telegram' ? 'TELEGRAM': 'TELEGRAM'], // Convert alertType to an array
-        alertDurationTime: parseInt(alertDurationTime), // Convert to an integer
-        alertDisabled: alertDisabled,
+        alertType: [alertType === 'Telegram' ? 'TELEGRAM': 'TELEGRAM'],
+        alertDurationTime: parseInt(alertDurationTime),
+        alertDisabled: alertDisabled ? alertDisabled : false,
       },
       mainFilter: {
         flight: {
@@ -50,18 +50,18 @@ export const convertRequest = (alertData) => {
           returnDate: returnDate ? returnDate : null,
           airports: [
             {
-              airportFrom: aiportFrom,
-              airportTo: aiportTo,
-              airportScales: null, // You might need to adjust this based on your data
+              airportFrom: aiportFrom ? aiportFrom : null,
+              airportTo: aiportTo ? aiportTo : null,
+              airportScales: null, 
             },
           ],
         },
-        adults: parseInt(adults), // Convert to an integer
-        children: parseInt(children), // Convert to an integer
-        cabinClassType: cabinClassType === 'Economy' ? 'ECONOMY' : null,
+        adults: parseInt(adults), 
+        children: parseInt(children) === 0 ? null : parseInt(children),
+        cabinClassType: cabinClassType === 'Economy' ? 'ECONOMY' : cabinClassType,
       },
       preferencesFilter: {
-        scalesQuantity: parseInt(scalesQuantity), // Convert to an integer
+        scalesQuantity: parseInt(scalesQuantity),
         departRangeDate: departRangeDate ? departRangeDate : null,
         returnRangeDate: returnRangeDate ? returnRangeDate : null,
         departRangeTime: {
@@ -73,29 +73,29 @@ export const convertRequest = (alertData) => {
           rangeEnd: returnRangeTimeEnd ? returnRangeTimeEnd : null,
         },
         travelDuration: {
-          total: null, // You might need to calculate this based on your data
-          scales: null, // You might need to calculate this based on your data
+          total: total ? total : null, 
+          scales: scales ? scales : null,
         },
         rangePrice: {
-          rangeStart: parseFloat(rangePriceStart), // Convert to a float
-          rangeEnd: parseFloat(rangePriceEnd), // Convert to a float
+          rangeStart: rangePriceStart ? parseFloat(rangePriceStart) : null, 
+          rangeEnd: rangePriceEnd ? parseFloat(rangePriceEnd) : null,
         },
         payment: {
-          method: paymentMethod,
-          parcels: parseInt(paymentParcels), // Convert to an integer
+          method: paymentMethod ? paymentMethod : null,
+          parcels: paymentParcels ?  parseInt(paymentParcels) : null, 
         },
-        airplaneModel: null, // You might need to adjust this based on your data
-        otherPreferences: otherPreferences,
-        airline: airline,
-        searchSites: searchSites,
-        lowerCO2: null, // You might need to adjust this based on your data
+        airplaneModel: airplaneModel ? airplaneModel : null,
+        otherPreferences: otherPreferences ? otherPreferences : null,
+        airline: airline ? airline : null,
+        searchSites: searchSites ? searchSites : null,
+        lowerCO2: lowerCO2 ? lowerCO2 : null, 
       },
       alertUser: {
-        name: "Fernando", //userName You might need to adjust this based on your data
-        cellphone: "55219934534643", //userCellphone You might need to adjust this based on your data
-        email: "email@email.com", //userEmail You might need to adjust this based on your data
-        currency: "BRL", //userCurrency You might need to adjust this based on your data
-        country: "BRA", //userCountry You might need to adjust this based on your data
+        name: userAttributes.name, 
+        cellphone: userAttributes.phone_number, 
+        email:  userAttributes.email, 
+        currency: userAttributes["custom:currency"] ? userAttributes["custom:currency"] : "BRL", 
+        country: userAttributes["custom:country"] ? userAttributes["custom:country"] : "BR",
       },
     };
   

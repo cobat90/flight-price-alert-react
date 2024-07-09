@@ -36,15 +36,14 @@ function Footer({ light }) {
             color={light ? "white" : "text"}
             fontSize={size.sm}
           >
-            &copy; 2023, made by
+            &copy; 2024, made by
             <Link href="https://www.ittent.com/" target="_blank">
               <MDTypography variant="button" fontWeight="medium" color={light ? "white" : "dark"}>
                 &nbsp;ITTENT&nbsp;
               </MDTypography>
             </Link>
             for a better web.
-          </MDBox>
-          
+          </MDBox>       
         </MDBox>
       </Container>
     </MDBox>

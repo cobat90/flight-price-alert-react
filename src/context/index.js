@@ -40,20 +40,42 @@ const AuthContextProvider = ({ children }) => {
   }, [isAuthenticated]);
 
 
-  const login = async (token, userId) => {
+  const login = async (token) => {
     localStorage.setItem("token", token);
+
     try {
-      const response = await AuthService.getProfile();
-      localStorage.setItem("userId", response.data.id);
-      localStorage.setItem("login", response.data.login);
-      localStorage.setItem("alertTime", response.data.alertTime);
-      setIsAuthenticated(true);
-      navigate("/dashboard");
+        let userData={
+          AccessToken: localStorage.getItem("token"),
+        }
+        const response = await AuthService.getProfile(userData);
+
+        if (response.status === 200) {
+          if (response && response.data && response.data.UserAttributes) {
+            const userAttributes = response.data.UserAttributes;
+          
+            localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
+            localStorage.setItem("login", response.data.Username);
+            
+            setIsAuthenticated(true);
+            navigate("/dashboard");
+          }       
+        }
+        else{
+          setIsAuthenticated(false);
+        }
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      if (error.response.data.message) {
+        setCredentialsError(error.response.data.message);
+      }
+      else if (error.response.data.__type) 
+      {
+        setCredentialsError(error.response.data.__type);
+      } 
+      else {
+        setCredentialsError("Invalid profile response");
+      }
     }
-  };
-  
+};
 
   const logout = () => {
     localStorage.removeItem("token");

@@ -42,7 +42,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
 
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
-import { convertRequest } from '../../services/convert-flight-price-alert-service';
+import { convertFlightRequest } from '../../services/convert-flight-price-alert-service';
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -265,11 +265,11 @@ function Dashboard() {
     setFlightPriceAlertId(alertId);
 
     if (isEditing) {
-      const requestPayload = convertRequest(alertData);
+      const requestPayload = convertFlightRequest(alertData);
       updateAlertData(requestPayload);
     }
     else{
-      const requestPayload = convertRequest(alertData);
+      const requestPayload = convertFlightRequest(alertData);
       createAlertData(requestPayload);
     }
   };
@@ -495,13 +495,13 @@ function Dashboard() {
                       <FormField name="rangePriceStart" label="$ Range Start" placeholder="200" 
                         defaultValue={(isEditing && currentAlert?.preferencesFilter
                         ? (currentAlert.preferencesFilter.rangePrice?.rangeStart).toString()  || null
-                        : null)} />
+                        : null)}  disabled/>
                     </Grid>
                     <Grid item xs={12} sm={1.75}>
                       <FormField name="rangePriceEnd" label="$ Range End" placeholder="500" 
                       defaultValue={(isEditing && currentAlert?.preferencesFilter
                         ? (currentAlert.preferencesFilter.rangePrice?.rangeEnd).toString() || null
-                        : null)}/>        
+                        : null)} disabled />        
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
                       <Autocomplete
@@ -510,7 +510,8 @@ function Dashboard() {
                           : null)}
                         options={selectData.passagers}
                         renderInput={(params) => (
-                          <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} />
+                          <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} 
+                          disabled />
                       )}/>     
                     </Grid>
                     <Grid item xs={12} sm={3.5}>                  
@@ -525,7 +526,7 @@ function Dashboard() {
                               onChange={date => setDepartRangeDate(date)}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
-                              }}/> 
+                              }} disabled/> 
                           </LocalizationProvider>  
                         </div>
                       </Tooltip>                  
@@ -541,10 +542,9 @@ function Dashboard() {
                               disablePast
                               value={flightType === 'One Way'? '' : null}
                               onChange={date => setReturnRangeDate(date)}
-                              disabled={flightType === 'One Way'}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
-                              }}/> 
+                              }} disabled/> 
                           </LocalizationProvider>  
                         </div>            
                       </Tooltip>
@@ -556,7 +556,7 @@ function Dashboard() {
                             <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter
                                 ? dayjs(currentAlert.preferencesFilter.departRangeTime?.rangeStart, "hh:mm") || null
-                                : null)} />
+                                : null)} disabled/>
                           </LocalizationProvider>              
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -564,7 +564,7 @@ function Dashboard() {
                             <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter
                                 ? dayjs(currentAlert.preferencesFilter.departRangeTime?.rangeEnd, "hh:mm") || null
-                                : null)} />
+                                : null)} disabled/>
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -572,7 +572,7 @@ function Dashboard() {
                             <TimeField name="returnRangeTimeStart" label="Start Return Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter
                                 ? dayjs(currentAlert.preferencesFilter.returnRangeTime?.rangeStart, "hh:mm") || null
-                                : null)} />
+                                : null)} disabled/>
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -580,7 +580,7 @@ function Dashboard() {
                             <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter
                                 ? dayjs(currentAlert.preferencesFilter.returnRangeTime?.rangeEnd, "hh:mm") || null
-                                : null)} /> 
+                                : null)} disabled/> 
                           </LocalizationProvider>
                         </Grid>
                       </Grid>
@@ -594,7 +594,8 @@ function Dashboard() {
                             : null)}
                           options={selectData.paymentMethod}
                           renderInput={(params) => (
-                            <FormField {...params} name="paymentMethod" label="Payment Method" InputLabelProps={{ shrink: true }} />
+                            <FormField {...params} name="paymentMethod" label="Payment Method" InputLabelProps={{ shrink: true }} 
+                            disabled />
                           )}
                         />                
                         </Grid>
@@ -605,7 +606,8 @@ function Dashboard() {
                               : null)}
                             options={selectData.passagers}
                             renderInput={(params) => (
-                              <FormField {...params} name="paymentParcels" label="Parcels" InputLabelProps={{ shrink: true }} />
+                              <FormField {...params} name="paymentParcels" label="Parcels" InputLabelProps={{ shrink: true }} 
+                              disabled />
                           )}/> 
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -615,7 +617,8 @@ function Dashboard() {
                               : null)}
                             options={selectData.otherPreferences}
                             renderInput={(params) => (
-                              <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} />
+                              <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} 
+                              disabled />
                             )}/> 
                         </Grid>
                         <Grid item xs={12} sm={1.5}>
@@ -625,7 +628,7 @@ function Dashboard() {
                               : null)}
                             options={selectData.airlines}
                             renderInput={(params) => (
-                              <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} />
+                              <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} disabled />
                             )}/> 
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -635,7 +638,8 @@ function Dashboard() {
                               : null)}
                             options={selectData.searchSites}
                             renderInput={(params) => (
-                              <FormField {...params} name="searchSites" label="Search Motors" InputLabelProps={{ shrink: true }} />
+                              <FormField {...params} name="searchSites" label="Search Motors" InputLabelProps={{ shrink: true }} 
+                              disabled />
                             )}/> 
                         </Grid>
                       </Grid>
@@ -829,10 +833,8 @@ function Dashboard() {
                 </Collapse>
               </Card>
             </MDBox>
-          </Grid>
-          
-          ))}
-          
+          </Grid>          
+          ))}          
           <Grid item xs={16} md={8} lg={4}>
             <MDBox display="flex" justifyContent="center" mb={3}>
               <Card >
@@ -841,8 +843,11 @@ function Dashboard() {
                   color="info"
                   fullWidth
                   type="button"
-                  onClick={openModalEditAlert}>         
+                  onClick={openModalEditAlert}
+                  disabled={localStorage.getItem("accountType") === "FREE" && alerts.length > 0}
+                  >         
                   Create New Alert
+                  
                 </MDButton>            
                 {modalEditAlert && (
                   <div>

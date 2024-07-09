@@ -1,46 +1,72 @@
-import HttpService from "./htttp.service";
+import { userAxiosInstance } from "./http.service";
+const API_COGNITO_URL = process.env.REACT_APP_COGNITO_URL;
 
 class AuthService {
-  authEndpoint = process.env.API_URL;
 
   login = async (payload) => {
-    const loginEndpoint = 'api/authenticate';
-    return await HttpService.post(loginEndpoint, payload);
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   };
 
-  register = async (credentials) => {
-    const registerEndpoint = 'api/register';
-    return await HttpService.post(registerEndpoint, credentials);
+  register = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.SignUp' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   };
 
-  logout = async () => {
-    const logoutEndpoint = 'api/account/logout';
-    return await HttpService.post(logoutEndpoint);
+  logout = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.GlobalSignOut' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   };
 
-  forgotPassword = async (payload) => {
-    const forgotPassword = 'api/account/reset-password/init';
-    return await HttpService.post(forgotPassword, payload);
+  forgotPasswordInit = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ForgotPassword' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
+  }
+
+  forgotPasswordFinish = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ConfirmForgotPassword' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   }
 
   changePassword = async (payload) => {
-    const changePassword = 'api/account/change-password';
-    return await HttpService.post(changePassword, payload);
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ChangePassword' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   }
 
-  getProfile = async() => {
-    const getProfile = 'api/account';
-    return await HttpService.get(getProfile);
+  getProfile = async(payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.GetUser' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   }
 
-  updateProfile = async (newInfo) => {
-    const updateProfile = "api/account";
-    return await HttpService.post(updateProfile, newInfo);
+  updateProfile = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.UpdateUserAttributes' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   }
 
-  deleteAccount = async (login) => {
-    const deleteAccount = `api/admin/users/${login}`;
-    return await HttpService.delete(deleteAccount);
+  deleteAccount = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.DeleteUser' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
+  }
+
+  disableAccount = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.AdminDisableUser' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
+  }
+
+  resendConfirmationCode = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.ResendConfirmationCode' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   }
 
 }

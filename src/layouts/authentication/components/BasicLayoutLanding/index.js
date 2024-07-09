@@ -23,24 +23,23 @@ import Grid from "@mui/material/Grid";
 import MDBox from "components/MDBox";
 
 // Material Dashboard 2 React example components
-import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 import PageLayout from "examples/LayoutContainers/PageLayout";
+import logoImage from "assets/images/logos/logo_ittent.png";
 
 // Authentication pages components
 import Footer from "layouts/authentication/components/Footer";
-import { Typography, List, ListItem, ListItemText } from "@mui/material";
+import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 
 function BasicLayout({ image, children }) {
   const { pathname } = useLocation();
   return (
-    <PageLayout>
+    <PageLayout sx={{ minHeight: "100vh", overflow: "hidden" }}>
       <MDBox
-        sx={{ height: "auto", minHeight: "100vh" }}
-        display="flex"
-        flexDirection="column"
-        minHeight="100vh"
-      >
+    sx={{ height: "100%", minHeight: "100%" }}
+    display="flex"
+    flexDirection="column"
+  >
         <MDBox
           position="absolute"
           width="100%"
@@ -55,6 +54,7 @@ function BasicLayout({ image, children }) {
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
+            flex: 1, overflow: "auto",
           }}
         >
           <MDBox
@@ -77,10 +77,10 @@ function BasicLayout({ image, children }) {
                     padding="1.5rem"
                     width="80%"
                   >
-                    <Typography variant="h3" style={{ color: "white" }}>
-                      Ittent
+                    <Typography variant="h3" style={{ color: "white" }} >
+                      Ittent                      
                     </Typography>
-                    <Typography variant="body2" style={{ color: "white" }} margin="0.5rem 0">
+                    <Typography variant="body2" style={{ color: "white" }} marginBottom="4rem">
                       Best way to control your price alerts
                     </Typography>
                     <MDBox
@@ -89,9 +89,7 @@ function BasicLayout({ image, children }) {
                       justifyContent="center"
                       alignItems="center"
                       marginBottom="0.5rem"
-                    >
-
-                     
+                    >        
                     </MDBox>
                   </MDBox>
                 </MDBox>

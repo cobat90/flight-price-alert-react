@@ -41,7 +41,7 @@ function Footer({ company, links }) {
         fontSize={size.sm}
         px={1.5}
       >
-        &copy; Price Alerts 2023
+        &copy; Price Alerts 2024
         by
         <Link href="https://ittent.com" target="_blank">
           <MDTypography variant="button" fontWeight="medium">
@@ -72,19 +72,6 @@ function Footer({ company, links }) {
   );
 }
 
-// Setting default values for the props of Footer
-Footer.defaultProps = {
-  company: { href: "https://www.creative-tim.com/", name: "Creative Tim" },
-  links: [
-    { href: "https://updivision.com/", name: "UPDIVISION" },
-    { href: "https://www.creative-tim.com/", name: "Creative Tim" },
-    { href: "https://www.creative-tim.com/presentation", name: "About Us" },
-    { href: "https://www.creative-tim.com/blog", name: "Blog" },
-    { href: "https://www.creative-tim.com/license", name: "License" },
-  ],
-};
-
-// Typechecking props for the Footer
 Footer.propTypes = {
   company: PropTypes.objectOf(PropTypes.string),
   links: PropTypes.arrayOf(PropTypes.object),

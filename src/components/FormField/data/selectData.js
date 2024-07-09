@@ -1,6 +1,6 @@
 const selectData = {
   gender: ["Male", "Female"],
-  alertType: ["Telegram", "Email"],
+  alertType: ["Telegram"],
   flightType: ["One Way", "Roundtrip"],
   cabinClassType: ["Economy", "Premium Economy", "Business Class", "First Class"],
   paymentMethod: ["Credit Card", "Bank Transfer", "Paypal", "Ticket", "Pix", "Cryptocurrency"],
@@ -191,6 +191,7 @@ const selectData = {
     "2021",
     "2022",
     "2023",
+    "2024",
   ],
 };
 

@@ -24,8 +24,6 @@ import MDInput from "components/MDInput";
 import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
 
-import AuthService from "services/auth-service";
-
 // Custom styles for DashboardNavbar
 import {
   navbar,
@@ -50,39 +48,39 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
+  const alertTime = getAttributeValue(userAttributes, 'custom:alert_time');
   let navigate = useNavigate();
 
+  console.info("userAttributes: ", userAttributes);
+
   useEffect(() => {
-    // Setting the navbar type
+
     if (fixedNavbar) {
       setNavbarType("sticky");
     } else {
       setNavbarType("static");
     }
 
-    // A function that sets the transparent state of the navbar.
     function handleTransparentNavbar() {
       setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
     }
 
-    /** 
-     The event listener that's calling the handleTransparentNavbar function when 
-     scrolling the window.
-    */
     window.addEventListener("scroll", handleTransparentNavbar);
-
-    // Call the handleTransparentNavbar function to set the state with the initial value.
     handleTransparentNavbar();
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener("scroll", handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
+
+  function getAttributeValue(attributes, attributeName) {
+    const attribute = attributes.find(attr => attr.Name === attributeName);
+    return attribute ? attribute.Value : null;
+  }
 
   const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 
-  // Render the notifications menu
   const renderMenu = () => (
     <Menu
       anchorEl={openMenu}
@@ -95,16 +93,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
       onClose={handleCloseMenu}
       sx={{ mt: 2 }}
       disableScrollLock={ true }
-    >
-      
+    >      
       <NotificationItem icon={<Icon>person</Icon>} title="User Profile" link="/user-profile" />
-
       <NotificationItem icon={<Icon>settings</Icon>} title="Settings" link='/settings' />    
       <NotificationItem icon={<Icon>logout</Icon>} title="Logout" onClick={handleLogOut}/>
     </Menu>
   );
 
-  // Styles for the navbar icons
   const iconsStyle = ({ palette: { dark, white, text }, functions: { rgba } }) => ({
     color: () => {
       let colorValue = light || darkMode ? white.main : dark.main;
@@ -118,10 +113,14 @@ function DashboardNavbar({ absolute, light, isMini }) {
   });
 
   const handleLogOut = async () => {
-    authContext.logout();
+    let userData= {
+      AccessToken: localStorage.getItem("token"),
+    }
+    authContext.logout(userData);
   };
 
   return (
+    
     <AppBar
       position={absolute ? "absolute" : navbarType}
       color="inherit"
@@ -143,7 +142,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 aria-haspopup="true"
                 variant="contained"
               >
-                <MDBadge badgeContent={parseInt(localStorage.getItem("alertTime"))} color="error" size="xs" circular>
+                <MDBadge badgeContent={alertTime} color="error" size="xs" circular>
                   <AccessTimeIcon sx={iconsStyle} />
                 </MDBadge>
               </IconButton>

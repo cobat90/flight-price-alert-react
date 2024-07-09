@@ -6,7 +6,6 @@ import MDTypography from "components/MDTypography";
 import Typography from '@mui/material/Typography';
 import MDButton from "components/MDButton";
 import Button from '@mui/material/Button';
-import MDInput from "components/MDInput";
 import Snackbar from '@mui/material/Snackbar';
 import FormField from "components/FormField";
 import MuiAlert from '@mui/material/Alert';
@@ -23,10 +22,11 @@ import AuthService from "../../services/auth-service";
 
 function Settings() {
   const passwordRequirements = [
+    "Min 8 characters",
     "One special character",
-    "Min 6 characters",
-    "One number (2 are recommended)",
-    "Change it often",
+    "One number",
+    "Contains at least 1 uppercase letter",
+    "Contains at least 1 lowercase letter"
   ];
 
   const renderPasswordRequirements = passwordRequirements.map((item, key) => {
@@ -55,6 +55,8 @@ function Settings() {
     newPassError: false,
     confirmPassError: false,
   });
+
+  const [credentialsErros, setCredentialsError] = useState(null);
 
   const handleSnackBarOpen = (newState) => {
     setSnackBarState({ ...newState, open: true });
@@ -87,13 +89,10 @@ function Settings() {
 
   const handleDialogConfirmSubmit = () => {
     if (dialogConfirmAction === "Disable"){
-      const userData = {
-        activated: false
-      };
-      updateUserData(userData);
+      disableAccount();
     }
     if (dialogConfirmAction === "Delete"){
-      deleteAccount(localStorage.getItem("login"));
+      deleteAccount();
     }
 
     handleDialogConfirmClose();
@@ -109,7 +108,7 @@ function Settings() {
     
     if (userData.confirmPassword || userData.newPassword) {
       if (userData.confirmPassword.trim() !== userData.newPassword.trim()) {
-        setErrors({ ...errors, confirmPassError: true, newPassError: false,});
+        setErrors({ ...errors, confirmPassError: true, newPassError: false});
         return;
        
       }
@@ -121,8 +120,9 @@ function Settings() {
 
     if (userData.newPassword.length > 0 && userData.confirmPassword.length > 0 ) {
       const passData = {
-        currentPassword: userData.currentPassword,
-        newPassword: userData.newPassword,
+        PreviousPassword: userData.currentPassword,
+        ProposedPassword: userData.newPassword,
+        AccessToken: localStorage.getItem("token"),
       };
       changePassword(passData);
     }
@@ -130,6 +130,7 @@ function Settings() {
       newPassError: false,
       confirmPassError: false,
     });
+    setCredentialsError(null);
   };
 
   const changePassword = async (userData) => {
@@ -138,37 +139,58 @@ function Settings() {
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         handleClearForm();
+        setCredentialsError(null);
       } else {
         console.error("Invalid data format in response:", response);
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
+      if (error.response.data.hasOwnProperty("detail")) {
+        setCredentialsError(extractTextOutsideParentheses(error.response.data.detail));
+      } else {
+        setCredentialsError(error.response.data.error);
+      }
     }
   };
 
-  const deleteAccount = async (login) => {
+  function extractTextOutsideParentheses(inputString) {
+    const regex = /\(([^)]+)\)/;
+    const matches = regex.exec(inputString);
+    return matches ? inputString.replace(matches[0], '').trim() : inputString;
+  }
+
+  const deleteAccount = async () => {
+    let userData = {
+      Username: localStorage.getItem("login"),
+      UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
+      AccessToken: localStorage.getItem("token"),
+    }
     try {
-      const response = await AuthService.deleteAccount(login);
+      const response = await AuthService.deleteAccount(userData);
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
       } else {
         console.error("Invalid data format in response:", response);
       }
     } catch (error) {
-      console.error("Error fetching alerts:", error);
+      console.error(error.response.data.error);
     }
   };
 
-  const updateUserData = async (userData) => {
+  const disableAccount = async () => {
     try {
-      const response = await AuthService.updateProfile(userData);
+      let userData = {
+        Username: localStorage.getItem("login"),
+        UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
+        AccessToken: localStorage.getItem("token"),
+      }
+      const response = await AuthService.disableAccount(userData);
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
       } else {
         console.error("Invalid data format in response:", response);
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
+      console.error(error.response.data.error);
     }
   };
 
@@ -176,83 +198,88 @@ function Settings() {
     <DashboardLayout>
       < DashboardNavbar />
       <MDBox mb={2} >
-    <Card id="change-password">
-      <MDBox p={3}>
-        <MDTypography variant="h5">Change Password</MDTypography>
-      </MDBox>
-      <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <FormField
-              fullWidth
-              name="currentPassword"
-              label="Current Password"
-              required
-              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <FormField
-              fullWidth
-              name="newPassword"
-              label="New Password"
-              required
-              error={errors.newPassError}
-              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
-            />
-            {errors.newPassError && (
-                    <MDTypography variant="caption" color="error" fontWeight="light">
-                      The password must be different from the current password
-                    </MDTypography>
-                  )}
-          </Grid>
-          <Grid item xs={12}>
-            <FormField
-              fullWidth
-              name="confirmPassword"
-              label="Confirm New Password"
-              required
-              error={errors.confirmPassError}
-              inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
-            />
-             {errors.confirmPassError && (
-                    <MDTypography variant="caption" color="error" fontWeight="light">
-                      The password confirmation must match the current password
-                    </MDTypography>
-                  )}
-          </Grid>
-        </Grid>
-        <MDBox mt={6} mb={1}>
-          <MDTypography variant="h5">Password requirements</MDTypography>
-        </MDBox>
-        <MDBox mb={1}>
-          <MDTypography variant="body2" color="text">
-            Please follow this guide for a strong password
-          </MDTypography>
-        </MDBox>
-        <MDBox display="flex" justifyContent="space-between" alignItems="flex-end" flexWrap="wrap">
-          <MDBox component="ul" m={0} pl={3.25} mb={{ xs: 1, sm: 0 }}>
-            {renderPasswordRequirements}
+        <Card id="change-password">
+          <MDBox p={3}>
+            <MDTypography variant="h5">Change Password</MDTypography>
           </MDBox>
-        <MDBox display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="flex-end">
-          <MDButton variant="gradient" color="error" sx={{ height: "100%" }} type="submit">
-            Change Password
-          </MDButton>
-          <MDBox ml={{ xs: 0, sm: 0.5 }} mt={{ xs: 1, sm: 0 }}>
-            <MDButton
-              variant="gradient"
-              color="info"
-              type="button"
-              onClick={handleClearForm}
-            >
-              Clear
-            </MDButton>
-          </MDBox>
-        </MDBox>
+            <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <FormField
+                    fullWidth
+                    name="currentPassword"
+                    label="Current Password"
+                    required
+                    inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <FormField
+                    fullWidth
+                    name="newPassword"
+                    label="New Password"
+                    required
+                    error={errors.newPassError}
+                    inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
+                  />
+                  {errors.newPassError && (
+                          <MDTypography variant="caption" color="error" fontWeight="light">
+                            The password must be different from the current password
+                          </MDTypography>
+                        )}
+                </Grid>
+                <Grid item xs={12}>
+                  <FormField
+                    fullWidth
+                    name="confirmPassword"
+                    label="Confirm New Password"
+                    required
+                    error={errors.confirmPassError}
+                    inputProps={{ type: "password", autoComplete: "", minLength: 8 }}
+                  />
+                  {errors.confirmPassError && (
+                          <MDTypography variant="caption" color="error" fontWeight="light">
+                            The password confirmation must match the current password
+                          </MDTypography>
+                        )}
+                </Grid>
+              </Grid>
+              {credentialsErros && (
+              <MDTypography variant="caption" color="error" fontWeight="medium" >
+                {credentialsErros}
+              </MDTypography>
+            )}
+              <MDBox mt={6} mb={1}>
+                <MDTypography variant="h5">Password requirements</MDTypography>
+              </MDBox>
+              <MDBox mb={1}>
+                <MDTypography variant="body2" color="text">
+                  Please follow this guide for a strong password
+                </MDTypography>
+              </MDBox>
+              <MDBox display="flex" justifyContent="space-between" alignItems="flex-end" flexWrap="wrap">
+                <MDBox component="ul" m={0} pl={3.25} mb={{ xs: 1, sm: 0 }}>
+                  {renderPasswordRequirements}
+                </MDBox>
+                <MDBox display="flex" flexDirection={{ xs: "column", sm: "row" }} justifyContent="flex-end">
+                  <MDButton variant="gradient" color="error" sx={{ height: "100%" }} type="submit">
+                    Change Password
+                  </MDButton>
+                  <MDBox ml={{ xs: 0, sm: 0.5 }} mt={{ xs: 1, sm: 0 }}>
+                    <MDButton
+                      variant="gradient"
+                      color="info"
+                      type="button"
+                      onClick={handleClearForm}
+                    >
+                      Clear
+                    </MDButton>
+                  </MDBox>
+                </MDBox>
+              </MDBox>
+            </MDBox>
+        </Card>
       </MDBox>
-    </MDBox>
-    </Card>
-    </MDBox>
     <MDBox mb={2} >
     <Card id="delete-account">
       <MDBox

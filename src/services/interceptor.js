@@ -1,4 +1,4 @@
-import HttpService from "./htttp.service";
+import { flightAxiosInstance, userAxiosInstance } from "./http.service";
 
 export const setupAxiosInterceptors = (onUnauthenticated) => {
   const onRequestSuccess = async (config) => {
@@ -6,9 +6,11 @@ export const setupAxiosInterceptors = (onUnauthenticated) => {
     config.headers.Authorization = `Bearer ${token}`;
     return config;
   };
+
   const onRequestFail = (error) => Promise.reject(error);
 
-  HttpService.addRequestInterceptor(onRequestSuccess, onRequestFail);
+  flightAxiosInstance.interceptors.request.use(onRequestSuccess, onRequestFail);
+  userAxiosInstance.interceptors.request.use(onRequestSuccess, onRequestFail);
 
   const onResponseSuccess = (response) => response;
 
@@ -20,5 +22,7 @@ export const setupAxiosInterceptors = (onUnauthenticated) => {
 
     return Promise.reject(error);
   };
-  HttpService.addResponseInterceptor(onResponseSuccess, onResponseFail);
+
+  flightAxiosInstance.interceptors.response.use(onResponseSuccess, onResponseFail);
+  userAxiosInstance.interceptors.response.use(onResponseSuccess, onResponseFail);
 };

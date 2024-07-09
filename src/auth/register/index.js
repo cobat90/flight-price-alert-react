@@ -5,6 +5,13 @@ import { Link } from "react-router-dom";
 // @mui material components
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -21,30 +28,42 @@ import bgImage from "assets/images/bg-sign-up-cover.jpeg";
 import AuthService from "services/auth-service";
 import { AuthContext } from "context";
 import { InputLabel } from "@mui/material";
+import { convertUserSignupRequest } from '../../services/convert-user-service';
 
 function Register() {
   const authContext = useContext(AuthContext);
 
   const [inputs, setInputs] = useState({
-    name: "",
-    email: "",
-    password: "",
     agree: false,
   });
 
   const [errors, setErrors] = useState({
-    nameError: false,
+    firstNameError: false,
     emailError: false,
+    emailExistsError: false,
+    phoneNumberError: false,
+    phoneNumberExistsError: false,
     passwordError: false,
+    confirmPasswordError: false,
     agreeError: false,
     error: false,
     errorText: "",
   });
 
+  const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
+
+  const handleDialogConfirmOpen = () => {   
+    setOpenDialogConfirm(true);
+  };
+
+  const handleDialogConfirmClose = () => {
+    setOpenDialogConfirm(false);
+  };
+
   const changeHandler = (e) => {
     setInputs({
       ...inputs,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.checked,
     });
   };
 
@@ -52,70 +71,99 @@ function Register() {
     e.preventDefault();
 
     const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const phoneFormat = /^\+(?:[0-9] ?){7,25}[0-9]$/;
 
-    if (inputs.name.trim().length === 0) {
-      setErrors({ ...errors, nameError: true });
-      return;
+    const formData = new FormData(e.target); 
+    let userData = {};
+    formData.forEach((value, key) => {
+      userData[key] = value;
+    });
+
+    if (userData.email){
+      if (userData.email.trim().length === 0 || !userData.email.trim().match(mailFormat)) {
+        setErrors({ ...errors, emailError: true });
+        return;
+      }
     }
-
-    if (inputs.email.trim().length === 0 || !inputs.email.trim().match(mailFormat)) {
-      setErrors({ ...errors, emailError: true });
-      return;
+    if (userData.phoneNumber){
+      if (userData.phoneNumber.trim().length === 0 || !userData.phoneNumber.trim().match(phoneFormat)) {
+        setErrors({ ...errors, phoneNumberError: true });
+        return;
+      }
     }
-
-    if (inputs.password.trim().length < 8) {
-      setErrors({ ...errors, passwordError: true });
-      return;
-    }
-
     if (inputs.agree === false) {
       setErrors({ ...errors, agreeError: true });
       return;
     }
+    if (userData.confirmPassword || userData.password) {     
+      if (userData.password.trim().length < 8) {
+        setErrors({ ...errors, passwordError: true });
+        return;
+      }
+      if (userData.confirmPassword.trim() !== userData.password.trim()) {
+        setErrors({ ...errors, confirmPasswordError: true, passwordError: false,});
+        return;
+      }
 
-    // here will be the post action to add a user to the db
-    const newUser = { name: inputs.name, email: inputs.email, password: inputs.password };
-
-    const myData = {
-      data: {
-        type: "users",
-        attributes: { ...newUser, password_confirmation: newUser.password },
-        relationships: {
-          roles: {
-            data: [
-              {
-                type: "roles",
-                id: "1",
-              },
-            ],
-          },
-        },
-      },
-    };
-
-    try {
-      const response = await AuthService.register(myData);
-      authContext.login(response.access_token, response.refresh_token);
-
-      setInputs({
-        name: "",
-        email: "",
-        password: "",
-        agree: false,
-      });
-
-      setErrors({
-        nameError: false,
-        emailError: false,
-        passwordError: false,
-        agreeError: false,
-        error: false,
-        errorText: "",
-      });
-    } catch (err) {
-      setErrors({ ...errors, error: true, errorText: err.message });
-      console.error(err);
+      if (userData.password.length > 0 && userData.confirmPassword.length > 0 ) {
+        const requestPayload = convertUserSignupRequest(userData);
+        registerUserData(requestPayload);
+        
+        setErrors({
+          ...errors,
+          firstNameError: false,
+          emailError: false,
+          phoneNumberError: false,
+          passwordError: false,
+          confirmPasswordError: false,
+          agreeError: false,
+          error: false,
+          errorText: "",
+        });  
+      }
     }
+  };
+
+  const registerUserData = async (userData) => {
+    try {
+      const response = await AuthService.register(userData);
+      console.info("response: ", response);
+      if (response.status === 200) {
+        handleDialogConfirmOpen();
+      } 
+    } catch (error) {
+      if (error.response.data.__type === "EmailExistsException"){
+        setErrors({
+          emailError: true,
+          emailExistsError: true,
+        });
+      }
+      else if (error.response.data.__type === "UsernameExistsException"){
+        setErrors({
+          emailExistsError: true,
+        });
+      }
+      else if (error.response.data.message === "PhoneNumberExistsException"){
+        setErrors({
+          phoneNumberError: true,
+          phoneNumberExistsError: true,
+        });
+      }
+      else if (error.response.data.message) 
+      {
+        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.message) });
+      } 
+      else if (error.response.data.__type) 
+      {
+        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.__type) });
+      } 
+    }
+  };
+
+  function extractTextOutsideParentheses(inputString) {
+    const regex = /\(([^)]+)\)/;
+    const matches = regex.exec(inputString);
+    return matches ? inputString.replace(matches[0], '').trim() : inputString;
   };
 
   return (
@@ -133,10 +181,10 @@ function Register() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Join us today
+            Sing up
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            Enter your email and password to register
+            Join now and receive free 10 alert days
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
@@ -144,21 +192,16 @@ function Register() {
             <MDBox mb={2}>
               <MDInput
                 type="text"
-                label="Name"
+                label="First Name"
                 variant="standard"
                 fullWidth
-                name="name"
-                value={inputs.name}
-                onChange={changeHandler}
-                error={errors.nameError}
-                inputProps={{
-                  autoComplete: "name",
-                  form: {
-                    autoComplete: "off",
-                  },
-                }}
+                name="firstName"
+                error={errors.firstNameError}
+                required
+                minLength={3}
+                maxLength={45}
               />
-              {errors.nameError && (
+              {errors.firstNameError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
                   The name can not be empty
                 </MDTypography>
@@ -170,20 +213,33 @@ function Register() {
                 label="Email"
                 variant="standard"
                 fullWidth
-                value={inputs.email}
                 name="email"
-                onChange={changeHandler}
                 error={errors.emailError}
-                inputProps={{
-                  autoComplete: "email",
-                  form: {
-                    autoComplete: "off",
-                  },
-                }}
+                required
+                minLength={5}
+                maxLength={100}
               />
               {errors.emailError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
-                  The email must be valid
+                  {errors.emailExistsError ? 'The Login already in use' : 'Email must be valid.'}
+                </MDTypography>
+              )}
+            </MDBox>
+            <MDBox mb={2}>
+              <MDInput
+                type="text"
+                label="Phone Number"
+                variant="standard"
+                fullWidth
+                name="phoneNumber"
+                error={errors.phoneNumberError}
+                required
+                minLength={7}
+                maxLength={25}
+              />
+              {errors.phoneNumberError && (
+                <MDTypography variant="caption" color="error" fontWeight="medium">
+                  {errors.phoneNumberExistsError ? 'The Phone Number already in use' : 'Invalid Phone Number. Ex: +99 99 9999 9999.'}
                 </MDTypography>
               )}
             </MDBox>
@@ -194,13 +250,32 @@ function Register() {
                 variant="standard"
                 fullWidth
                 name="password"
-                value={inputs.password}
-                onChange={changeHandler}
                 error={errors.passwordError}
+                required
+                minLength={8}
+                maxLength={50}
               />
               {errors.passwordError && (
-                <MDTypography variant="caption" color="error" fontWeight="light">
+                <MDTypography variant="caption" color="error" fontWeight="medium">
                   The password must be of at least 8 characters
+                </MDTypography>
+              )}
+            </MDBox>
+            <MDBox mb={2}>
+              <MDInput
+                type="password"
+                label="Confirm Password"
+                variant="standard"
+                fullWidth
+                name="confirmPassword"
+                error={errors.confirmPasswordError}
+                required
+                minLength={8}
+                maxLength={50}
+              />
+              {errors.confirmPasswordError && (
+                <MDTypography variant="caption" color="error" fontWeight="medium">
+                  The pass confirmation must match the current password
                 </MDTypography>
               )}
             </MDBox>
@@ -226,21 +301,21 @@ function Register() {
                 Terms and Conditions
               </MDTypography>
             </MDBox>
-            {errors.agreeError && (
-              <MDTypography variant="caption" color="error" fontWeight="light">
+            {errors.agreeError ? (
+              <MDTypography variant="caption" color="error" fontWeight="medium">
                 You must agree to the Terms and Conditions
               </MDTypography>
-            )}
-            {errors.error && (
-              <MDTypography variant="caption" color="error" fontWeight="light">
-                {errors.errorText}
-              </MDTypography>
-            )}
+            ) : null}
             <MDBox mt={4} mb={1}>
               <MDButton variant="gradient" color="info" fullWidth type="submit">
                 sign in
               </MDButton>
             </MDBox>
+            {errors.error && (
+              <MDTypography variant="caption" color="error" fontWeight="medium">
+                {errors.errorText}
+              </MDTypography>
+            )}
             <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
                 Already have an account?{" "}
@@ -259,6 +334,30 @@ function Register() {
           </MDBox>
         </MDBox>
       </Card>
+      <Dialog
+      open={openDialogConfirm}
+      onClose={handleDialogConfirmClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      disableScrollLock={ true } >             
+      <DialogTitle id="alert-dialog-title">
+        {"Check your email"}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+           An email was sent for active your account.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+      <Button
+          component={Link}
+          to="/auth/login"
+          onClick={handleDialogConfirmClose}
+        >
+          Sign in
+        </Button>
+      </DialogActions>
+    </Dialog>
     </CoverLayout>
   );
 }

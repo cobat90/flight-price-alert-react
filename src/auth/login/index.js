@@ -6,26 +6,15 @@ import { Link } from "react-router-dom";
 // @mui material components
 import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
-import Grid from "@mui/material/Grid";
-import MuiLink from "@mui/material/Link";
-
-// @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GoogleIcon from "@mui/icons-material/Google";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
-
-// Authentication layout components
 import BasicLayoutLanding from "layouts/authentication/components/BasicLayoutLanding";
-
-// Images
-import bgImage from "assets/images/bg-sign-in-basic.jpeg";
-
+import bgImage from "assets/images/bg-sign-in-flight.png";
+import { convertUserLoginRequest } from '../../services/convert-user-service';
 import AuthService from "services/auth-service";
 import { AuthContext } from "context";
 
@@ -37,8 +26,8 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const [inputs, setInputs] = useState({
-    username: "admin",
-    password: "admin",
+    username: "",
+    password: "",
     rememberMe: false,
   });
 
@@ -51,7 +40,7 @@ function Login() {
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
-  const changeHandler = (e) => {
+  const changeHandler = (e) => { 
     setInputs({
       ...inputs,
       [e.target.name]: e.target.value,
@@ -59,10 +48,7 @@ function Login() {
   };
 
   const submitHandler = async (e) => {
-    // check rememeber me?
     e.preventDefault();
-
-    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
     if (inputs.username.trim().length === 0) {
       setErrors({ ...errors, usernameError: true });
@@ -74,24 +60,30 @@ function Login() {
       return;
     }
 
-    const newUser = { username: inputs.username, password: inputs.password, rememberMe: inputs.rememberMe };
-    addUserHandler(newUser);
-
-    const myData = {
-      ...newUser
+    const userData = {
+      username: inputs.username,
+      password: inputs.password,
     };
-    
+   
     try {
-      const response = await AuthService.login(myData);
-      authContext.login(response.data.id_token);
-    } catch (res) {
-      if (res.hasOwnProperty("message")) {
-        setCredentialsError(res.message);
+      const response = await AuthService.login(convertUserLoginRequest(userData));
+      console.info("response: ", response);
+      if (response && response.data && response.data.AuthenticationResult && response.data.AuthenticationResult.AccessToken) {
+        const accessToken = response.data.AuthenticationResult.AccessToken;
+        authContext.login(accessToken);
       } else {
-        setCredentialsError(res.errors[0].detail);
+        console.error("AuthenticationResult or AccessToken missing in the response");
+        setCredentialsError("Invalid login response");
+      }
+    } catch (error) {
+      console.error("Login error: ", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        setCredentialsError(error.response.data.message);
+      } else {
+        setCredentialsError("An unexpected error occurred", error);
       }
     }
-
+  
     return () => {
       setInputs({
         username: "",
@@ -104,6 +96,12 @@ function Login() {
       });
     };
   };
+
+  function extractTextOutsideParentheses(inputString) {
+    const regex = /\(([^)]+)\)/;
+    const matches = regex.exec(inputString);
+    return matches ? inputString.replace(matches[0], '').trim() : inputString;
+  }
 
   return (
     <BasicLayoutLanding image={bgImage}>
@@ -122,30 +120,13 @@ function Login() {
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
             Sign in
           </MDTypography>
-          <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <FacebookIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GitHubIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GoogleIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-          </Grid>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form" method="POST" onSubmit={submitHandler}>
             <MDBox mb={2}>
               <MDInput
-                type="username"
-                label="username"
+                type="Email"
+                label="Email"
                 fullWidth
                 value={inputs.username}
                 name="username"
@@ -178,11 +159,11 @@ function Login() {
             </MDBox>
             <MDBox mt={4} mb={1}>
               <MDButton variant="gradient" color="info" fullWidth type="submit">
-                sign in
+                Sign in
               </MDButton>
             </MDBox>
             {credentialsErros && (
-              <MDTypography variant="caption" color="error" fontWeight="light">
+              <MDTypography variant="caption" color="error" fontWeight="medium" >
                 {credentialsErros}
               </MDTypography>
             )}
@@ -191,7 +172,7 @@ function Login() {
                 Forgot your password? Reset it{" "}
                 <MDTypography
                   component={Link}
-                  to="/auth/forgot-password"
+                  to="/auth/forgot-password-init"
                   variant="button"
                   color="info"
                   fontWeight="medium"
