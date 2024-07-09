@@ -106,3 +106,20 @@ export const convertUserForgotPasswordRequest = (userData) => {
 
   return payload;
 };
+
+export const convertUserForgotPasswordFinishRequest = (userData) => {
+  const {
+    username,
+    code,
+    newPassword,
+  } = userData;
+  
+  const payload = {
+    ClientId: process.env.REACT_APP_COGNITO_CLIENTID,
+    Username: username,
+    ConfirmationCode: code,
+    Password: newPassword,
+  };
+
+  return payload;
+};

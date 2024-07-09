@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -16,7 +15,7 @@ import Button from '@mui/material/Button';
 import FormField from "components/FormField";
 
 import CoverLayout from "layouts/authentication/components/CoverLayout";
-import queryString from 'query-string';
+import { convertUserForgotPasswordFinishRequest } from '../../services/convert-user-service';
 import bgImage from "assets/images/bg-reset-cover.jpeg";
 import authService from "services/auth-service";
 
@@ -45,17 +44,6 @@ function ForgotPasswordFinish() {
   });
 
   const [credentialsErros, setCredentialsError] = useState(null);
-  const [resetKey, setResetKey] = useState(null);
-  const location = useLocation();
-  const parsedQueryString = queryString.parse(location.search);
-  
-  useEffect(() => {
-    if (Object.keys(parsedQueryString).length > 0) {
-      setResetKey(parsedQueryString.key);
-    }
-  }, [parsedQueryString]); // Add parsedQueryString as a dependency to useEffect
-
-  
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
 
   const handleDialogConfirmOpen = () => {   
@@ -81,12 +69,20 @@ function ForgotPasswordFinish() {
       }
     }
 
-    if (userData.newPassword.length > 0 && userData.confirmPassword.length > 0 ) {
-      const newPassData = {
-        key: resetKey,
+    if (userData.newPassword.length > 0 && userData.confirmPassword.length > 0 ) {      
+      const queryParams = getQueryParams();
+      const username = queryParams.username;
+      const confirmationCode = queryParams.confirmation_code;
+
+      const newUserData = {
+        username: username,
+        code: confirmationCode,
         newPassword: userData.newPassword,
       };
-      handleForgotPasswordFinish(newPassData);
+      console.log('Username:', username);
+      console.log('Confirmation Code:', confirmationCode);
+
+      handleForgotPasswordFinish(convertUserForgotPasswordFinishRequest(newUserData));
     }
     setErrors({
       newPassError: false,
@@ -94,19 +90,19 @@ function ForgotPasswordFinish() {
     });
   };
 
-  const handleForgotPasswordFinish = async (newPassData) => {
+  const handleForgotPasswordFinish = async (newUserData) => {
     try {
-      const response = await authService.forgotPasswordFinish(newPassData);
+      const response = await authService.forgotPasswordFinish(newUserData);
       if (response.status === 200) {
         handleDialogConfirmOpen();
         setErrors({ err: false, textError: "" });     
       } 
     } catch (error) {
-      if (error.response.data.hasOwnProperty("detail")) {
-        setCredentialsError(extractTextOutsideParentheses(error.response.data.detail));
+      if (error.response.data.message) {
+        setCredentialsError(error.response.data.message);
       }
-      else if (error.response.data.hasOwnProperty("error")) {
-        setCredentialsError(error.response.data.error);
+      else if (error.response.data.__type) {
+        setCredentialsError(error.response.data.__type);
       }
       else {
         setCredentialsError("An unexpected error occurred", error);
@@ -119,6 +115,15 @@ function ForgotPasswordFinish() {
     const matches = regex.exec(inputString);
     return matches ? inputString.replace(matches[0], '').trim() : inputString;
   };
+
+  function getQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    const queryParams = {};
+    for (const [key, value] of params.entries()) {
+        queryParams[key] = decodeURIComponent(value);
+    }
+    return queryParams;
+}
 
   return (
     <CoverLayout coverHeight="50vh" image={bgImage}>
