@@ -1,3 +1,21 @@
+export const convertUserLoginRequest = (userData) => {
+  const {
+    username,
+    password,
+  } = userData;
+  
+  const payload = {
+    AuthParameters: {
+      USERNAME: username,
+      PASSWORD: password,
+    },
+    AuthFlow: "USER_PASSWORD_AUTH",
+    ClientId: process.env.REACT_APP_COGNITO_CLIENTID,
+  };
+
+  return payload;
+};
+
 export const convertUserSignupRequest = (userData) => {
   const {
     firstName,
