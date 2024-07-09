@@ -33,7 +33,7 @@ export const convertFlightRequest = (alertData) => {
       lowerCO2,
     } = alertData;
   
-    const userAttributes = JSON.parse(userAttributes);
+    const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
 
     const payload = {
       userId: userId,

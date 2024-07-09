@@ -41,7 +41,6 @@ const AuthContextProvider = ({ children }) => {
 
 
   const login = async (token) => {
-    console.info("token:" + token);
     localStorage.setItem("token", token);
 
     try {
@@ -50,20 +49,31 @@ const AuthContextProvider = ({ children }) => {
         }
         const response = await AuthService.getProfile(userData);
 
-        if (response && response.data && response.data.UserAttributes) {
-          const userAttributes = response.data.UserAttributes;
-        
-          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
-          localStorage.setItem("login", response.data.Username);
+        if (response.status === 200) {
+          if (response && response.data && response.data.UserAttributes) {
+            const userAttributes = response.data.UserAttributes;
           
-          setIsAuthenticated(true);
-          navigate("/dashboard");
-        } else {
-          console.error("UserAttributes missing in the response");
-          setCredentialsError("Invalid profile response");
+            localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
+            localStorage.setItem("login", response.data.Username);
+            
+            setIsAuthenticated(true);
+            navigate("/dashboard");
+          }       
+        }
+        else{
+          setIsAuthenticated(false);
         }
     } catch (error) {
-        console.error("Error fetching user profile:", error);
+      if (error.response.data.message) {
+        setCredentialsError(error.response.data.message);
+      }
+      else if (error.response.data.__type) 
+      {
+        setCredentialsError(error.response.data.__type);
+      } 
+      else {
+        setCredentialsError("Invalid profile response");
+      }
     }
 };
 

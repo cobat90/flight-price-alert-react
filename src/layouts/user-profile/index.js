@@ -38,9 +38,7 @@ const UserProfile = () => {
         AccessToken: localStorage.getItem("token"),
       }
       const response = await AuthService.getProfile(userData);
-      if (response.status === 200 && response.data && response.data.UserAttributes) {
-        console.info("Response data: ", response.data);
-
+      if (response.status === 200 && response.data) {
         setUser(convertUserResponse(response.data));
       } else {
         console.error("Invalid data format in response: ", response);
