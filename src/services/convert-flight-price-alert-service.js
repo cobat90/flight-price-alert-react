@@ -34,6 +34,46 @@ export const convertFlightRequest = (alertData) => {
     } = alertData;
   
     const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
+    const userData = {};
+
+    userAttributes.forEach(attr => {
+      switch (attr.Name) {
+        case 'name':
+          userData.firstName = attr.Value;
+          break;
+        case 'family_name':
+          userData.lastName = attr.Value;
+          break;
+        case 'email':
+          userData.email = attr.Value;
+          break;
+        case 'phone_number':
+          userData.phoneNumber = attr.Value;
+          break;
+        case 'custom:country':
+          userData.country = attr.Value;
+          break;
+        case 'custom:city':
+          userData.city = attr.Value;
+          break;
+        case 'custom:currency':
+          userData.currency = attr.Value;
+          break;
+        case 'custom:lang_key':
+          userData.langKey = attr.Value;
+          break;
+        case 'custom:telegramUserName':
+          userData.telegramUserName = attr.Value;
+          break;
+        case 'custom:telegramChatId':
+          userData.telegramChatId = attr.Value;
+          break;
+        default:
+          break;
+      }
+    });
+
+    console.info("userAttributes 2: ", userAttributes);
 
     const payload = {
       userId: userId,
@@ -56,12 +96,12 @@ export const convertFlightRequest = (alertData) => {
             },
           ],
         },
-        adults: parseInt(adults), 
-        children: parseInt(children) === 0 ? null : parseInt(children),
+        adults: adults ? parseInt(adults): 1, 
+        children: children ? parseInt(children): 0,
         cabinClassType: cabinClassType === 'Economy' ? 'ECONOMY' : cabinClassType,
       },
       preferencesFilter: {
-        scalesQuantity: parseInt(scalesQuantity),
+        scalesQuantity: scalesQuantity ? parseInt(scalesQuantity): 0,
         departRangeDate: departRangeDate ? departRangeDate : null,
         returnRangeDate: returnRangeDate ? returnRangeDate : null,
         departRangeTime: {
@@ -91,11 +131,13 @@ export const convertFlightRequest = (alertData) => {
         lowerCO2: lowerCO2 ? lowerCO2 : null, 
       },
       alertUser: {
-        name: userAttributes.name, 
-        cellphone: userAttributes.phone_number, 
-        email:  userAttributes.email, 
-        currency: userAttributes["custom:currency"] ? userAttributes["custom:currency"] : "BRL", 
-        country: userAttributes["custom:country"] ? userAttributes["custom:country"] : "BR",
+        name: userData.firstName, 
+        cellphone: userData.phoneNumber, 
+        email:  userData.email, 
+        currency: userData.currency ? userData.currency : "BRLAA", 
+        country: userData.country ? userData.country : "BRAEE",
+        telegramUserName: userData.telegramUserName,
+        telegramChatId: userData.telegramChatId,
       },
     };
   

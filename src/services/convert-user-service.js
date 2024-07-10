@@ -52,6 +52,8 @@ export const convertUserUpdateRequest = (userData) => {
     city,
     currency,
     langKey,
+    telegramUserName,
+    telegramChatId,
   } = userData;
 
   const payload = {
@@ -59,14 +61,16 @@ export const convertUserUpdateRequest = (userData) => {
     UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
     username: login,
     UserAttributes: [
-      { Name: 'name', Value: firstName }, // 'given_name' corresponds to first name
-      { Name: 'family_name', Value: lastName }, // 'family_name' corresponds to last name
+      { Name: 'name', Value: firstName }, 
+      { Name: 'family_name', Value: lastName }, 
       { Name: 'email', Value: email },
       { Name: 'phone_number', Value: phoneNumber },
-      { Name: 'custom:country', Value: country }, // Custom attribute 'country'
-      { Name: 'custom:city', Value: city }, // Custom attribute 'city'
-      { Name: 'custom:currency', Value: currency }, // Custom attribute 'currency'
-      { Name: 'custom:lang_key', Value: langKey }, // Custom attribute 'langKey'
+      { Name: 'custom:country', Value: country }, 
+      { Name: 'custom:city', Value: city }, 
+      { Name: 'custom:currency', Value: currency }, 
+      { Name: 'custom:lang_key', Value: langKey }, 
+      { Name: 'custom:telegramUserName', Value: telegramUserName }, 
+      { Name: 'custom:telegramChatId', Value: telegramChatId }, 
     ],     
   };
 
@@ -103,6 +107,12 @@ export const convertUserResponse = (responseData) => {
         break;
       case 'custom:lang_key':
         userData.langKey = attr.Value;
+        break;
+      case 'custom:telegramUserName':
+        userData.telegramUserName = attr.Value;
+        break;
+      case 'custom:telegramChatId':
+        userData.telegramChatId = attr.Value;
         break;
       default:
         break;

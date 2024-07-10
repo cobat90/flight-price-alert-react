@@ -164,7 +164,15 @@ const UserProfile = () => {
               </Grid>
               <Grid item xs={12} md={6}>
                 <FormField name="langKey" defaultValue={(user?.langKey ? (user.langKey || "").toString() : "")}
-                label="Language" placeholder="PTBR" inputProps={{ type: "text" }}/>
+                label="Language" placeholder="PT" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
+                label="Telegram UserName" placeholder="telegramUsername" inputProps={{ type: "text" }}/>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
+                label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }}/>
               </Grid>
               <Grid item xs={12} md={6}>
                 <MDButton

@@ -19,8 +19,8 @@ import routes from "routes";
 import { useMaterialUIController, setMiniSidenav } from "context";
 
 // Images
-import brandWhite from "assets/images/logo-ct.png";
-import brandDark from "assets/images/logo-ct-dark.png";
+import brandWhite from "assets/images/logos/logo_ittent.png";
+import brandDark from "assets/images/logos/logo_ittent.png";
 
 import { setupAxiosInterceptors } from "./services/interceptor";
 import ProtectedRoute from "examples/ProtectedRoute";

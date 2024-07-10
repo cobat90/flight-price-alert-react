@@ -52,8 +52,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const alertTime = getAttributeValue(userAttributes, 'custom:alert_time');
   let navigate = useNavigate();
 
-  console.info("userAttributes: ", userAttributes);
-
   useEffect(() => {
 
     if (fixedNavbar) {
