@@ -1,6 +1,7 @@
 const selectData = {
   gender: ["Male", "Female"],
   alertType: ["Telegram"],
+  priceType: ["Every", "Lowest"],
   flightType: ["One Way", "Roundtrip"],
   cabinClassType: ["Economy", "Premium Economy", "Business Class", "First Class"],
   paymentMethod: ["Credit Card", "Bank Transfer", "Paypal", "Ticket", "Pix", "Cryptocurrency"],

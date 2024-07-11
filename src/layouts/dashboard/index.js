@@ -42,7 +42,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
 
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
-import { convertFlightRequest } from '../../services/convert-flight-price-alert-service';
+import { convertFlightRequest} from '../../services/convert-flight-price-alert-service';
+import { getAttributeValue} from '../../services/convert-user-service';
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -58,8 +59,9 @@ const Notification = React.forwardRef(function Alert(props, ref) {
 
 function Dashboard() {
 
-  const { sales, tasks } = reportsLineChartData;
-  const userId = localStorage.getItem("userId");
+  const { sales } = reportsLineChartData;
+  const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
+  const userId = getAttributeValue(userAttributes, 'sub');
   const [alerts, setAlerts] = useState([]);
   const airportRefTo = useRef(null);
   const airportRefFrom = useRef(null);
@@ -105,7 +107,6 @@ function Dashboard() {
   const [cardAlertMenu, setCardAlertMenu] = useState(null);
   const [cardAlertIndex, setCardAlertIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const acRef = useRef(null);
 
   const openCardAlertMenu = (event, index) => { 
     setCardAlertMenu(event.currentTarget);
@@ -173,11 +174,12 @@ function Dashboard() {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
       if (response.status === 200 && Array.isArray(response.data)) {
         setAlerts(response.data);
-      } else {
-        console.error("Invalid data format in response:", response);
+      } else if  (response.status === 404) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        console.info("None Alert Found");
       }
     } catch (error) {
-      console.error("Error fetching alerts:", error);
+        console.error("Error fetching alerts:", error);
     }
   };
 
@@ -335,7 +337,7 @@ function Dashboard() {
           <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
             <input type="hidden" name="flightPriceAlertId" value={currentAlert?.flightPriceAlertId}  readOnly/>  
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={7}>
+              <Grid item xs={12} sm={4.5}>
                 <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
                   defaultValue={(isEditing ? (currentAlert?.alert?.alertName || "").toString() : "")} required />                                   
               </Grid>
@@ -347,6 +349,18 @@ function Dashboard() {
                   options={selectData.alertType}
                   renderInput={(params) => (
                     <FormField {...params} name="alerType" label="Alert Types"
+                     InputLabelProps={{ shrink: true }} required/>                      
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.5}>
+                <Autocomplete
+                  defaultValue={(isEditing
+                    ? (selectDataMapping.alertType[currentAlert?.alert?.priceType] || "").toString()
+                    : "")}          
+                  options={selectData.priceType}
+                  renderInput={(params) => (
+                    <FormField {...params} name="priceType" label="Price Types"
                      InputLabelProps={{ shrink: true }} required/>                      
                   )}
                 />
@@ -743,9 +757,9 @@ function Dashboard() {
                   title={alert?.alert?.alertName}
                   subheader=
                   {alert?.alert?.alertDisabled === false ? (
-                    "Created: " + dayjs(alert?.alert?.alertDateCreated).format("DD/MM/YYYY")                      
+                    "Created: " + dayjs(alert?.alert?.alertDateCreated).format("DD/MM/YYYY HH:mm")                      
                     ) : <MDTypography variant="h6" color="primary">
-                          {"Disabled: " + dayjs(alert?.alert?.alertDateDisabled).format("DD/MM/YYYY")}
+                          {"Disabled: " + dayjs(alert?.alert?.alertDateDisabled).format("DD/MM/YYYY HH:mm")}
                         </MDTypography>                  
                   }
                 />

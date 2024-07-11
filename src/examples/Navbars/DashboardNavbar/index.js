@@ -15,16 +15,11 @@ import Icon from "@mui/material/Icon";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MDBadge from "components/MDBadge";
-
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
-import MDInput from "components/MDInput";
-
-// Material Dashboard 2 React example components
 import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
+import { getAttributeValue } from '../../../services/convert-user-service';
 
-// Custom styles for DashboardNavbar
 import {
   navbar,
   navbarContainer,
@@ -50,7 +45,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const route = useLocation().pathname.split("/").slice(1);
   const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
   const alertTime = getAttributeValue(userAttributes, 'custom:alert_time');
-  let navigate = useNavigate();
 
   useEffect(() => {
 
@@ -70,12 +64,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
     return () => window.removeEventListener("scroll", handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
 
-  function getAttributeValue(attributes, attributeName) {
-    const attribute = attributes.find(attr => attr.Name === attributeName);
-    return attribute ? attribute.Value : null;
-  }
-
-  const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 

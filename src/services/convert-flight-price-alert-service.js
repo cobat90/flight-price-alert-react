@@ -2,6 +2,7 @@ export const convertFlightRequest = (alertData) => {
     const {
       alertName,
       alertType,
+      priceType,
       alertDurationTime,
       alertDisabled,
       flightType,
@@ -73,19 +74,18 @@ export const convertFlightRequest = (alertData) => {
       }
     });
 
-    console.info("userAttributes 2: ", userAttributes);
-
     const payload = {
       userId: userId,
       alert: {
         alertName: alertName,
-        alertType: [alertType === 'Telegram' ? 'TELEGRAM': 'TELEGRAM'],
+        alertType: [alertType ? alertType.toUpperCase() : 'TELEGRAM'],
+        priceType: priceType ? priceType.toUpperCase() : "EVERY",
         alertDurationTime: parseInt(alertDurationTime),
         alertDisabled: alertDisabled ? alertDisabled : false,
       },
       mainFilter: {
         flight: {
-          flightType: flightType === 'One Way' ? 'ONE_WAY' : flightType,
+          flightType: flightType === 'One Way' ? 'ONE_WAY' : flightType.toUpperCase(),
           departDate: departDate ? departDate : null,
           returnDate: returnDate ? returnDate : null,
           airports: [
@@ -98,7 +98,7 @@ export const convertFlightRequest = (alertData) => {
         },
         adults: adults ? parseInt(adults): 1, 
         children: children ? parseInt(children): 0,
-        cabinClassType: cabinClassType === 'Economy' ? 'ECONOMY' : cabinClassType,
+        cabinClassType: cabinClassType ? cabinClassType.toUpperCase() : 'ECONOMY',
       },
       preferencesFilter: {
         scalesQuantity: scalesQuantity ? parseInt(scalesQuantity): 0,
@@ -134,8 +134,8 @@ export const convertFlightRequest = (alertData) => {
         name: userData.firstName, 
         cellphone: userData.phoneNumber, 
         email:  userData.email, 
-        currency: userData.currency ? userData.currency : "BRLAA", 
-        country: userData.country ? userData.country : "BRAEE",
+        currency: userData.currency ? userData.currency : "BRL", 
+        country: userData.country ? userData.country : "BRA",
         telegramUserName: userData.telegramUserName,
         telegramChatId: userData.telegramChatId,
       },

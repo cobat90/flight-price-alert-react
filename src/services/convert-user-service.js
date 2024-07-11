@@ -84,6 +84,9 @@ export const convertUserResponse = (responseData) => {
 
   attributes.forEach(attr => {
     switch (attr.Name) {
+      case 'sub':
+        userData.userId = attr.Value;
+        break;
       case 'name':
         userData.firstName = attr.Value;
         break;
@@ -151,3 +154,8 @@ export const convertUserForgotPasswordFinishRequest = (userData) => {
 
   return payload;
 };
+
+export function getAttributeValue(attributes, attributeName) {
+  const attribute = attributes.find(attr => attr.Name === attributeName);
+  return attribute ? attribute.Value : null;
+}

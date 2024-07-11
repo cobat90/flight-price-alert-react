@@ -79,7 +79,8 @@ const AuthContextProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+    localStorage.removeItem("login");
+    localStorage.removeItem("userAttributes");
     setIsAuthenticated(false);
     navigate("/auth/login");
   };

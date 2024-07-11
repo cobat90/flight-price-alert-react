@@ -92,7 +92,7 @@ const UserProfile = () => {
   const handleSubmit = (event) => {
     event.preventDefault(); 
     const formData = new FormData(event.target); 
-    formData.append('userId', localStorage.getItem("userId"));
+    formData.append('userId', user.userId);
     let userData = {
     };
     formData.forEach((value, key) => {
