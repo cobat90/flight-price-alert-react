@@ -18,7 +18,6 @@ import MDBadge from "components/MDBadge";
 import MDBox from "components/MDBox";
 import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
-import { getAttributeValue } from '../../../services/convert-user-service';
 
 import {
   navbar,
@@ -43,8 +42,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
-  const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
-  const alertTime = getAttributeValue(userAttributes, 'custom:alert_time');
 
   useEffect(() => {
 

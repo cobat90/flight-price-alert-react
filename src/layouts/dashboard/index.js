@@ -25,7 +25,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import TextField from "@mui/material/TextField";
 
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
@@ -370,7 +369,6 @@ function Dashboard() {
                   defaultValue={(isEditing
                     ? (currentAlert?.alert?.alertDurationTime || '').toString()
                     : '')}
-                  options={selectData.days}
                   renderInput={(params) => (
                     <FormField {...params} name="alertDurationTime"                   
                       label="Duration(Days)" required />                

@@ -159,3 +159,15 @@ export function getAttributeValue(attributes, attributeName) {
   const attribute = attributes.find(attr => attr.Name === attributeName);
   return attribute ? attribute.Value : null;
 }
+export function convertBalanceToDays(balance) {
+  if (balance != null && balance > 0 ) {
+    const days = balance / 50;
+    const wholeDays = Math.floor(days);
+    const fractionalDay = (days - wholeDays).toFixed(2);
+    return wholeDays + parseFloat(fractionalDay);
+
+  } else {
+    return 0;
+  }
+
+}
