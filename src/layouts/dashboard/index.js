@@ -64,6 +64,8 @@ function Dashboard() {
   const [alerts, setAlerts] = useState([]);
   const airportRefTo = useRef(null);
   const airportRefFrom = useRef(null);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [submitAlertError, setSubmitAlertError] = useState(null);
 
   const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -190,11 +192,16 @@ function Dashboard() {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData(); 
       } else {
-        console.error("Invalid data format in response:", response.status + response);
+        console.error("Invalid data format in response:", response);
+        setSubmitAlertError("Invalid data format in response");
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
-    }
+        if (error.response && error.response.data && error.response.data.message) { 
+          setSubmitAlertError(error.response.data.message);
+        } else {
+          console.error("Error fetching alert");
+        }
+      }
   };
 
   const updateAlertData = async (alertData) => {
@@ -206,10 +213,15 @@ function Dashboard() {
         getAlertsData();
       } else {
         console.error("Invalid data format in response:", response);
+        setSubmitAlertError("Invalid data format in response");
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
-    }
+        if (error.response && error.response.data && error.response.data.message) { 
+          setSubmitAlertError(error.response.data.message);
+        } else {
+          console.error("Error fetching alert");
+        }
+      }
   };
 
   const disableAlertData = async (alertData) => {
@@ -251,8 +263,8 @@ function Dashboard() {
   const [returnRangeDate, setReturnRangeDate] = useState(null);
 
   const handleSubmit = (event) => {
-    event.preventDefault(); // Prevent the form from actually submitting
-    const formData = new FormData(event.target); // Create a FormData object from the form
+    event.preventDefault();
+    const formData = new FormData(event.target);
     formData.append('userId', userId);
     formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : "");
     formData.append('returnDate', returnDate && flightType !== 'One Way' ? dayjs(returnDate).format("YYYY/MM/DD") : "");
@@ -305,6 +317,7 @@ function Dashboard() {
     setDepartRangeDate(null);
     setReturnRangeDate(null);
     setFlightType(null);
+    setSubmitAlertError(null);
     closeCardAlertMenu();
   }
 
@@ -365,15 +378,13 @@ function Dashboard() {
                 />
               </Grid>
               <Grid item xs={12} sm={2}>
-                <Autocomplete
+                <FormField name="alertDurationTime"                   
+                  label="Duration(Points)"
                   defaultValue={(isEditing
                     ? (currentAlert?.alert?.alertDurationTime || '').toString()
                     : '')}
-                  renderInput={(params) => (
-                    <FormField {...params} name="alertDurationTime"                   
-                      label="Duration(Days)" required />                
-                  )}
-                />                            
+                  max={localStorage.getItem('alert_time')}
+                  InputLabelProps={{ shrink: true }} required />                                                                                        
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
@@ -505,15 +516,15 @@ function Dashboard() {
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={1.75}>
                       <FormField name="rangePriceStart" label="$ Range Start" placeholder="200" 
-                        defaultValue={(isEditing && currentAlert?.preferencesFilter
+                        defaultValue={(isEditing && currentAlert?.preferencesFilter && currentAlert?.preferencesFilter?.priceType === "Range"
                         ? (currentAlert.preferencesFilter.rangePrice?.rangeStart).toString()  || null
-                        : null)}  disabled/>
+                        : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />
                     </Grid>
                     <Grid item xs={12} sm={1.75}>
                       <FormField name="rangePriceEnd" label="$ Range End" placeholder="500" 
-                      defaultValue={(isEditing && currentAlert?.preferencesFilter
+                      defaultValue={(isEditing && currentAlert?.preferencesFilter && currentAlert?.preferencesFilter?.priceType === "Range"
                         ? (currentAlert.preferencesFilter.rangePrice?.rangeEnd).toString() || null
-                        : null)} disabled />        
+                        : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />        
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
                       <Autocomplete
@@ -660,13 +671,28 @@ function Dashboard() {
                 </MDBox>
               </Collapse>
             </Grid>
+            <MDBox pb={1} px={1} display="flex" justifyContent="center" mb={1}>
+              <Grid item xs={12}  >
+            {submitAlertError && (
+              <MDTypography variant="caption" color="error" fontWeight="medium" >
+                {submitAlertError}
+              </MDTypography>
+            )}
+            </Grid>             
+            </MDBox>
             <MDBox pb={3} px={3} display="flex" justifyContent="center" mb={3}>
               <Grid item xs={12}  >
-                <MDButton
-                  variant="gradient"
-                  color="info"
-                  type="submit"
-                  >                   
+                    <MDButton
+                variant="gradient"
+                color="info"
+                type="submit"
+                disabled={isSubmitting}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSubmitting(true);
+                  setTimeout(() => setSubmitting(false), 1000);
+                  formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }}>             
                   Save
                   </MDButton>
               </Grid>             

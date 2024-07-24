@@ -125,7 +125,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 aria-haspopup="true"
                 variant="contained"
               >
-                <MDBadge badgeContent={alertTime} color="error" size="xs" circular>
+                <MDBadge badgeContent={localStorage.getItem('alert_time')} color="error" size="xs" circular>
                   <AccessTimeIcon sx={iconsStyle} />
                 </MDBadge>
               </IconButton>
