@@ -18,6 +18,9 @@ import Footer from "examples/Footer";
 // Overview page components
 import { convertUserUpdateRequest, convertUserResponse } from '../../services/convert-user-service';
 import AuthService from "../../services/auth-service";
+import AutoCompleteCountries  from "components/AutoCompleteCountries";
+import AutoCompleteCurrencies  from "components/AutoCompleteCurrencies";
+import AutoCompleteLanguages from "components/AutoCompleteLanguages";
 
 const Notification = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
@@ -31,6 +34,10 @@ const UserProfile = () => {
     horizontal: 'center',
   });
   const { vertical, horizontal, open } = snackBarState;
+  const countryRef = useRef(null);
+  const currencyRef = useRef(null);
+  const langKeyRef = useRef(null);
+  const [updateUserError, setUpdateUserError] = useState(null);
 
   const getUserData = async () => {
     try {
@@ -55,9 +62,14 @@ const UserProfile = () => {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
       } else {
         console.error("Invalid data format in response:", response);
+        setUpdateUserError("Invalid data format in response");
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
+      if (error.response && error.response.data && error.response.data.message) { 
+        setUpdateUserError(error.response.data.message);
+      } else {
+        console.error("Error fetching user");
+      }
     }
   };
 
@@ -126,6 +138,7 @@ const UserProfile = () => {
                   label="Login"
                   placeholder="User"
                   inputProps={{ type: "text" }}
+                  disabled
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -141,6 +154,7 @@ const UserProfile = () => {
                   placeholder="example@email.com"
                   onChange={changeHandler}
                   inputProps={{ type: "email" }}
+                  disabled
                 />  
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -148,23 +162,45 @@ const UserProfile = () => {
                   label="Confirmation Email"
                   placeholder="example@email.com"
                   inputProps={{ type: "email", pattern: user.email }}
+                  disabled
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormField name="country"  defaultValue={(user?.country ? (user.country || "").toString() : "")}
-                label="Country" placeholder="Brazil" inputProps={{ type: "text" }}/>
+              <AutoCompleteCountries
+                  ref={countryRef}
+                  name="country"
+                  label="Country"
+                  placeholder="BR"
+                  inputProps={{ type: "text" }}
+                  defaultValue={(user?.country ? (user.country || "").toString() : "")}
+                    required
+                />       
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormField name="city"  defaultValue={(user?.city ? (user.city || "").toString() : "")}
                 label="City" placeholder="Rio de Janeiro" inputProps={{ type: "text" }}/>
               </Grid>
               <Grid item xs={12} md={6}>
-                <FormField name="currency" defaultValue={(user?.currency ? (user.currency || "").toString() : "")}
-                label="Currency" placeholder="USD" inputProps={{ type: "text" }}/>
+              <AutoCompleteCurrencies
+                  ref={currencyRef}
+                  name="currency"
+                  label="Currency"
+                  placeholder="BRL"
+                  inputProps={{ type: "text" }}
+                  defaultValue={(user?.currency ? (user.currency || "").toString() : "")}
+                    required
+                />       
               </Grid>
               <Grid item xs={12} md={6}>
-                <FormField name="langKey" defaultValue={(user?.langKey ? (user.langKey || "").toString() : "")}
-                label="Language" placeholder="PT" inputProps={{ type: "text" }}/>
+                <AutoCompleteLanguages
+                    ref={langKeyRef}
+                    name="langKey"
+                    label="Language"
+                    placeholder="PT"
+                    inputProps={{ type: "text" }}
+                    defaultValue={(user?.langKey ? (user.langKey || "").toString() : "")}
+                      required
+                  />       
               </Grid>
               <Grid item xs={12} md={6}>
                 <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
@@ -174,6 +210,15 @@ const UserProfile = () => {
                 <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
                 label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }}/>
               </Grid>
+              <MDBox pb={1} px={1} display="flex" justifyContent="center" mb={1}>
+                <Grid item xs={12}  >
+                  {updateUserError && (
+                    <MDTypography variant="caption" color="error" fontWeight="medium" >
+                      {updateUserError}
+                    </MDTypography>
+                  )}
+                </Grid>             
+              </MDBox>
               <Grid item xs={12} md={6}>
                 <MDButton
                   variant="gradient"

@@ -482,8 +482,8 @@ function Dashboard() {
                     <AutoCompleteAirports 
                       ref={airportRefFrom}
                       name="aiportFrom"
-                      label="From"
-                      placeholder="Rio de Janeiro(Todos)"
+                      label="Airpot From"
+                      placeholder="GIG"
                       defaultValue={(isEditing
                           ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
                           : "")}
@@ -494,8 +494,8 @@ function Dashboard() {
                     <AutoCompleteAirports 
                       ref={airportRefTo}
                       name="aiportTo" 
-                      label="To" 
-                      placeholder="Bahamas" 
+                      label="Airpot To" 
+                      placeholder="FLN" 
                       defaultValue={(isEditing
                         ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
                         : "")} required/>
@@ -695,12 +695,12 @@ function Dashboard() {
             </Grid>
             <MDBox pb={1} px={1} display="flex" justifyContent="center" mb={1}>
               <Grid item xs={12}  >
-            {submitAlertError && (
-              <MDTypography variant="caption" color="error" fontWeight="medium" >
-                {submitAlertError}
-              </MDTypography>
-            )}
-            </Grid>             
+                {submitAlertError && (
+                  <MDTypography variant="caption" color="error" fontWeight="medium" >
+                    {submitAlertError}
+                  </MDTypography>
+                )}
+              </Grid>             
             </MDBox>
             <MDBox pb={3} px={3} display="flex" justifyContent="center" mb={3}>
               <Grid item xs={12}  >
