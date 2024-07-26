@@ -26,6 +26,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import { useLocation, useNavigate } from "react-router-dom";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
 import MDTypography from "components/MDTypography";
@@ -40,6 +41,7 @@ import AutoCompleteAirports  from "components/AutoCompleteAirports";
 import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
 
+import AuthService from "services/auth-service";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 import { convertFlightRequest} from '../../services/convert-flight-price-alert-service';
 import { getAttributeValue} from '../../services/convert-user-service';
@@ -66,6 +68,7 @@ function Dashboard() {
   const airportRefFrom = useRef(null);
   const [isSubmitting, setSubmitting] = useState(false);
   const [submitAlertError, setSubmitAlertError] = useState(null);
+  const navigate = useNavigate();
 
   const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -184,13 +187,31 @@ function Dashboard() {
     }
   };
 
-  const createAlertData = async (payload) => {
+  const getUpdatedProfile = async () => {
+    let userData={
+      AccessToken: localStorage.getItem("token"),
+    }
+    const response = await AuthService.getProfile(userData);
+  
+    if (response.status === 200) {
+      if (response && response.data && response.data.UserAttributes) {
+        const userAttributes = response.data.UserAttributes;
+      
+        localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
+        localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
+        navigate(0);
+      }       
+    }
+  };
+
+  const createAlertData = async (alertData) => {
     try {
-      const response = await FlightPriceAlertService.createAlert(payload);
+      const response = await FlightPriceAlertService.createAlert(alertData);
       if (response.status === 201) {
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
-        getAlertsData(); 
+        getAlertsData();
+        localStorage.setItem("alert_time", localStorage.getItem('alert_time') - alertData.alert.alertDurationTime);
       } else {
         console.error("Invalid data format in response:", response);
         setSubmitAlertError("Invalid data format in response");
@@ -210,7 +231,7 @@ function Dashboard() {
       if (response.status === 200) {
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
-        getAlertsData();
+        getUpdatedProfile();
       } else {
         console.error("Invalid data format in response:", response);
         setSubmitAlertError("Invalid data format in response");
@@ -244,6 +265,7 @@ function Dashboard() {
       if (response.status === 204) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getAlertsData();
+        getUpdatedProfile();
       } else {
         console.error("Invalid data format in response:", response);
       }

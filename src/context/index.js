@@ -44,7 +44,6 @@ const AuthContextProvider = ({ children }) => {
 
   const login = async (token) => {
     localStorage.setItem("token", token);
-
     try {
         let userData={
           AccessToken: localStorage.getItem("token"),
