@@ -26,12 +26,10 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
 
 import AuthService from "services/auth-service";
-import { AuthContext } from "context";
 import { InputLabel } from "@mui/material";
-import { convertUserSignupRequest } from '../../services/convert-user-service';
+import { convertUserSignupRequest, convertResendConfirmationCode } from '../../services/convert-user-service';
 
 function Register() {
-  const authContext = useContext(AuthContext);
 
   const [inputs, setInputs] = useState({
     agree: false,
@@ -60,6 +58,15 @@ function Register() {
     setOpenDialogConfirm(false);
   };
 
+  const handleResendConfirmationCode = () => {
+    const formData = new FormData(e.target); 
+    let userData = {
+      Username: formData.get('email'),
+    }
+    resendConfirmationCodeForUserEmail(convertResendConfirmationCode(userData));
+    console.info("Sending email EBBAA");
+  };
+  
   const changeHandler = (e) => {
     setInputs({
       ...inputs,
@@ -106,8 +113,8 @@ function Register() {
       }
 
       if (userData.password.length > 0 && userData.confirmPassword.length > 0 ) {
-        const requestPayload = convertUserSignupRequest(userData);
-        registerUserData(requestPayload);
+        console.info("convertUserSignupRequest(userData): ", convertUserSignupRequest(userData));
+        registerUserData(convertUserSignupRequest(userData));
         
         setErrors({
           ...errors,
@@ -127,43 +134,82 @@ function Register() {
   const registerUserData = async (userData) => {
     try {
       const response = await AuthService.register(userData);
-      console.info("response: ", response);
       if (response.status === 200) {
         handleDialogConfirmOpen();
       } 
     } catch (error) {
-      if (error.response.data.__type === "EmailExistsException"){
-        setErrors({
-          emailError: true,
-          emailExistsError: true,
-        });
-      }
-      else if (error.response.data.__type === "UsernameExistsException"){
-        setErrors({
-          emailExistsError: true,
-        });
-      }
-      else if (error.response.data.message === "PhoneNumberExistsException"){
-        setErrors({
-          phoneNumberError: true,
-          phoneNumberExistsError: true,
-        });
-      }
-      else if (error.response.data.message) 
-      {
-        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.message) });
-      } 
-      else if (error.response.data.__type) 
-      {
-        setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.__type) });
-      } 
+        if (error.response && error.response.data && error.response.data.__type){
+          if (error.response.data.__type === "EmailExistsException"){
+            setErrors({
+              emailError: true,
+              emailExistsError: true,
+            });
+          }
+          else if (error.response.data.__type === "UsernameExistsException"){
+            setErrors({
+              emailError: true,
+              emailExistsError: true,
+            });
+          }
+          else if (error.response.data.message === "PhoneNumberExistsException"){
+            setErrors({
+              phoneNumberError: true,
+              phoneNumberExistsError: true,
+            });
+          }
+          else if (error.response.data.message) 
+          {
+            setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.message) });
+          } 
+          else if (error.response.data.__type) 
+          {
+            setErrors({ ...errors,error: true, errorText: extractTextOutsideParentheses(error.response.data.__type) });
+          } 
+        }
     }
   };
+
+  const resendConfirmationCodeForUserEmail = async (userData) => {
+    try {
+      console.info("resendConfirmationCodeForUserEmail");
+      const response = await AuthService.resendConfirmationCode(userData);
+      if (response.status === 200) {
+        console.info("Sending email");
+        setResendTimer(60);
+        openOneMinuteTimer();
+      } 
+    } catch (error) {
+      console.info("Catch Sending email");
+      if (error.response && error.response.data && error.response.data.message) { 
+        setErrors({ ...errors, error: true, errorText: extractTextOutsideParentheses(error.response.data.message) });
+      } else {
+        console.error("Error sending email");
+      }
+    }
+  }
 
   function extractTextOutsideParentheses(inputString) {
     const regex = /\(([^)]+)\)/;
     const matches = regex.exec(inputString);
     return matches ? inputString.replace(matches[0], '').trim() : inputString;
+  };
+
+  const [resendTimer, setResendTimer] = useState(60);
+
+  const openOneMinuteTimer = () => {
+    const interval = setInterval(() => {
+      setResendTimer(prevTimer => {
+        if (prevTimer === 0) {
+          clearInterval(interval);
+          return prevTimer;
+        }
+        console.info("prevTimer: " + prevTimer);
+        console.info("resendTimer: " + resendTimer);
+        return prevTimer - 1;
+    
+      });
+
+    }, 1000);
   };
 
   return (
@@ -221,7 +267,7 @@ function Register() {
               />
               {errors.emailError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
-                  {errors.emailExistsError ? 'The Login already in use' : 'Email must be valid.'}
+                  {errors.emailExistsError ? 'The Email already in use' : 'Email must be valid.'}
                 </MDTypography>
               )}
             </MDBox>
@@ -335,29 +381,50 @@ function Register() {
         </MDBox>
       </Card>
       <Dialog
-      open={openDialogConfirm}
-      onClose={handleDialogConfirmClose}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-      disableScrollLock={ true } >             
-      <DialogTitle id="alert-dialog-title">
-        {"Check your email"}
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-           An email was sent for active your account.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-      <Button
-          component={Link}
-          to="/auth/login"
-          onClick={handleDialogConfirmClose}
-        >
-          Sign in
-        </Button>
-      </DialogActions>
-    </Dialog>
+        open={openDialogConfirm}
+        onClose={handleDialogConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        disableScrollLock={true}
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Check your email"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            An email was sent for active your account. Wait here until you receive it.
+          </DialogContentText>
+          {resendTimer > 0 && (
+            <DialogContentText id="resend-timer">
+              {resendTimer} seconds
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              handleResendConfirmationCode();
+              setResendTimer(60);
+              openOneMinuteTimer();
+            }}
+            disabled={resendTimer > 0}
+          >
+            Resend
+          </Button>
+          <Button
+            component={Link}
+            to="/auth/login"
+            onClick={handleDialogConfirmClose}
+          >
+            Sign in
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {resendTimer > 0 && (
+        <MDTypography variant="h6" fontWeight="bold" color="text">
+          {resendTimer} seconds
+        </MDTypography>
+      )}
     </CoverLayout>
   );
 }

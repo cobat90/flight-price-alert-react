@@ -62,6 +62,7 @@ function Dashboard() {
 
   const { sales } = reportsLineChartData;
   const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
+  const userAttributesCount = userAttributes ? Object.keys(userAttributes).length : 0;
   const userId = getAttributeValue(userAttributes, 'sub');
   const [alerts, setAlerts] = useState([]);
   const airportRefTo = useRef(null);
@@ -172,6 +173,10 @@ function Dashboard() {
     }
     handleDialogConfirmClose();
   };
+
+  const handleDialogConfirmUpdateUser = () => {
+    navigate("/user-profile");
+  }
  
   const getAlertsData = async () => {
     try {
@@ -199,7 +204,7 @@ function Dashboard() {
       
         localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
         localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
-        navigate(0);
+        navigate("/dashboard");
       }       
     }
   };
@@ -274,8 +279,12 @@ function Dashboard() {
     }
   };
 
+
   useEffect(() => {
     getAlertsData();
+    if (userAttributesCount < 10){
+
+    }
   }, []);
 
   const [flightPriceAlertId, setFlightPriceAlertId] = useState(null);
@@ -956,6 +965,25 @@ function Dashboard() {
         <DialogActions>
           <Button onClick={handleDialogConfirmClose}> Disagree </Button>
           <Button onClick={handleDialogConfirmSubmit} autoFocus> Agree </Button>        
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openDialogConfirm}
+        onClose={handleDialogConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        disableScrollLock={ true } >             
+        <DialogTitle id="alert-dialog-title">
+          {"Let's get started!"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Before we start, please update your user profile for better accuracy for your Alerts.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogConfirmClose}> Disagree </Button>
+          <Button onClick={handleDialogConfirmUpdateUser} autoFocus> Agree </Button>        
         </DialogActions>
       </Dialog>
       <Footer />

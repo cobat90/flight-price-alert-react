@@ -70,11 +70,7 @@ export default function App() {
   // if the token expired or other errors it logs out and goes to the login page
   const navigate = useNavigate();
   setupAxiosInterceptors(() => {
-      let userData= {
-        AccessToken: localStorage.getItem("token"),
-      }
-      authContext.logout(userData);
-      navigate("/auth/login");
+    authContext.logout();
   });
 
   // Setting the dir attribute for the body element

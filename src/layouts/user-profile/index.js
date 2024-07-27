@@ -1,26 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Snackbar from '@mui/material/Snackbar';
-// Settings page components
 import FormField from "components/FormField";
 import MuiAlert from '@mui/material/Alert';
-
-// Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
+import { useLocation, useNavigate } from "react-router-dom";
 
-// Overview page components
 import { convertUserUpdateRequest, convertUserResponse } from '../../services/convert-user-service';
 import AuthService from "../../services/auth-service";
 import AutoCompleteCountries  from "components/AutoCompleteCountries";
 import AutoCompleteCurrencies  from "components/AutoCompleteCurrencies";
 import AutoCompleteLanguages from "components/AutoCompleteLanguages";
+import { AuthContext } from "context";
 
 const Notification = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
@@ -38,6 +35,8 @@ const UserProfile = () => {
   const currencyRef = useRef(null);
   const langKeyRef = useRef(null);
   const [updateUserError, setUpdateUserError] = useState(null);
+  const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const getUserData = async () => {
     try {
@@ -47,11 +46,16 @@ const UserProfile = () => {
       const response = await AuthService.getProfile(userData);
       if (response.status === 200 && response.data) {
         setUser(convertUserResponse(response.data));
-      } else {
-        console.error("Invalid data format in response: ", response);
-      }
+      } 
     } catch (error) {
-      console.error("Error fetching user data: ", error);
+      if (error.response && error.response.data && error.response.data.message) { 
+        console.error(error.response.data.message);
+        if (error.response.data.message == "Access Token has expired") {
+          authContext.logout();
+        }
+      } else {
+        console.error("Error fetching user");
+      }
     }
   };
 
@@ -66,7 +70,13 @@ const UserProfile = () => {
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) { 
-        setUpdateUserError(error.response.data.message);
+        if (error.response.data.message == "Access Token has expired") {
+          localStorage.removeItem("token");
+          navigate("/auth/login");
+        }
+        else{
+          setUpdateUserError(error.response.data.message);
+        }
       } else {
         console.error("Error fetching user");
       }
@@ -75,6 +85,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     getUserData();
+    setUpdateUserError(null);
   }, []);
 
   const changeHandler = (e) => {
@@ -173,7 +184,7 @@ const UserProfile = () => {
                   placeholder="BR"
                   inputProps={{ type: "text" }}
                   defaultValue={(user?.country ? (user.country || "").toString() : "")}
-                    required
+                  required
                 />       
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -188,7 +199,7 @@ const UserProfile = () => {
                   placeholder="BRL"
                   inputProps={{ type: "text" }}
                   defaultValue={(user?.currency ? (user.currency || "").toString() : "")}
-                    required
+                  required
                 />       
               </Grid>
               <Grid item xs={12} md={6}>
@@ -199,7 +210,7 @@ const UserProfile = () => {
                     placeholder="PT"
                     inputProps={{ type: "text" }}
                     defaultValue={(user?.langKey ? (user.langKey || "").toString() : "")}
-                      required
+                    required
                   />       
               </Grid>
               <Grid item xs={12} md={6}>
@@ -210,7 +221,6 @@ const UserProfile = () => {
                 <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
                 label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }}/>
               </Grid>
-              <MDBox pb={1} px={1} display="flex" justifyContent="center" mb={1}>
                 <Grid item xs={12}  >
                   {updateUserError && (
                     <MDTypography variant="caption" color="error" fontWeight="medium" >
@@ -218,7 +228,7 @@ const UserProfile = () => {
                     </MDTypography>
                   )}
                 </Grid>             
-              </MDBox>
+           
               <Grid item xs={12} md={6}>
                 <MDButton
                   variant="gradient"

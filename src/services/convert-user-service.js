@@ -155,6 +155,19 @@ export const convertUserForgotPasswordFinishRequest = (userData) => {
   return payload;
 };
 
+export const convertResendConfirmationCode = (userData) => {
+  const {
+    email,
+  } = userData;
+  
+  const payload = {
+    ClientId: process.env.REACT_APP_COGNITO_CLIENTID,
+    Username: email,
+  };
+
+  return payload;
+};
+
 export function getAttributeValue(attributes, attributeName) {
   const attribute = attributes.find(attr => attr.Name === attributeName);
   return attribute ? attribute.Value : null;
