@@ -1,8 +1,6 @@
 import { useContext, useState } from "react";
-// react-router-dom components
 import { Link } from "react-router-dom";
 
-// @mui material components
 import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
 import Dialog from '@mui/material/Dialog';
@@ -12,16 +10,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 
-
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
-
-// Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
-
 // Images
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
 
@@ -59,12 +52,10 @@ function Register() {
   };
 
   const handleResendConfirmationCode = () => {
-    const formData = new FormData(e.target); 
     let userData = {
-      Username: formData.get('email'),
+      email: localStorage.getItem("login"),
     }
     resendConfirmationCodeForUserEmail(convertResendConfirmationCode(userData));
-    console.info("Sending email EBBAA");
   };
   
   const changeHandler = (e) => {
@@ -113,7 +104,6 @@ function Register() {
       }
 
       if (userData.password.length > 0 && userData.confirmPassword.length > 0 ) {
-        console.info("convertUserSignupRequest(userData): ", convertUserSignupRequest(userData));
         registerUserData(convertUserSignupRequest(userData));
         
         setErrors({
@@ -136,6 +126,9 @@ function Register() {
       const response = await AuthService.register(userData);
       if (response.status === 200) {
         handleDialogConfirmOpen();
+        setResendTimer(60);
+        openOneMinuteTimer();
+        localStorage.setItem("login", userData.Username);
       } 
     } catch (error) {
         if (error.response && error.response.data && error.response.data.__type){
@@ -171,15 +164,13 @@ function Register() {
 
   const resendConfirmationCodeForUserEmail = async (userData) => {
     try {
-      console.info("resendConfirmationCodeForUserEmail");
+      console.info("userData resend: ", userData);
       const response = await AuthService.resendConfirmationCode(userData);
       if (response.status === 200) {
-        console.info("Sending email");
         setResendTimer(60);
         openOneMinuteTimer();
       } 
     } catch (error) {
-      console.info("Catch Sending email");
       if (error.response && error.response.data && error.response.data.message) { 
         setErrors({ ...errors, error: true, errorText: extractTextOutsideParentheses(error.response.data.message) });
       } else {
@@ -194,19 +185,17 @@ function Register() {
     return matches ? inputString.replace(matches[0], '').trim() : inputString;
   };
 
-  const [resendTimer, setResendTimer] = useState(60);
+  const [resendTimer, setResendTimer] = useState(null);
 
   const openOneMinuteTimer = () => {
+
     const interval = setInterval(() => {
       setResendTimer(prevTimer => {
         if (prevTimer === 0) {
           clearInterval(interval);
           return prevTimer;
         }
-        console.info("prevTimer: " + prevTimer);
-        console.info("resendTimer: " + resendTimer);
         return prevTimer - 1;
-    
       });
 
     }, 1000);
@@ -353,8 +342,8 @@ function Register() {
               </MDTypography>
             ) : null}
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth type="submit">
-                sign in
+              <MDButton variant="gradient" color="info" fullWidth type="submit" disabled={resendTimer > 0}>
+                sign up
               </MDButton>
             </MDBox>
             {errors.error && (
@@ -396,7 +385,7 @@ function Register() {
           </DialogContentText>
           {resendTimer > 0 && (
             <DialogContentText id="resend-timer">
-              {resendTimer} seconds
+              To resend the email, please wait <b>{resendTimer}</b> seconds.
             </DialogContentText>
           )}
         </DialogContent>
@@ -405,7 +394,6 @@ function Register() {
             onClick={() => {
               handleResendConfirmationCode();
               setResendTimer(60);
-              openOneMinuteTimer();
             }}
             disabled={resendTimer > 0}
           >
@@ -420,11 +408,6 @@ function Register() {
           </Button>
         </DialogActions>
       </Dialog>
-      {resendTimer > 0 && (
-        <MDTypography variant="h6" fontWeight="bold" color="text">
-          {resendTimer} seconds
-        </MDTypography>
-      )}
     </CoverLayout>
   );
 }

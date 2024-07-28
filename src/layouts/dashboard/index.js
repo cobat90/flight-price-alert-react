@@ -283,7 +283,7 @@ function Dashboard() {
   useEffect(() => {
     getAlertsData();
     if (userAttributesCount < 10){
-
+      setOpenDialogConfirm(true);
     }
   }, []);
 
@@ -913,7 +913,7 @@ function Dashboard() {
                   fullWidth
                   type="button"
                   onClick={openModalEditAlert}
-                  disabled={localStorage.getItem("accountType") === "FREE" && alerts.length > 0}
+                  disabled={userAttributesCount < 10}
                   >         
                   Create New Alert
                   
@@ -978,7 +978,15 @@ function Dashboard() {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Before we start, please update your user profile for better accuracy for your Alerts.
+            Before we start, please update your user profile for better accuracy when you create your Alerts.
+            <br/>
+            <br/>
+            <Typography component="span" variant="inherit" color="info">
+              <b>To use Ittent in Telegram:</b>
+              </Typography>
+              <br/>
+              <br/>
+              In Telegram look for "Ittent" or "@ittent_bot" and chat /username (To get your Telegram Username) and /chatId (To get your Telegram ChatId).
           </DialogContentText>
         </DialogContent>
         <DialogActions>

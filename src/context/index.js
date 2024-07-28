@@ -80,9 +80,7 @@ const AuthContextProvider = ({ children }) => {
 };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("login");
-    localStorage.removeItem("userAttributes");
+    localStorage.clear();
     setIsAuthenticated(false);
     navigate("/auth/login");
   };

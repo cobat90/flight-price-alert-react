@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
@@ -46,6 +46,12 @@ const UserProfile = () => {
       const response = await AuthService.getProfile(userData);
       if (response.status === 200 && response.data) {
         setUser(convertUserResponse(response.data));
+        if (response.data.UserAttributes) {
+          const userAttributes = response.data.UserAttributes;
+        
+          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
+          localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
+        }    
       } 
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) { 
@@ -64,6 +70,7 @@ const UserProfile = () => {
       const response = await AuthService.updateProfile(userData);
       if (response.status === 200) {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        getUserData();
       } else {
         console.error("Invalid data format in response:", response);
         setUpdateUserError("Invalid data format in response");
@@ -138,7 +145,7 @@ const UserProfile = () => {
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
                 <FormField name="firstName"  defaultValue={(user?.firstName ? (user.firstName || "").toString() : "")}
-                  label="First Name" placeholder="Fernando" inputProps={{ type: "text" }}/>
+                  label="First Name" placeholder="Fernando" inputProps={{ type: "text" }} required/>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormField name="lastName"  defaultValue={(user?.lastName ? (user.lastName || "").toString() : "")}
@@ -157,6 +164,7 @@ const UserProfile = () => {
                   label="Phone Number"
                   placeholder="+55 99765 4646"
                   inputProps={{ type: "text" }}
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -215,11 +223,11 @@ const UserProfile = () => {
               </Grid>
               <Grid item xs={12} md={6}>
                 <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
-                label="Telegram UserName" placeholder="telegramUsername" inputProps={{ type: "text" }}/>
+                label="Telegram UserName" placeholder="telegramUsername" inputProps={{ type: "text" }} required/>
               </Grid>
               <Grid item xs={12} md={6}>
                 <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
-                label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }}/>
+                label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }} required/>
               </Grid>
                 <Grid item xs={12}  >
                   {updateUserError && (
