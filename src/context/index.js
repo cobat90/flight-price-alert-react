@@ -37,10 +37,8 @@ const AuthContextProvider = ({ children }) => {
     if (token != ''){
       setIsAuthenticated(true);
     }
-
     navigate(location.pathname);
   }, [isAuthenticated]);
-
 
   const login = async (token) => {
     localStorage.setItem("token", token);

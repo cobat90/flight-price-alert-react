@@ -67,7 +67,6 @@ function Dashboard() {
   const [alerts, setAlerts] = useState([]);
   const airportRefTo = useRef(null);
   const airportRefFrom = useRef(null);
-  const [isSubmitting, setSubmitting] = useState(false);
   const [submitAlertError, setSubmitAlertError] = useState(null);
   const navigate = useNavigate();
 
@@ -142,6 +141,7 @@ function Dashboard() {
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
   const [dialogConfirmAlertName, setDialogConfirmAlertName] = useState();
   const [dialogConfirmAction, setDialogConfirmAction] = useState();
+  const [openDialogLetStart, setOpenDialogLetStart] = useState(false);
 
   const handleDialogConfirmOpen = (event, action, alertId, alertName) => {   
     setFlightPriceAlertId(alertId);
@@ -152,6 +152,10 @@ function Dashboard() {
 
   const handleDialogConfirmClose = () => {
     setOpenDialogConfirm(false);
+  };
+
+  const handleDialogLetStartClose = () => {
+    setOpenDialogLetStart(false);
   };
 
   const handleDialogConfirmSubmit = () => {
@@ -279,7 +283,6 @@ function Dashboard() {
     }
   };
 
-
   useEffect(() => {
     getAlertsData();
     if (userAttributesCount < 10){
@@ -288,35 +291,7 @@ function Dashboard() {
   }, []);
 
   const [flightPriceAlertId, setFlightPriceAlertId] = useState(null);
-  const [departDate, setDepartDate] = useState(null);
-  const [returnDate, setReturnDate] = useState(null);
-  const [departRangeDate, setDepartRangeDate] = useState(null);
-  const [returnRangeDate, setReturnRangeDate] = useState(null);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    formData.append('userId', userId);
-    formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : "");
-    formData.append('returnDate', returnDate && flightType !== 'One Way' ? dayjs(returnDate).format("YYYY/MM/DD") : "");
-    formData.append('departRangeDate', departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD") : "");
-    formData.append('returnRangeDate', returnRangeDate && flightType !== 'One Way' ? dayjs(returnRangeDate).format("YYYY/MM/DD") : "");
-    const alertData = {};
-    formData.forEach((value, key) => {
-      alertData[key] = value;
-    });
-    const alertId = alertData.flightPriceAlertId;
-    setFlightPriceAlertId(alertId);
-
-    if (isEditing) {
-      const requestPayload = convertFlightRequest(alertData);
-      updateAlertData(requestPayload);
-    }
-    else{
-      const requestPayload = convertFlightRequest(alertData);
-      createAlertData(requestPayload);
-    }
-  };
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const IconContainer = ({ backgroundColor, children }) => (
     <div
@@ -343,10 +318,6 @@ function Dashboard() {
   
   const closeModalEditAlert = () => {
     setModalEditAlert(null);
-    setDepartDate(null);
-    setReturnDate(null);
-    setDepartRangeDate(null);
-    setReturnRangeDate(null);
     setFlightType(null);
     setSubmitAlertError(null);
     closeCardAlertMenu();
@@ -354,6 +325,30 @@ function Dashboard() {
 
   const modalEditAlertContent = (alert, index) => {
     const currentAlert = alerts[index];
+
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      formData.append('userId', userId);
+      formData.append('departDate', currentAlert?.mainFilter?.flight?.departDate ? dayjs(currentAlert.mainFilter.flight.departDate).format("YYYY-MM-DD") : "");
+
+      const alertData = {};
+      formData.forEach((value, key) => {
+        alertData[key] = value;
+      });
+      console.info("alertData departDate: ",  alertData["departDate"]);
+      const alertId = alertData.flightPriceAlertId;
+      setFlightPriceAlertId(alertId);
+      const requestPayload = convertFlightRequest(alertData);
+  
+      if (isEditing) {
+        updateAlertData(requestPayload);
+      }
+      else{
+        createAlertData(requestPayload);
+      }
+    };
+
     return ( 
       <Modal
       open={Boolean(modalEditAlert)}
@@ -391,7 +386,7 @@ function Dashboard() {
                     : "")}          
                   options={selectData.alertType}
                   renderInput={(params) => (
-                    <FormField {...params} name="alerType" label="Alert Types"
+                    <FormField {...params} name="alerType" label="Alert Type"
                      InputLabelProps={{ shrink: true }} required/>                      
                   )}
                 />
@@ -399,7 +394,7 @@ function Dashboard() {
               <Grid item xs={12} sm={2.5}>
                 <Autocomplete
                   defaultValue={(isEditing
-                    ? (selectDataMapping.alertType[currentAlert?.alert?.priceType] || "").toString()
+                    ? (selectDataMapping.priceType[currentAlert?.alert?.priceType] || "").toString()
                     : "")}          
                   options={selectData.priceType}
                   renderInput={(params) => (
@@ -412,8 +407,8 @@ function Dashboard() {
                 <FormField name="alertDurationTime"                   
                   label="Duration(Points)"
                   defaultValue={(isEditing
-                    ? (currentAlert?.alert?.alertDurationTime || '').toString()
-                    : '')}
+                    ? String(currentAlert?.alert?.alertDurationTime) || "0"
+                    : "0")}            
                   max={localStorage.getItem('alert_time')}
                   InputLabelProps={{ shrink: true }} required />                                                                                        
               </Grid>
@@ -441,8 +436,8 @@ function Dashboard() {
                         defaultValue={(isEditing
                           ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
                           : null)}
-                        disablePast  
-                        onChange={date => setDepartDate(date)}
+                        disablePast
+                        onChange={date => currentAlert.mainFilter.flight.departDate = date}
                         slotProps={{
                         field: {required: true, clearable: true, onClear: () => setCleared(true) },
                         }} 
@@ -459,7 +454,7 @@ function Dashboard() {
                           : null)}
                         disablePast
                         value={flightType === 'One Way'? '' : null}
-                        onChange={date => setReturnDate(date)}
+                        onChange={date => currentAlert.mainFilter.flight.returnDate = date}
                         disabled={flightType === 'One Way'}
                         slotProps={{
                           field: { clearable: true, onClear: () => setCleared(true) },
@@ -577,7 +572,7 @@ function Dashboard() {
                                 ? dayjs(currentAlert.preferencesFilter.departRangeDate) || null
                                 : null)}
                               disablePast
-                              onChange={date => setDepartRangeDate(date)}
+                              onChange={date => currentAlert.preferencesFilter.departRangeDate = date}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }} disabled/> 
@@ -595,7 +590,7 @@ function Dashboard() {
                                 : null)}
                               disablePast
                               value={flightType === 'One Way'? '' : null}
-                              onChange={date => setReturnRangeDate(date)}
+                              onChange={date => currentAlert.preferencesFilter.returnRangeDate = date}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }} disabled/> 
@@ -834,6 +829,9 @@ function Dashboard() {
                     <List>
                       <ListItem disablePadding >
                           <ListItemText >
+                            <MDTypography variant="h6">{"Price: " + alert?.alert?.priceType}</MDTypography>
+                          </ListItemText>     
+                          <ListItemText >
                             <MDTypography variant="h6">{"Type: " + selectDataMapping.alertType[alert?.alert?.alertType]}</MDTypography>
                           </ListItemText>                        
                       </ListItem>
@@ -968,7 +966,7 @@ function Dashboard() {
         </DialogActions>
       </Dialog>
       <Dialog
-        open={openDialogConfirm}
+        open={openDialogLetStart}
         onClose={handleDialogConfirmClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -990,7 +988,7 @@ function Dashboard() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogConfirmClose}> Disagree </Button>
+          <Button onClick={handleDialogLetStartClose}> Disagree </Button>
           <Button onClick={handleDialogConfirmUpdateUser} autoFocus> Agree </Button>        
         </DialogActions>
       </Dialog>
