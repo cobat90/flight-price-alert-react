@@ -336,7 +336,6 @@ function Dashboard() {
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
-      console.info("alertData departDate: ",  alertData["departDate"]);
       const alertId = alertData.flightPriceAlertId;
       setFlightPriceAlertId(alertId);
       const requestPayload = convertFlightRequest(alertData);
