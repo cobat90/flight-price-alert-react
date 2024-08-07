@@ -22,9 +22,14 @@ class FlightPriceAlertService {
     return await flightAxiosInstance.put(updateAlertEndpoint, payload);
   }
 
+  activateAlert = async (alertId, userId, payload) => {
+    const activateAlertEndpoint = `api/alerts/${alertId}/users/${userId}/activate`;
+    return await flightAxiosInstance.patch(activateAlertEndpoint, payload);
+  }
+
   disableAlert = async (alertId, userId, payload) => {
-    const updateAlertEndpoint = `api/alerts/${alertId}/users/${userId}/disable`;
-    return await flightAxiosInstance.patch(updateAlertEndpoint, payload);
+    const disableAlertEndpoint = `api/alerts/${alertId}/users/${userId}/disable`;
+    return await flightAxiosInstance.patch(disableAlertEndpoint, payload);
   }
 
   deleteAlert = async (alertId, userId) => {

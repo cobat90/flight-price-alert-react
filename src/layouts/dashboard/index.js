@@ -106,11 +106,10 @@ function Dashboard() {
   }, [cleared]);
 
   const [flightType, setFlightType] = useState(null);
-  const formRef = useRef();
-
   const [cardAlertMenu, setCardAlertMenu] = useState(null);
   const [cardAlertIndex, setCardAlertIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const formRef = useRef();
 
   const openCardAlertMenu = (event, index) => { 
     setCardAlertMenu(event.currentTarget);
@@ -128,7 +127,7 @@ function Dashboard() {
     vertical: 'top',
     horizontal: 'center',
   });
-  const { vertical, horizontal, open } = snackBarState;
+  const { vertical, horizontal, open, msg } = snackBarState;
 
   const handleSnackBarOpen = (newState) => {
     setSnackBarState({ ...newState, open: true });
@@ -137,33 +136,48 @@ function Dashboard() {
   const handleSnackBarClose = () => {
     setSnackBarState({ ...snackBarState, open: false });
   };
+
+  const [snackBarErrorState, setSnackBarErrorState] = useState({
+    openE: false,
+    verticalE: 'top',
+    horizontalE: 'center',
+  });
+  const { openE, verticalE, horizontalE, msgE } = snackBarErrorState;
+
+  const handleSnackBarErrorOpen = (newState) => {  setSnackBarErrorState({ ...newState, openE: true });  };
+ 
+  const handleSnackBarErrorClose = () => { setSnackBarErrorState({ ...snackBarErrorState, openE: false });  };
   
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
   const [dialogConfirmAlertName, setDialogConfirmAlertName] = useState();
   const [dialogConfirmAction, setDialogConfirmAction] = useState();
   const [openDialogLetStart, setOpenDialogLetStart] = useState(false);
+  const [openDialogActiveAlert, setOpenDialogActiveAlert] = useState(false);
 
-  const handleDialogConfirmOpen = (event, action, alertId, alertName) => {   
+  const handleDialogConfirmOpen = (event, action, alertId, alertName, alertDurationTime) => {   
     setFlightPriceAlertId(alertId);
     setDialogConfirmAction(action);
     setDialogConfirmAlertName(alertName);
-    setOpenDialogConfirm(true);
+    action === "Active" && alertDurationTime < 1 ? setOpenDialogActiveAlert(true) : setOpenDialogConfirm(true); setActiveAlertDurationTime(alertDurationTime);
   };
 
-  const handleDialogConfirmClose = () => {
-    setOpenDialogConfirm(false);
-  };
+  const handleDialogConfirmClose = () => { setOpenDialogConfirm(false);   };
 
   const handleDialogLetStartClose = () => {
     setOpenDialogLetStart(false);
+  };
+  const handleDialogActiveAlertClose = () => {
+    setOpenDialogActiveAlert(false);
+    setActiveAlertDurationTime(null);
   };
 
   const handleDialogConfirmSubmit = () => {
     if (dialogConfirmAction === "Active"){
       const alertData = {
-        alertDisabled: false
+        alertDisabled: false,
+        alertDurationTime: activeAlertDurationTime
       };
-      disableAlertData(alertData);
+      activateAlertData(alertData);
     }
     if (dialogConfirmAction === "Disable"){
       const alertData = {
@@ -171,7 +185,6 @@ function Dashboard() {
       };
       disableAlertData(alertData);
     }
-
     if (dialogConfirmAction === "Delete"){
       deleteAlertData(flightPriceAlertId);
     }
@@ -188,28 +201,42 @@ function Dashboard() {
       if (response.status === 200 && Array.isArray(response.data)) {
         setAlerts(response.data);
       } else if  (response.status === 404) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: "No Alerts Found" });
         console.info("None Alert Found");
       }
     } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) { 
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: error.response.data.message });
+      }
+      else{
         console.error("Error fetching alerts:", error);
+      }
     }
   };
 
   const getUpdatedProfile = async () => {
-    let userData={
-      AccessToken: localStorage.getItem("token"),
-    }
-    const response = await AuthService.getProfile(userData);
-  
-    if (response.status === 200) {
-      if (response && response.data && response.data.UserAttributes) {
-        const userAttributes = response.data.UserAttributes;
-      
-        localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
-        localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
-        navigate("/dashboard");
-      }       
+    try {
+      let userData={
+        AccessToken: localStorage.getItem("token"),
+      }
+      const response = await AuthService.getProfile(userData);
+    
+      if (response && response.status === 200) {
+        if (response.data && response.data.UserAttributes) {
+          const userAttributes = response.data.UserAttributes;
+        
+          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
+          localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
+          navigate("/dashboard");
+        }       
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) { 
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: error.response.data.message });
+      }
+      else{
+        console.error("Error fetching alerts:", error);
+      }
     }
   };
 
@@ -218,7 +245,7 @@ function Dashboard() {
       const response = await FlightPriceAlertService.createAlert(alertData);
       if (response.status === 201) {
         closeModalEditAlert();
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Created' });
         getAlertsData();
         localStorage.setItem("alert_time", localStorage.getItem('alert_time') - alertData.alert.alertDurationTime);
       } else {
@@ -234,12 +261,12 @@ function Dashboard() {
       }
   };
 
-  const updateAlertData = async (alertData) => {
+  const updateAlertData = async (flightPriceAlertId, alertData) => {
     try {
       const response = await FlightPriceAlertService.updateAlert(flightPriceAlertId, userId, alertData);
       if (response.status === 200) {
         closeModalEditAlert();
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Updated' });
         getUpdatedProfile();
       } else {
         console.error("Invalid data format in response:", response);
@@ -254,16 +281,37 @@ function Dashboard() {
       }
   };
 
-  const disableAlertData = async (alertData) => {
+  const activateAlertData = async (alertData) => {
     try {
-      const response = await FlightPriceAlertService.disableAlert(flightPriceAlertId, userId, alertData);
+      const response = await FlightPriceAlertService.activateAlert(flightPriceAlertId, userId, alertData);
       if (response.status === 200) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Activated' });
         getAlertsData();
+        getUpdatedProfile();
+        handleDialogActiveAlertClose();
       } else {
         console.error("Invalid data format in response:", response);
       }
     } catch (error) {
+      if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
+        handleDialogConfirmClose();
+      } else {
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+        console.error("Error fetching alert:", error);
+      }
+    }
+  };
+
+  const disableAlertData = async (alertData) => {
+    try {
+      const response = await FlightPriceAlertService.disableAlert(flightPriceAlertId, userId, alertData);
+      if (response.status === 200) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Disabled' });
+        getAlertsData();
+      } 
+    } catch (error) {
+      handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
       console.error("Error fetching alert:", error);
     }
   };
@@ -272,13 +320,12 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.deleteAlert(flightPriceAlertId, userId);
       if (response.status === 204) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Deleted' });
         getAlertsData();
         getUpdatedProfile();
-      } else {
-        console.error("Invalid data format in response:", response);
       }
     } catch (error) {
+      handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
       console.error("Error fetching alert:", error);
     }
   };
@@ -291,6 +338,8 @@ function Dashboard() {
   }, []);
 
   const [flightPriceAlertId, setFlightPriceAlertId] = useState(null);
+  const [activeAlertDurationTime, setActiveAlertDurationTime] = useState(null);
+  const [departDate, setDepartDate] = useState(null);
   const [isSubmitting, setSubmitting] = useState(false);
 
   const IconContainer = ({ backgroundColor, children }) => (
@@ -318,6 +367,7 @@ function Dashboard() {
   
   const closeModalEditAlert = () => {
     setModalEditAlert(null);
+    setDepartDate(null);
     setFlightType(null);
     setSubmitAlertError(null);
     closeCardAlertMenu();
@@ -330,18 +380,17 @@ function Dashboard() {
       event.preventDefault();
       const formData = new FormData(event.target);
       formData.append('userId', userId);
-      formData.append('departDate', currentAlert?.mainFilter?.flight?.departDate ? dayjs(currentAlert.mainFilter.flight.departDate).format("YYYY-MM-DD") : "");
+      formData.append('departDate', currentAlert?.mainFilter?.flight?.departDate ? dayjs(currentAlert.mainFilter.flight.departDate).format("YYYY-MM-DD") : dayjs(departDate).format("YYYY-MM-DD"));
 
       const alertData = {};
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
-      const alertId = alertData.flightPriceAlertId;
-      setFlightPriceAlertId(alertId);
+      setFlightPriceAlertId(alertData.flightPriceAlertId);
       const requestPayload = convertFlightRequest(alertData);
   
       if (isEditing) {
-        updateAlertData(requestPayload);
+        updateAlertData(alertData.flightPriceAlertId, requestPayload);
       }
       else{
         createAlertData(requestPayload);
@@ -436,7 +485,8 @@ function Dashboard() {
                           ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
                           : null)}
                         disablePast
-                        onChange={date => currentAlert.mainFilter.flight.departDate = date}
+                        onChange={date => (isEditing
+                          ?  currentAlert.mainFilter.flight.departDate = date: setDepartDate(date))}
                         slotProps={{
                         field: {required: true, clearable: true, onClear: () => setCleared(true) },
                         }} 
@@ -739,7 +789,7 @@ function Dashboard() {
       disableScrollLock={ true }
     >
       <MenuItem onClick={(e) => {
-        e.stopPropagation(); // Prevent the event from propagating further if necessary
+        e.stopPropagation(); 
         openModalEditAlert(e);
         setIsEditing(true);
         }}>Edit </MenuItem>    
@@ -752,7 +802,7 @@ function Dashboard() {
         (
           <MenuItem onClick={(e) => {
             e.stopPropagation(); 
-            handleDialogConfirmOpen(e, "Active", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
+            handleDialogConfirmOpen(e, "Active", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName, alerts[cardAlertIndex].alert?.alertDurationTime);
             closeCardAlertMenu();
             }}> Active</MenuItem>
         )
@@ -760,14 +810,14 @@ function Dashboard() {
         (
           <MenuItem onClick={(e) => {
             e.stopPropagation(); 
-            handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
+            handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName, alerts[cardAlertIndex].alert?.alertDurationTime);
             closeCardAlertMenu();
             }}> Disable</MenuItem>
           )
       }
       <MenuItem onClick={(e) => {
         e.stopPropagation(); 
-        handleDialogConfirmOpen(e, "Delete", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
+        handleDialogConfirmOpen(e, "Delete", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName, alerts[cardAlertIndex].alert?.alertDurationTime);
         closeCardAlertMenu();
         }}> Delete</MenuItem>
     </Menu>
@@ -910,10 +960,8 @@ function Dashboard() {
                   fullWidth
                   type="button"
                   onClick={openModalEditAlert}
-                  disabled={userAttributesCount < 10}
-                  >         
-                  Create New Alert
-                  
+                  disabled={userAttributesCount < 10} >                          
+                  Create New Alert        
                 </MDButton>            
                 {modalEditAlert && (
                   <div>
@@ -930,11 +978,24 @@ function Dashboard() {
           anchorOrigin={{ vertical, horizontal }}
           open={open}
           key={vertical + horizontal}
-          autoHideDuration={2000}
+          autoHideDuration={4000}
           onClose={handleSnackBarClose}
           disableScrollLock={ true }>     
           <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
-            Flight Price Alert Saved!
+            Flight Price Alert {msg} Successfully!
+          </Notification >
+        </Snackbar>
+      </MDBox>
+      <MDBox sx={{ width: 500 }}>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={openE}
+          key={verticalE + horizontalE}
+          autoHideDuration={5000}
+          onClose={handleSnackBarErrorClose}
+          disableScrollLock={ true }>     
+          <Notification onClose={handleSnackBarErrorClose} severity="error" sx={{ width: '100%' }}>
+            {msgE}
           </Notification >
         </Snackbar>
       </MDBox>
@@ -991,10 +1052,43 @@ function Dashboard() {
           <Button onClick={handleDialogConfirmUpdateUser} autoFocus> Agree </Button>        
         </DialogActions>
       </Dialog>
+      <Dialog
+        open={openDialogActiveAlert}
+        onClose={handleDialogConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        disableScrollLock={ true } >             
+        <DialogTitle id="alert-dialog-title">
+          {"Before active your Alert"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            You have to add Alert Time.
+            <br/>
+            <Typography component="span" variant="inherit" color="info">
+              <b>To use your Account Alert Time, please type here:</b>
+              </Typography>
+              <br/>
+              <Grid item xs={12} sm={2}>
+                <FormField name="activeAlertDurationTime"                   
+                  label="Duration(Points)"
+                  defaultValue={(localStorage.getItem('alert_time')
+                    ? localStorage.getItem('alert_time') : "0")}                           
+                  onChange={(e) => setActiveAlertDurationTime(e.target.value)}                                                                                        
+                  max={localStorage.getItem('alert_time')}
+                  InputLabelProps={{ shrink: true }} required />                                                                                        
+              </Grid>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogActiveAlertClose}> Disagree </Button>
+          <Button onClick={handleDialogConfirmSubmit} autoFocus> Confirm </Button>        
+        </DialogActions>
+      </Dialog>
+      
       <Footer />
     </DashboardLayout>
   );
                    
 }
-
 export default Dashboard;
