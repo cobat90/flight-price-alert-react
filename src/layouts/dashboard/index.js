@@ -83,15 +83,8 @@ function Dashboard() {
 
   const [expandedAlertCard, setCardExpanded] = useState(false);
   const [expandedAlertModal, setModalExpanded] = useState(false);
-
-  const handleExpandCardClick = () => {
-    setCardExpanded(!expandedAlertCard);
-  };
-
-  const handleExpandModalClick = () => {
-    setModalExpanded(!expandedAlertModal);
-  };
-  
+  const handleExpandCardClick = () => {setCardExpanded(!expandedAlertCard); };
+  const handleExpandModalClick = () => {setModalExpanded(!expandedAlertModal); };
   const [cleared, setCleared] = useState(false);
 
   useEffect(() => {
@@ -128,14 +121,8 @@ function Dashboard() {
     horizontal: 'center',
   });
   const { vertical, horizontal, open, msg } = snackBarState;
-
-  const handleSnackBarOpen = (newState) => {
-    setSnackBarState({ ...newState, open: true });
-  };
-
-  const handleSnackBarClose = () => {
-    setSnackBarState({ ...snackBarState, open: false });
-  };
+  const handleSnackBarOpen = (newState) => {setSnackBarState({ ...newState, open: true });  };
+  const handleSnackBarClose = () => { setSnackBarState({ ...snackBarState, open: false }); };
 
   const [snackBarErrorState, setSnackBarErrorState] = useState({
     openE: false,
@@ -143,11 +130,9 @@ function Dashboard() {
     horizontalE: 'center',
   });
   const { openE, verticalE, horizontalE, msgE } = snackBarErrorState;
-
   const handleSnackBarErrorOpen = (newState) => {  setSnackBarErrorState({ ...newState, openE: true });  };
- 
   const handleSnackBarErrorClose = () => { setSnackBarErrorState({ ...snackBarErrorState, openE: false });  };
-  
+
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
   const [dialogConfirmAlertName, setDialogConfirmAlertName] = useState();
   const [dialogConfirmAction, setDialogConfirmAction] = useState();
@@ -162,10 +147,8 @@ function Dashboard() {
   };
 
   const handleDialogConfirmClose = () => { setOpenDialogConfirm(false);   };
+  const handleDialogLetStartClose = () => { setOpenDialogLetStart(false); };
 
-  const handleDialogLetStartClose = () => {
-    setOpenDialogLetStart(false);
-  };
   const handleDialogActiveAlertClose = () => {
     setOpenDialogActiveAlert(false);
     setActiveAlertDurationTime(null);
@@ -185,21 +168,18 @@ function Dashboard() {
       };
       disableAlertData(alertData);
     }
-    if (dialogConfirmAction === "Delete"){
-      deleteAlertData(flightPriceAlertId);
-    }
+    if (dialogConfirmAction === "Delete"){ deleteAlertData(flightPriceAlertId); }
     handleDialogConfirmClose();
   };
 
-  const handleDialogConfirmUpdateUser = () => {
-    navigate("/user-profile");
-  }
+  const handleDialogConfirmUpdateUser = () => { navigate("/user-profile");}
  
   const getAlertsData = async () => {
     try {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
       if (response.status === 200 && Array.isArray(response.data)) {
         setAlerts(response.data);
+        console.info("Alerts fetched successfully", response.data);
       } else if  (response.status === 404) {
         handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: "No Alerts Found" });
         console.info("None Alert Found");
@@ -208,9 +188,7 @@ function Dashboard() {
       if (error.response && error.response.data && error.response.data.message) { 
         handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: error.response.data.message });
       }
-      else{
-        console.error("Error fetching alerts:", error);
-      }
+      else{ console.error("Error fetching alerts:", error);}     
     }
   };
 
@@ -224,7 +202,6 @@ function Dashboard() {
       if (response && response.status === 200) {
         if (response.data && response.data.UserAttributes) {
           const userAttributes = response.data.UserAttributes;
-        
           localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
           localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
           navigate("/dashboard");
@@ -234,9 +211,7 @@ function Dashboard() {
       if (error.response && error.response.data && error.response.data.message) { 
         handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: error.response.data.message });
       }
-      else{
-        console.error("Error fetching alerts:", error);
-      }
+      else{ console.error("Error fetching profile:", error);}     
     }
   };
 
@@ -248,16 +223,14 @@ function Dashboard() {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Created' });
         getAlertsData();
         localStorage.setItem("alert_time", localStorage.getItem('alert_time') - alertData.alert.alertDurationTime);
-      } else {
-        console.error("Invalid data format in response:", response);
-        setSubmitAlertError("Invalid data format in response");
       }
     } catch (error) {
-        if (error.response && error.response.data && error.response.data.message) { 
-          setSubmitAlertError(error.response.data.message);
-        } else {
-          console.error("Error fetching alert");
+        if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
+          handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
         }
+        else if (error.response && error.response.data && error.response.data.message) { 
+          handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+        } else { console.error("Error creating alert", error); }
       }
   };
 
@@ -268,16 +241,14 @@ function Dashboard() {
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Updated' });
         getUpdatedProfile();
-      } else {
-        console.error("Invalid data format in response:", response);
-        setSubmitAlertError("Invalid data format in response");
       }
     } catch (error) {
-        if (error.response && error.response.data && error.response.data.message) { 
-          setSubmitAlertError(error.response.data.message);
-        } else {
-          console.error("Error fetching alert");
+        if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
+          handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
         }
+        else if (error.response && error.response.data && error.response.data.message) { 
+          handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+        } else { console.error("Error updating alert", error); }
       }
   };
 
@@ -289,17 +260,15 @@ function Dashboard() {
         getAlertsData();
         getUpdatedProfile();
         handleDialogActiveAlertClose();
-      } else {
-        console.error("Invalid data format in response:", response);
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
         handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
         handleDialogConfirmClose();
-      } else {
+      } else if (error.response && error.response.data && error.response.data.message){
         handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
-        console.error("Error fetching alert:", error);
       }
+      else { console.error("Error activating alert", error); }
     }
   };
 
@@ -311,8 +280,10 @@ function Dashboard() {
         getAlertsData();
       } 
     } catch (error) {
-      handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
-      console.error("Error fetching alert:", error);
+      if (error.response && error.response.data && error.response.data.message) { 
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+      }
+      else { console.error("Error disabling alert", error); }
     }
   };
 
@@ -325,16 +296,16 @@ function Dashboard() {
         getUpdatedProfile();
       }
     } catch (error) {
-      handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
-      console.error("Error fetching alert:", error);
+      if (error.response && error.response.data && error.response.data.message) { 
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+      }
+      else { console.error("Error deleting alert", error); }
     }
   };
 
   useEffect(() => {
     getAlertsData();
-    if (userAttributesCount < 10){
-      setOpenDialogConfirm(true);
-    }
+    if (userAttributesCount < 10){ setOpenDialogConfirm(true); }   
   }, []);
 
   const [flightPriceAlertId, setFlightPriceAlertId] = useState(null);
@@ -361,10 +332,8 @@ function Dashboard() {
   const [modalEditAlert, setModalEditAlert] = useState(null);
   const [alert, setAlert] = useState(null);
   
-  const openModalEditAlert = (event) => {
-    setModalEditAlert(event.currentTarget);
-  };
-  
+  const openModalEditAlert = (event) => { setModalEditAlert(event.currentTarget); };
+      
   const closeModalEditAlert = () => {
     setModalEditAlert(null);
     setDepartDate(null);
@@ -389,12 +358,8 @@ function Dashboard() {
       setFlightPriceAlertId(alertData.flightPriceAlertId);
       const requestPayload = convertFlightRequest(alertData);
   
-      if (isEditing) {
-        updateAlertData(alertData.flightPriceAlertId, requestPayload);
-      }
-      else{
-        createAlertData(requestPayload);
-      }
+      if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
+      else{ createAlertData(requestPayload); }
     };
 
     return ( 
@@ -805,9 +770,7 @@ function Dashboard() {
             handleDialogConfirmOpen(e, "Active", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName, alerts[cardAlertIndex].alert?.alertDurationTime);
             closeCardAlertMenu();
             }}> Active</MenuItem>
-        )
-        :
-        (
+        ) : (
           <MenuItem onClick={(e) => {
             e.stopPropagation(); 
             handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName, alerts[cardAlertIndex].alert?.alertDurationTime);
@@ -889,11 +852,7 @@ function Dashboard() {
                           <MDTypography variant="h6">{"Duration: " + alert?.alert?.alertDurationTime}</MDTypography>
                         </ListItemText>
                         <ListItemText>
-                          <MDTypography variant="h6">{"Active Days: " +
-                            (dayjs().diff(alert?.alert?.alertDateCreated, "days") >= alert?.alert?.alertDurationTime
-                              ? alert?.alert?.alertDurationTime
-                              : dayjs().diff(alert?.alert?.alertDateCreated, "days"))}
-                          </MDTypography>
+                          <MDTypography variant="h6">{"Duration Used: " + (alert?.alert?.alertDurationTimeCreated - alert?.alert?.alertDurationTime)}</MDTypography>    
                         </ListItemText>
                       </ListItem>
                     </List>
