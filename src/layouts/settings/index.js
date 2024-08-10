@@ -305,12 +305,12 @@ function Settings() {
               Delete
           </MDButton>
           <MDBox ml={{ xs: 0, sm: 1 }} mt={{ xs: 1, sm: 0 }}>
-          <MDButton variant="outlined" color="secondary" onClick={(e) => {
-            e.stopPropagation(); 
-            handleDialogConfirmOpen(e, "Disable");
-          }}>
-            Disable
-          </MDButton>
+        <MDButton variant="outlined" color="secondary" disabled onClick={(e) => {
+           e.stopPropagation(); 
+          handleDialogConfirmOpen(e, "Disable");      
+         }}>
+           Disable
+        </MDButton>
           </MDBox>
         </MDBox>
       </MDBox>

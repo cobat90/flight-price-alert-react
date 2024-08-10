@@ -5,7 +5,11 @@ const selectDataMapping = {
     },
     alertType: {
         TELEGRAM: "Telegram",
-        EMAIL: "Email",
+    },
+    priceType: {
+        LOWER: "Lower",
+        EVERY: "Every",
+        RANGE: "Range",
     },
     cabinClassType: {
         ECONOMY: "Economy",

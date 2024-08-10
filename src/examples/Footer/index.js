@@ -72,6 +72,13 @@ function Footer({ company, links }) {
   );
 }
 
+Footer.defaultProps = {
+  company: { href: "https://www.ittent.com/", name: "ITTENT" },
+  links: [
+    { href: "https://www.ittent.com/", name: "ITTENT" },
+  ],
+};
+
 Footer.propTypes = {
   company: PropTypes.objectOf(PropTypes.string),
   links: PropTypes.arrayOf(PropTypes.object),

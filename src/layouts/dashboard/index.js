@@ -25,8 +25,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import TextField from "@mui/material/TextField";
 
+import { useLocation, useNavigate } from "react-router-dom";
 import MDBox from "components/MDBox";
 import MDButton from "components/MDButton";
 import MDTypography from "components/MDTypography";
@@ -41,8 +41,10 @@ import AutoCompleteAirports  from "components/AutoCompleteAirports";
 import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
 
+import AuthService from "services/auth-service";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
-import { convertFlightRequest } from '../../services/convert-flight-price-alert-service';
+import { convertFlightRequest} from '../../services/convert-flight-price-alert-service';
+import { getAttributeValue} from '../../services/convert-user-service';
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -58,11 +60,15 @@ const Notification = React.forwardRef(function Alert(props, ref) {
 
 function Dashboard() {
 
-  const { sales, tasks } = reportsLineChartData;
-  const userId = localStorage.getItem("userId");
+  const { sales } = reportsLineChartData;
+  const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
+  const userAttributesCount = userAttributes ? Object.keys(userAttributes).length : 0;
+  const userId = getAttributeValue(userAttributes, 'sub');
   const [alerts, setAlerts] = useState([]);
   const airportRefTo = useRef(null);
   const airportRefFrom = useRef(null);
+  const [submitAlertError, setSubmitAlertError] = useState(null);
+  const navigate = useNavigate();
 
   const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -77,15 +83,8 @@ function Dashboard() {
 
   const [expandedAlertCard, setCardExpanded] = useState(false);
   const [expandedAlertModal, setModalExpanded] = useState(false);
-
-  const handleExpandCardClick = () => {
-    setCardExpanded(!expandedAlertCard);
-  };
-
-  const handleExpandModalClick = () => {
-    setModalExpanded(!expandedAlertModal);
-  };
-  
+  const handleExpandCardClick = () => {setCardExpanded(!expandedAlertCard); };
+  const handleExpandModalClick = () => {setModalExpanded(!expandedAlertModal); };
   const [cleared, setCleared] = useState(false);
 
   useEffect(() => {
@@ -100,12 +99,10 @@ function Dashboard() {
   }, [cleared]);
 
   const [flightType, setFlightType] = useState(null);
-  const formRef = useRef();
-
   const [cardAlertMenu, setCardAlertMenu] = useState(null);
   const [cardAlertIndex, setCardAlertIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const acRef = useRef(null);
+  const formRef = useRef();
 
   const openCardAlertMenu = (event, index) => { 
     setCardAlertMenu(event.currentTarget);
@@ -123,37 +120,47 @@ function Dashboard() {
     vertical: 'top',
     horizontal: 'center',
   });
-  const { vertical, horizontal, open } = snackBarState;
+  const { vertical, horizontal, open, msg } = snackBarState;
+  const handleSnackBarOpen = (newState) => {setSnackBarState({ ...newState, open: true });  };
+  const handleSnackBarClose = () => { setSnackBarState({ ...snackBarState, open: false }); };
 
-  const handleSnackBarOpen = (newState) => {
-    setSnackBarState({ ...newState, open: true });
-  };
+  const [snackBarErrorState, setSnackBarErrorState] = useState({
+    openE: false,
+    verticalE: 'top',
+    horizontalE: 'center',
+  });
+  const { openE, verticalE, horizontalE, msgE } = snackBarErrorState;
+  const handleSnackBarErrorOpen = (newState) => {  setSnackBarErrorState({ ...newState, openE: true });  };
+  const handleSnackBarErrorClose = () => { setSnackBarErrorState({ ...snackBarErrorState, openE: false });  };
 
-  const handleSnackBarClose = () => {
-    setSnackBarState({ ...snackBarState, open: false });
-  };
-  
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
   const [dialogConfirmAlertName, setDialogConfirmAlertName] = useState();
   const [dialogConfirmAction, setDialogConfirmAction] = useState();
+  const [openDialogLetStart, setOpenDialogLetStart] = useState(false);
+  const [openDialogActiveAlert, setOpenDialogActiveAlert] = useState(false);
 
-  const handleDialogConfirmOpen = (event, action, alertId, alertName) => {   
+  const handleDialogConfirmOpen = (event, action, alertId, alertName, alertDurationTime) => {   
     setFlightPriceAlertId(alertId);
     setDialogConfirmAction(action);
     setDialogConfirmAlertName(alertName);
-    setOpenDialogConfirm(true);
+    action === "Active" && alertDurationTime < 1 ? setOpenDialogActiveAlert(true) : setOpenDialogConfirm(true); setActiveAlertDurationTime(alertDurationTime);
   };
 
-  const handleDialogConfirmClose = () => {
-    setOpenDialogConfirm(false);
+  const handleDialogConfirmClose = () => { setOpenDialogConfirm(false);   };
+  const handleDialogLetStartClose = () => { setOpenDialogLetStart(false); };
+
+  const handleDialogActiveAlertClose = () => {
+    setOpenDialogActiveAlert(false);
+    setActiveAlertDurationTime(null);
   };
 
   const handleDialogConfirmSubmit = () => {
     if (dialogConfirmAction === "Active"){
       const alertData = {
-        alertDisabled: false
+        alertDisabled: false,
+        alertDurationTime: activeAlertDurationTime
       };
-      disableAlertData(alertData);
+      activateAlertData(alertData);
     }
     if (dialogConfirmAction === "Disable"){
       const alertData = {
@@ -161,53 +168,107 @@ function Dashboard() {
       };
       disableAlertData(alertData);
     }
-
-    if (dialogConfirmAction === "Delete"){
-      deleteAlertData(flightPriceAlertId);
-    }
+    if (dialogConfirmAction === "Delete"){ deleteAlertData(flightPriceAlertId); }
     handleDialogConfirmClose();
   };
+
+  const handleDialogConfirmUpdateUser = () => { navigate("/user-profile");}
  
   const getAlertsData = async () => {
     try {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
       if (response.status === 200 && Array.isArray(response.data)) {
         setAlerts(response.data);
-      } else {
-        console.error("Invalid data format in response:", response);
+        console.info("Alerts fetched successfully", response.data);
+      } else if  (response.status === 404) {
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: "No Alerts Found" });
+        console.info("None Alert Found");
       }
     } catch (error) {
-      console.error("Error fetching alerts:", error);
+      if (error.response && error.response.data && error.response.data.message) { 
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: error.response.data.message });
+      }
+      else{ console.error("Error fetching alerts:", error);}     
     }
   };
 
-  const createAlertData = async (payload) => {
+  const getUpdatedProfile = async () => {
     try {
-      const response = await FlightPriceAlertService.createAlert(payload);
+      let userData={
+        AccessToken: localStorage.getItem("token"),
+      }
+      const response = await AuthService.getProfile(userData);
+    
+      if (response && response.status === 200) {
+        if (response.data && response.data.UserAttributes) {
+          const userAttributes = response.data.UserAttributes;
+          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
+          localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
+          navigate("/dashboard");
+        }       
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) { 
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: error.response.data.message });
+      }
+      else{ console.error("Error fetching profile:", error);}     
+    }
+  };
+
+  const createAlertData = async (alertData) => {
+    try {
+      const response = await FlightPriceAlertService.createAlert(alertData);
       if (response.status === 201) {
         closeModalEditAlert();
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
-        getAlertsData(); 
-      } else {
-        console.error("Invalid data format in response:", response.status + response);
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Created' });
+        getAlertsData();
+        localStorage.setItem("alert_time", localStorage.getItem('alert_time') - alertData.alert.alertDurationTime);
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
-    }
+        if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
+          handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
+        }
+        else if (error.response && error.response.data && error.response.data.message) { 
+          handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+        } else { console.error("Error creating alert", error); }
+      }
   };
 
-  const updateAlertData = async (alertData) => {
+  const updateAlertData = async (flightPriceAlertId, alertData) => {
     try {
       const response = await FlightPriceAlertService.updateAlert(flightPriceAlertId, userId, alertData);
       if (response.status === 200) {
         closeModalEditAlert();
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
-        getAlertsData();
-      } else {
-        console.error("Invalid data format in response:", response);
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Updated' });
+        getUpdatedProfile();
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
+        if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
+          handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
+        }
+        else if (error.response && error.response.data && error.response.data.message) { 
+          handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+        } else { console.error("Error updating alert", error); }
+      }
+  };
+
+  const activateAlertData = async (alertData) => {
+    try {
+      const response = await FlightPriceAlertService.activateAlert(flightPriceAlertId, userId, alertData);
+      if (response.status === 200) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Activated' });
+        getAlertsData();
+        getUpdatedProfile();
+        handleDialogActiveAlertClose();
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
+        handleDialogConfirmClose();
+      } else if (error.response && error.response.data && error.response.data.message){
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+      }
+      else { console.error("Error activating alert", error); }
     }
   };
 
@@ -215,13 +276,14 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.disableAlert(flightPriceAlertId, userId, alertData);
       if (response.status === 200) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Disabled' });
         getAlertsData();
-      } else {
-        console.error("Invalid data format in response:", response);
-      }
+      } 
     } catch (error) {
-      console.error("Error fetching alert:", error);
+      if (error.response && error.response.data && error.response.data.message) { 
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+      }
+      else { console.error("Error disabling alert", error); }
     }
   };
 
@@ -229,50 +291,27 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.deleteAlert(flightPriceAlertId, userId);
       if (response.status === 204) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Deleted' });
         getAlertsData();
-      } else {
-        console.error("Invalid data format in response:", response);
+        getUpdatedProfile();
       }
     } catch (error) {
-      console.error("Error fetching alert:", error);
+      if (error.response && error.response.data && error.response.data.message) { 
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+      }
+      else { console.error("Error deleting alert", error); }
     }
   };
 
   useEffect(() => {
     getAlertsData();
+    if (userAttributesCount < 10){ setOpenDialogConfirm(true); }   
   }, []);
 
   const [flightPriceAlertId, setFlightPriceAlertId] = useState(null);
+  const [activeAlertDurationTime, setActiveAlertDurationTime] = useState(null);
   const [departDate, setDepartDate] = useState(null);
-  const [returnDate, setReturnDate] = useState(null);
-  const [departRangeDate, setDepartRangeDate] = useState(null);
-  const [returnRangeDate, setReturnRangeDate] = useState(null);
-
-  const handleSubmit = (event) => {
-    event.preventDefault(); // Prevent the form from actually submitting
-    const formData = new FormData(event.target); // Create a FormData object from the form
-    formData.append('userId', userId);
-    formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : "");
-    formData.append('returnDate', returnDate && flightType !== 'One Way' ? dayjs(returnDate).format("YYYY/MM/DD") : "");
-    formData.append('departRangeDate', departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD") : "");
-    formData.append('returnRangeDate', returnRangeDate && flightType !== 'One Way' ? dayjs(returnRangeDate).format("YYYY/MM/DD") : "");
-    const alertData = {};
-    formData.forEach((value, key) => {
-      alertData[key] = value;
-    });
-    const alertId = alertData.flightPriceAlertId;
-    setFlightPriceAlertId(alertId);
-
-    if (isEditing) {
-      const requestPayload = convertFlightRequest(alertData);
-      updateAlertData(requestPayload);
-    }
-    else{
-      const requestPayload = convertFlightRequest(alertData);
-      createAlertData(requestPayload);
-    }
-  };
+  const [isSubmitting, setSubmitting] = useState(false);
 
   const IconContainer = ({ backgroundColor, children }) => (
     <div
@@ -293,22 +332,36 @@ function Dashboard() {
   const [modalEditAlert, setModalEditAlert] = useState(null);
   const [alert, setAlert] = useState(null);
   
-  const openModalEditAlert = (event) => {
-    setModalEditAlert(event.currentTarget);
-  };
-  
+  const openModalEditAlert = (event) => { setModalEditAlert(event.currentTarget); };
+      
   const closeModalEditAlert = () => {
     setModalEditAlert(null);
     setDepartDate(null);
-    setReturnDate(null);
-    setDepartRangeDate(null);
-    setReturnRangeDate(null);
     setFlightType(null);
+    setSubmitAlertError(null);
     closeCardAlertMenu();
   }
 
   const modalEditAlertContent = (alert, index) => {
     const currentAlert = alerts[index];
+
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      formData.append('userId', userId);
+      formData.append('departDate', currentAlert?.mainFilter?.flight?.departDate ? dayjs(currentAlert.mainFilter.flight.departDate).format("YYYY-MM-DD") : dayjs(departDate).format("YYYY-MM-DD"));
+
+      const alertData = {};
+      formData.forEach((value, key) => {
+        alertData[key] = value;
+      });
+      setFlightPriceAlertId(alertData.flightPriceAlertId);
+      const requestPayload = convertFlightRequest(alertData);
+  
+      if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
+      else{ createAlertData(requestPayload); }
+    };
+
     return ( 
       <Modal
       open={Boolean(modalEditAlert)}
@@ -335,7 +388,7 @@ function Dashboard() {
           <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
             <input type="hidden" name="flightPriceAlertId" value={currentAlert?.flightPriceAlertId}  readOnly/>  
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={7}>
+              <Grid item xs={12} sm={4.5}>
                 <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
                   defaultValue={(isEditing ? (currentAlert?.alert?.alertName || "").toString() : "")} required />                                   
               </Grid>
@@ -346,22 +399,31 @@ function Dashboard() {
                     : "")}          
                   options={selectData.alertType}
                   renderInput={(params) => (
-                    <FormField {...params} name="alerType" label="Alert Types"
+                    <FormField {...params} name="alerType" label="Alert Type"
+                     InputLabelProps={{ shrink: true }} required/>                      
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2.5}>
+                <Autocomplete
+                  defaultValue={(isEditing
+                    ? (selectDataMapping.priceType[currentAlert?.alert?.priceType] || "").toString()
+                    : "")}          
+                  options={selectData.priceType}
+                  renderInput={(params) => (
+                    <FormField {...params} name="priceType" label="Price Types"
                      InputLabelProps={{ shrink: true }} required/>                      
                   )}
                 />
               </Grid>
               <Grid item xs={12} sm={2}>
-                <Autocomplete
+                <FormField name="alertDurationTime"                   
+                  label="Duration(Points)"
                   defaultValue={(isEditing
-                    ? (currentAlert?.alert?.alertDurationTime || '').toString()
-                    : '')}
-                  options={selectData.days}
-                  renderInput={(params) => (
-                    <FormField {...params} name="alertDurationTime"                   
-                      label="Duration(Days)" required />                
-                  )}
-                />                            
+                    ? String(currentAlert?.alert?.alertDurationTime) || "0"
+                    : "0")}            
+                  max={localStorage.getItem('alert_time')}
+                  InputLabelProps={{ shrink: true }} required />                                                                                        
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
@@ -387,8 +449,9 @@ function Dashboard() {
                         defaultValue={(isEditing
                           ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
                           : null)}
-                        disablePast  
-                        onChange={date => setDepartDate(date)}
+                        disablePast
+                        onChange={date => (isEditing
+                          ?  currentAlert.mainFilter.flight.departDate = date: setDepartDate(date))}
                         slotProps={{
                         field: {required: true, clearable: true, onClear: () => setCleared(true) },
                         }} 
@@ -405,7 +468,7 @@ function Dashboard() {
                           : null)}
                         disablePast
                         value={flightType === 'One Way'? '' : null}
-                        onChange={date => setReturnDate(date)}
+                        onChange={date => currentAlert.mainFilter.flight.returnDate = date}
                         disabled={flightType === 'One Way'}
                         slotProps={{
                           field: { clearable: true, onClear: () => setCleared(true) },
@@ -437,8 +500,8 @@ function Dashboard() {
                     <AutoCompleteAirports 
                       ref={airportRefFrom}
                       name="aiportFrom"
-                      label="From"
-                      placeholder="Rio de Janeiro(Todos)"
+                      label="Airpot From"
+                      placeholder="GIG"
                       defaultValue={(isEditing
                           ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
                           : "")}
@@ -449,8 +512,8 @@ function Dashboard() {
                     <AutoCompleteAirports 
                       ref={airportRefTo}
                       name="aiportTo" 
-                      label="To" 
-                      placeholder="Bahamas" 
+                      label="Airpot To" 
+                      placeholder="FLN" 
                       defaultValue={(isEditing
                         ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
                         : "")} required/>
@@ -493,15 +556,15 @@ function Dashboard() {
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={1.75}>
                       <FormField name="rangePriceStart" label="$ Range Start" placeholder="200" 
-                        defaultValue={(isEditing && currentAlert?.preferencesFilter
+                        defaultValue={(isEditing && currentAlert?.preferencesFilter && currentAlert?.preferencesFilter?.priceType === "Range"
                         ? (currentAlert.preferencesFilter.rangePrice?.rangeStart).toString()  || null
-                        : null)}  disabled/>
+                        : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />
                     </Grid>
                     <Grid item xs={12} sm={1.75}>
                       <FormField name="rangePriceEnd" label="$ Range End" placeholder="500" 
-                      defaultValue={(isEditing && currentAlert?.preferencesFilter
+                      defaultValue={(isEditing && currentAlert?.preferencesFilter && currentAlert?.preferencesFilter?.priceType === "Range"
                         ? (currentAlert.preferencesFilter.rangePrice?.rangeEnd).toString() || null
-                        : null)} disabled />        
+                        : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />        
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
                       <Autocomplete
@@ -523,7 +586,7 @@ function Dashboard() {
                                 ? dayjs(currentAlert.preferencesFilter.departRangeDate) || null
                                 : null)}
                               disablePast
-                              onChange={date => setDepartRangeDate(date)}
+                              onChange={date => currentAlert.preferencesFilter.departRangeDate = date}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }} disabled/> 
@@ -541,7 +604,7 @@ function Dashboard() {
                                 : null)}
                               disablePast
                               value={flightType === 'One Way'? '' : null}
-                              onChange={date => setReturnRangeDate(date)}
+                              onChange={date => currentAlert.preferencesFilter.returnRangeDate = date}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
                               }} disabled/> 
@@ -648,13 +711,28 @@ function Dashboard() {
                 </MDBox>
               </Collapse>
             </Grid>
+            <MDBox pb={1} px={1} display="flex" justifyContent="center" mb={1}>
+              <Grid item xs={12}  >
+                {submitAlertError && (
+                  <MDTypography variant="caption" color="error" fontWeight="medium" >
+                    {submitAlertError}
+                  </MDTypography>
+                )}
+              </Grid>             
+            </MDBox>
             <MDBox pb={3} px={3} display="flex" justifyContent="center" mb={3}>
               <Grid item xs={12}  >
-                <MDButton
-                  variant="gradient"
-                  color="info"
-                  type="submit"
-                  >                   
+                    <MDButton
+                variant="gradient"
+                color="info"
+                type="submit"
+                disabled={isSubmitting}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSubmitting(true);
+                  setTimeout(() => setSubmitting(false), 1000);
+                  formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }}>             
                   Save
                   </MDButton>
               </Grid>             
@@ -676,7 +754,7 @@ function Dashboard() {
       disableScrollLock={ true }
     >
       <MenuItem onClick={(e) => {
-        e.stopPropagation(); // Prevent the event from propagating further if necessary
+        e.stopPropagation(); 
         openModalEditAlert(e);
         setIsEditing(true);
         }}>Edit </MenuItem>    
@@ -689,22 +767,20 @@ function Dashboard() {
         (
           <MenuItem onClick={(e) => {
             e.stopPropagation(); 
-            handleDialogConfirmOpen(e, "Active", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
+            handleDialogConfirmOpen(e, "Active", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName, alerts[cardAlertIndex].alert?.alertDurationTime);
             closeCardAlertMenu();
             }}> Active</MenuItem>
-        )
-        :
-        (
+        ) : (
           <MenuItem onClick={(e) => {
             e.stopPropagation(); 
-            handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
+            handleDialogConfirmOpen(e, "Disable", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName, alerts[cardAlertIndex].alert?.alertDurationTime);
             closeCardAlertMenu();
             }}> Disable</MenuItem>
           )
       }
       <MenuItem onClick={(e) => {
         e.stopPropagation(); 
-        handleDialogConfirmOpen(e, "Delete", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName);
+        handleDialogConfirmOpen(e, "Delete", alerts[cardAlertIndex].flightPriceAlertId, alerts[cardAlertIndex].alert?.alertName, alerts[cardAlertIndex].alert?.alertDurationTime);
         closeCardAlertMenu();
         }}> Delete</MenuItem>
     </Menu>
@@ -743,9 +819,9 @@ function Dashboard() {
                   title={alert?.alert?.alertName}
                   subheader=
                   {alert?.alert?.alertDisabled === false ? (
-                    "Created: " + dayjs(alert?.alert?.alertDateCreated).format("DD/MM/YYYY")                      
+                    "Created: " + dayjs(alert?.alert?.alertDateCreated).format("DD/MM/YYYY HH:mm")                      
                     ) : <MDTypography variant="h6" color="primary">
-                          {"Disabled: " + dayjs(alert?.alert?.alertDateDisabled).format("DD/MM/YYYY")}
+                          {"Disabled: " + dayjs(alert?.alert?.alertDateDisabled).format("DD/MM/YYYY HH:mm")}
                         </MDTypography>                  
                   }
                 />
@@ -765,6 +841,9 @@ function Dashboard() {
                     <List>
                       <ListItem disablePadding >
                           <ListItemText >
+                            <MDTypography variant="h6">{"Price: " + alert?.alert?.priceType}</MDTypography>
+                          </ListItemText>     
+                          <ListItemText >
                             <MDTypography variant="h6">{"Type: " + selectDataMapping.alertType[alert?.alert?.alertType]}</MDTypography>
                           </ListItemText>                        
                       </ListItem>
@@ -773,11 +852,7 @@ function Dashboard() {
                           <MDTypography variant="h6">{"Duration: " + alert?.alert?.alertDurationTime}</MDTypography>
                         </ListItemText>
                         <ListItemText>
-                          <MDTypography variant="h6">{"Active Days: " +
-                            (dayjs().diff(alert?.alert?.alertDateCreated, "days") >= alert?.alert?.alertDurationTime
-                              ? alert?.alert?.alertDurationTime
-                              : dayjs().diff(alert?.alert?.alertDateCreated, "days"))}
-                          </MDTypography>
+                          <MDTypography variant="h6">{"Duration Used: " + (alert?.alert?.alertDurationTimeCreated - alert?.alert?.alertDurationTime)}</MDTypography>    
                         </ListItemText>
                       </ListItem>
                     </List>
@@ -844,10 +919,8 @@ function Dashboard() {
                   fullWidth
                   type="button"
                   onClick={openModalEditAlert}
-                  disabled={localStorage.getItem("accountType") === "FREE" && alerts.length > 0}
-                  >         
-                  Create New Alert
-                  
+                  disabled={userAttributesCount < 10} >                          
+                  Create New Alert        
                 </MDButton>            
                 {modalEditAlert && (
                   <div>
@@ -864,11 +937,24 @@ function Dashboard() {
           anchorOrigin={{ vertical, horizontal }}
           open={open}
           key={vertical + horizontal}
-          autoHideDuration={2000}
+          autoHideDuration={4000}
           onClose={handleSnackBarClose}
           disableScrollLock={ true }>     
           <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
-            Flight Price Alert Saved!
+            Flight Price Alert {msg} Successfully!
+          </Notification >
+        </Snackbar>
+      </MDBox>
+      <MDBox sx={{ width: 500 }}>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={openE}
+          key={verticalE + horizontalE}
+          autoHideDuration={5000}
+          onClose={handleSnackBarErrorClose}
+          disableScrollLock={ true }>     
+          <Notification onClose={handleSnackBarErrorClose} severity="error" sx={{ width: '100%' }}>
+            {msgE}
           </Notification >
         </Snackbar>
       </MDBox>
@@ -898,10 +984,70 @@ function Dashboard() {
           <Button onClick={handleDialogConfirmSubmit} autoFocus> Agree </Button>        
         </DialogActions>
       </Dialog>
+      <Dialog
+        open={openDialogLetStart}
+        onClose={handleDialogConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        disableScrollLock={ true } >             
+        <DialogTitle id="alert-dialog-title">
+          {"Let's get started!"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Before we start, please update your user profile for better accuracy when you create your Alerts.
+            <br/>
+            <br/>
+            <Typography component="span" variant="inherit" color="info">
+              <b>To use Ittent in Telegram:</b>
+              </Typography>
+              <br/>
+              <br/>
+              In Telegram look for "Ittent" or "@ittent_bot" and chat /username (To get your Telegram Username) and /chatId (To get your Telegram ChatId).
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogLetStartClose}> Disagree </Button>
+          <Button onClick={handleDialogConfirmUpdateUser} autoFocus> Agree </Button>        
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openDialogActiveAlert}
+        onClose={handleDialogConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        disableScrollLock={ true } >             
+        <DialogTitle id="alert-dialog-title">
+          {"Before active your Alert"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            You have to add Alert Time.
+            <br/>
+            <Typography component="span" variant="inherit" color="info">
+              <b>To use your Account Alert Time, please type here:</b>
+              </Typography>
+              <br/>
+              <Grid item xs={12} sm={2}>
+                <FormField name="activeAlertDurationTime"                   
+                  label="Duration(Points)"
+                  defaultValue={(localStorage.getItem('alert_time')
+                    ? localStorage.getItem('alert_time') : "0")}                           
+                  onChange={(e) => setActiveAlertDurationTime(e.target.value)}                                                                                        
+                  max={localStorage.getItem('alert_time')}
+                  InputLabelProps={{ shrink: true }} required />                                                                                        
+              </Grid>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogActiveAlertClose}> Disagree </Button>
+          <Button onClick={handleDialogConfirmSubmit} autoFocus> Confirm </Button>        
+        </DialogActions>
+      </Dialog>
+      
       <Footer />
     </DashboardLayout>
   );
                    
 }
-
 export default Dashboard;
