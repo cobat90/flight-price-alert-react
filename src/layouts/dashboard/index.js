@@ -556,20 +556,20 @@ function Dashboard() {
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={1.75}>
                       <FormField name="rangePriceStart" label="$ Range Start" placeholder="200" 
-                        defaultValue={(isEditing && currentAlert?.preferencesFilter && currentAlert?.preferencesFilter?.priceType === "Range"
-                        ? (currentAlert.preferencesFilter.rangePrice?.rangeStart).toString()  || null
+                        defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeStart
+                        ? (currentAlert.preferencesFilter.rangePrice.rangeStart).toString()  || null
                         : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />
                     </Grid>
                     <Grid item xs={12} sm={1.75}>
                       <FormField name="rangePriceEnd" label="$ Range End" placeholder="500" 
-                      defaultValue={(isEditing && currentAlert?.preferencesFilter && currentAlert?.preferencesFilter?.priceType === "Range"
-                        ? (currentAlert.preferencesFilter.rangePrice?.rangeEnd).toString() || null
+                      defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeEnd
+                        ? (currentAlert.preferencesFilter.rangePrice.rangeEnd).toString() || null
                         : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />        
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
                       <Autocomplete
-                        defaultValue={(isEditing && currentAlert?.preferencesFilter
-                          ? String(currentAlert.preferencesFilter?.scalesQuantity) || null
+                        defaultValue={(isEditing && currentAlert?.preferencesFilter?.scalesQuantity
+                          ? String(currentAlert.preferencesFilter.scalesQuantity) || null
                           : null)}
                         options={selectData.passagers}
                         renderInput={(params) => (
@@ -582,7 +582,7 @@ function Dashboard() {
                         <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                             <DatePicker name="departRangeDate" label="Depart Range Date" 
-                              defaultValue={(isEditing && currentAlert?.preferencesFilter
+                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeDate
                                 ? dayjs(currentAlert.preferencesFilter.departRangeDate) || null
                                 : null)}
                               disablePast
@@ -599,7 +599,7 @@ function Dashboard() {
                         <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                             <DatePicker name="returnRangeDate" label="Return Range Date" 
-                              defaultValue={(isEditing && currentAlert?.preferencesFilter
+                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeDate
                                 ? dayjs(currentAlert.preferencesFilter.returnRangeDate) || null
                                 : null)}
                               disablePast
@@ -617,32 +617,32 @@ function Dashboard() {
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" 
-                              defaultValue={(isEditing && currentAlert?.preferencesFilter
-                                ? dayjs(currentAlert.preferencesFilter.departRangeTime?.rangeStart, "hh:mm") || null
+                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeTime?.rangeStart
+                                ? dayjs(currentAlert.preferencesFilter.departRangeTime.rangeStart, "hh:mm") || null
                                 : null)} disabled/>
                           </LocalizationProvider>              
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" 
-                              defaultValue={(isEditing && currentAlert?.preferencesFilter
-                                ? dayjs(currentAlert.preferencesFilter.departRangeTime?.rangeEnd, "hh:mm") || null
+                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeTime?.rangeEnd
+                                ? dayjs(currentAlert.preferencesFilter.departRangeTime.rangeEnd, "hh:mm") || null
                                 : null)} disabled/>
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="returnRangeTimeStart" label="Start Return Range Time" format="HH:mm" 
-                              defaultValue={(isEditing && currentAlert?.preferencesFilter
-                                ? dayjs(currentAlert.preferencesFilter.returnRangeTime?.rangeStart, "hh:mm") || null
+                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeTime?.rangeStart
+                                ? dayjs(currentAlert.preferencesFilter.returnRangeTime.rangeStart, "hh:mm") || null
                                 : null)} disabled/>
                           </LocalizationProvider>
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" 
-                              defaultValue={(isEditing && currentAlert?.preferencesFilter
-                                ? dayjs(currentAlert.preferencesFilter.returnRangeTime?.rangeEnd, "hh:mm") || null
+                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeTime?.rangeEnd
+                                ? dayjs(currentAlert.preferencesFilter.returnRangeTime.rangeEnd, "hh:mm") || null
                                 : null)} disabled/> 
                           </LocalizationProvider>
                         </Grid>
@@ -652,8 +652,8 @@ function Dashboard() {
                       <Grid container spacing={3}>
                         <Grid item xs={12} sm={3}>
                         <Autocomplete
-                          defaultValue={(isEditing && currentAlert?.preferencesFilter
-                            ? (selectDataMapping.paymentMethod[currentAlert.preferencesFilter.payment?.method]).toString() || null
+                          defaultValue={(isEditing && currentAlert?.preferencesFilter?.payment?.method
+                            ? (selectDataMapping.paymentMethod[currentAlert.preferencesFilter.payment.method]).toString() || null
                             : null)}
                           options={selectData.paymentMethod}
                           renderInput={(params) => (
@@ -664,8 +664,8 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={1.5}>
                           <Autocomplete
-                            defaultValue={(isEditing && currentAlert?.preferencesFilter
-                              ? (currentAlert.preferencesFilter.payment?.parcels).toString() || null
+                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.payment?.parcels
+                              ? (currentAlert.preferencesFilter.payment.parcels).toString() || null
                               : null)}
                             options={selectData.passagers}
                             renderInput={(params) => (
@@ -675,7 +675,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <Autocomplete
-                            defaultValue={(isEditing && currentAlert?.preferencesFilter
+                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.otherPreferences
                               ? (selectDataMapping.otherPreferences[currentAlert.preferencesFilter.otherPreferences]).toString() || null
                               : null)}
                             options={selectData.otherPreferences}
@@ -686,7 +686,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={1.5}>
                           <Autocomplete
-                            defaultValue={(isEditing && currentAlert?.preferencesFilter
+                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.airline
                               ? (currentAlert.preferencesFilter.airline).toString() || null
                               : null)}
                             options={selectData.airlines}
@@ -696,7 +696,7 @@ function Dashboard() {
                         </Grid>
                         <Grid item xs={12} sm={3}>
                           <Autocomplete
-                            defaultValue={(isEditing && currentAlert?.preferencesFilter
+                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.searchSites
                               ? (selectDataMapping.searchSites[currentAlert.preferencesFilter.searchSites]).toString() || null
                               : null)}
                             options={selectData.searchSites}

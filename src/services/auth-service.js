@@ -1,5 +1,5 @@
 import { userAxiosInstance } from "./http.service";
-const API_COGNITO_URL = process.env.REACT_APP_COGNITO_URL;
+const API_COGNITO_URL = process.env.REACT_APP_API_URL_USER;
 
 class AuthService {
 
