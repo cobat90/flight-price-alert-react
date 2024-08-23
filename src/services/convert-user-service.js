@@ -33,7 +33,7 @@ export const convertUserSignupRequest = (userData) => {
       { Name: 'name', Value: firstName },
       { Name: 'email', Value: email },
       { Name: 'phone_number', Value: phoneNumber },
-      { Name: 'custom:alert_time', Value: "10" },
+      { Name: 'custom:alert_time', Value: "100" },
       { Name: 'custom:account_type', Value: "free" },
     ],
   };
