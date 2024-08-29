@@ -60,7 +60,6 @@ const Notification = React.forwardRef(function Alert(props, ref) {
 
 function Dashboard() {
 
-  const { sales } = reportsLineChartData;
   const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
   const userAttributesCount = userAttributes ? Object.keys(userAttributes).length : 0;
   const userId = getAttributeValue(userAttributes, 'sub');
@@ -827,14 +826,17 @@ function Dashboard() {
                 />
                 <ReportsLineChart
                   color="success"
-                  title="monthly prices"
+                  title="lasts prices"
                   description={
                     <>
                       (<strong>+15%</strong>) increase in today prices.
                     </>
                   }
                   date="updated 5 min ago"
-                  chart={sales}
+                  chart={{
+                    labels: alert?.alertHistory?.slice(0, 12).map(history => history.id) || [],
+                    datasets: { label: "Desktop apps", data: alert?.alertHistory?.slice(0, 12).map(history => parseFloat(history.grandTotalPrice)) || [] },
+                  }}
                 />
                 <CardContent>
                   <MDBox>               
