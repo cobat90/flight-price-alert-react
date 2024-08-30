@@ -178,10 +178,9 @@ function Dashboard() {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
       if (response.status === 200 && Array.isArray(response.data)) {
         setAlerts(response.data);
-        console.info("Alerts fetched successfully", response.data);
       } else if  (response.status === 404) {
         handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: "No Alerts Found" });
-        console.info("None Alert Found");
+        console.error("None Alert Found");
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) { 
@@ -829,13 +828,29 @@ function Dashboard() {
                   title="lasts prices"
                   description={
                     <>
-                      (<strong>+15%</strong>) increase in today prices.
+                      <strong>
+                        {alert?.alertHistory?.length > 0 
+                          ? (alert.alertHistory
+                              .map(history => parseFloat(history.totalPrice))
+                              .reduce((sum, price) => sum + price, 0) / alert.alertHistory.length
+                            ).toFixed(2) + " " + alert.alertUser?.currency 
+                          : "No data"}
+                      </strong> is the average of prices.                      
+                      <br />
+                      <br />
+                      The lowest price was <strong>
+                        {alert?.alertHistory?.length > 0 
+                          ? Math.min(...alert.alertHistory
+                              .map(history => parseFloat(history.totalPrice))
+                            ).toFixed(2) + " " + alert.alertUser?.currency 
+                          : "No data"}
+                      </strong>
                     </>
                   }
-                  date="updated 5 min ago"
+                  date={"updated " + dayjs().diff(dayjs(alert?.alertHistory?.[alert.alertHistory.length - 1]?.alertDateTime), 'minute') + " minutes ago"}
                   chart={{
                     labels: alert?.alertHistory?.slice(0, 12).map(history => history.id) || [],
-                    datasets: { label: "Desktop apps", data: alert?.alertHistory?.slice(0, 12).map(history => parseFloat(history.grandTotalPrice)) || [] },
+                    datasets: { label: "Flight Prices", data: alert?.alertHistory?.slice(0, 12).map(history => parseFloat(history.totalPrice)) || [] },
                   }}
                 />
                 <CardContent>
