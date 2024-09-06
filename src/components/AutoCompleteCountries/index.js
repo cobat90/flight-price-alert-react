@@ -9,9 +9,8 @@ const AutoCompleteCountries = React.forwardRef(({ ...otherProps }, ref) => {
     shouldSort: true,
     threshold: 0.4,
     keys: [
-      { name: 'name', weight: 0.7 },
-      { name: 'alpha-3', weight: 0.2 },
-      { name: 'country-code', weight: 0.1 },
+      { name: 'code', weight: 0.4 },
+      { name: 'name', weight: 0.3 },
     ],
   };
 
@@ -28,7 +27,7 @@ const AutoCompleteCountries = React.forwardRef(({ ...otherProps }, ref) => {
 
   const handleSelectIndex = (index) => {
     if (results.length >= index + 1) {
-      ref.current.value = results[index].item['alpha-3'];
+      ref.current.value = results[index].item['code'];
       clearResults();
     }
   };
@@ -105,10 +104,7 @@ const AutoCompleteCountries = React.forwardRef(({ ...otherProps }, ref) => {
             }}
           >
             <div>
-              <b>{result.item.name}</b> - {result.item['alpha-3']}
-            </div>
-            <div className="autocomplete-location">
-              Country Code: {result.item['country-code']}
+              <b>{result.item.name}</b> - {result.item['code']}
             </div>
           </div>
         ))}

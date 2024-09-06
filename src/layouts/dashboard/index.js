@@ -50,7 +50,6 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
-import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
 import React, { useState, useEffect, useRef } from "react";
 
@@ -444,6 +443,7 @@ function Dashboard() {
                       <DatePicker
                         name="departDate"
                         label="Depart Date"
+                        //views={['year', 'month']} // Enable only year and month selection
                         defaultValue={(isEditing
                           ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
                           : null)}
@@ -456,6 +456,7 @@ function Dashboard() {
                       />
                     </LocalizationProvider>
                   </Grid>
+                  {/*
                   <Grid item xs={12} sm={3.3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                       <DatePicker
@@ -474,6 +475,7 @@ function Dashboard() {
                       />
                     </LocalizationProvider>
                   </Grid>
+                  */}
                   <Grid item xs={12} sm={2.9}>
                     <Autocomplete
                       defaultValue={(isEditing
@@ -842,7 +844,7 @@ function Dashboard() {
                         {alert?.alertHistory?.length > 0 
                           ? Math.min(...alert.alertHistory
                               .map(history => parseFloat(history.totalPrice))
-                            ).toFixed(2) + " " + alert.alertUser?.currency 
+                            ).toFixed(2) + " " + alert.alertUser?.currency
                           : "No data"}
                       </strong>
                     </>

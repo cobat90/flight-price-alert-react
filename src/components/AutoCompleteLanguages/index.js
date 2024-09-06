@@ -9,8 +9,7 @@ const AutoCompleteLanguages = React.forwardRef(({ ...otherProps }, ref) => {
     shouldSort: true,
     threshold: 0.4,
     keys: [
-      { name: 'alpha3', weight: 0.4 },
-      { name: 'alpha2', weight: 0.3 },
+      { name: 'code', weight: 0.4 },
       { name: 'name', weight: 0.3 },
     ],
   };
@@ -28,7 +27,7 @@ const AutoCompleteLanguages = React.forwardRef(({ ...otherProps }, ref) => {
 
   const handleSelectIndex = (index) => {
     if (results.length >= index + 1) {
-      ref.current.value = results[index].item['alpha3'];
+      ref.current.value = results[index].item['code'];
       clearResults();
     }
   };
@@ -105,10 +104,7 @@ const AutoCompleteLanguages = React.forwardRef(({ ...otherProps }, ref) => {
             }}
           >
             <div>
-              <b>{result.item.name}</b> - {result.item.alpha3}
-            </div>
-            <div className="autocomplete-location">
-              Alpha-2: {result.item.alpha2}, Bibliographic: {result.item.bibliographic || 'N/A'}
+              <b>{result.item.name}</b> - {result.item.code}
             </div>
           </div>
         ))}
