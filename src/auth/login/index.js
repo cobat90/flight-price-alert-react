@@ -5,9 +5,7 @@ import { Link } from "react-router-dom";
 
 // @mui material components
 import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
 
-// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
@@ -21,14 +19,11 @@ import { AuthContext } from "context";
 function Login() {
   const authContext = useContext(AuthContext);
 
-  const [user, setUser] = useState({});
   const [credentialsErros, setCredentialsError] = useState(null);
-  const [rememberMe, setRememberMe] = useState(false);
 
   const [inputs, setInputs] = useState({
     username: "",
     password: "",
-    rememberMe: false,
   });
 
   const [errors, setErrors] = useState({
@@ -36,9 +31,6 @@ function Login() {
     passwordError: false,
   });
 
-  const addUserHandler = (newUser) => setUser(newUser);
-
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   const changeHandler = (e) => { 
     setInputs({
@@ -123,15 +115,16 @@ function Login() {
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form" method="POST" onSubmit={submitHandler}>
-            <MDBox mb={2}>
+          <MDBox mb={2}>
               <MDInput
-                type="Email"
+                type="username"
                 label="Email"
                 fullWidth
                 value={inputs.username}
                 name="username"
                 onChange={changeHandler}
                 error={errors.usernameError}
+                autoComplete="username"
               />
             </MDBox>
             <MDBox mb={2}>
@@ -143,19 +136,8 @@ function Login() {
                 value={inputs.password}
                 onChange={changeHandler}
                 error={errors.passwordError}
+                autoComplete="current-password"
               />
-            </MDBox>
-            <MDBox display="flex" alignItems="center" ml={-1}>
-              <Switch checked={rememberMe} onChange={handleSetRememberMe} />
-              <MDTypography
-                variant="button"
-                fontWeight="regular"
-                color="text"
-                onClick={handleSetRememberMe}
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-              >
-                &nbsp;&nbsp;Remember me
-              </MDTypography>
             </MDBox>
             <MDBox mt={4} mb={1}>
               <MDButton variant="gradient" color="info" fullWidth type="submit">

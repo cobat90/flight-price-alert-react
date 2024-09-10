@@ -249,16 +249,16 @@ const UserProfile = () => {
                 label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }} required/>
               </Grid>
               <Grid item xs={12}>
-    {errors && Object.keys(errors).length > 0 && (
-      Object.keys(errors).map((key) => (
-        <Grid item xs={12} key={key}>
-          <MDTypography variant="caption" color="error" fontWeight="medium">
-            {errors[key]}
-          </MDTypography>
-        </Grid>
-      ))
-    )}
-  </Grid>
+                {errors && Object.keys(errors).length > 0 && (
+                  Object.keys(errors).map((key) => (
+                    <Grid item xs={12} key={key}>
+                      <MDTypography variant="caption" color="error" fontWeight="medium">
+                        {errors[key]}
+                      </MDTypography>
+                    </Grid>
+                  ))
+                )}
+              </Grid>
               <Grid item xs={12} md={6}>
                 <MDButton
                   variant="gradient"

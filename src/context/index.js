@@ -6,8 +6,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AuthService from "services/auth-service";
 import { getAttributeValue, convertBalanceToDays } from '../services/convert-user-service';
 
-
-// Material Dashboard 2 React main context
 const MaterialUI = createContext();
 
 // authentication context
@@ -43,7 +41,7 @@ const AuthContextProvider = ({ children }) => {
   const login = async (token) => {
     localStorage.setItem("token", token);
     try {
-        let userData={
+        let userData={  
           AccessToken: localStorage.getItem("token"),
         }
         const response = await AuthService.getProfile(userData);
