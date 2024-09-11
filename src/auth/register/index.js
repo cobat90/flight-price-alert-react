@@ -144,7 +144,7 @@ function Register() {
               emailExistsError: true,
             });
           }
-          else if (error.response.data.message === "PhoneNumberExistsException"){
+          else if (error.response.data.__type === "UserLambdaValidationException"){
             setErrors({
               phoneNumberError: true,
               phoneNumberExistsError: true,

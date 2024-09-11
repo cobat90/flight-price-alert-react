@@ -354,9 +354,18 @@ function Dashboard() {
       });
       setFlightPriceAlertId(alertData.flightPriceAlertId);
       const requestPayload = convertFlightRequest(alertData);
-  
-      if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
-      else{ createAlertData(requestPayload); }
+      console.info("airportFrom", alertData["airportFrom"]);
+      console.info("alertData", alertData);
+      if (alertData["alertDurationTime"] > 1000 || alertData["alertDurationTime"] < 100) {
+         setSubmitAlertError("Alert duration time should be between 100 and 1000") }
+      else if ((!alertData["airportFrom"] || !alertData["airportTo"]) || 
+      (alertData["airportFrom"].length !== 3 || alertData["airportTo"].length !== 3)){
+          setSubmitAlertError("Airports IATA codes should be 3 characters");
+      }
+      else{
+        if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
+        else{ createAlertData(requestPayload); }
+      }
     };
 
     return ( 
@@ -417,9 +426,10 @@ function Dashboard() {
                 <FormField name="alertDurationTime"                   
                   label="Duration(Points)"
                   defaultValue={(isEditing
-                    ? String(currentAlert?.alert?.alertDurationTime) || "0"
-                    : "0")}            
-                  max={localStorage.getItem('alert_time')}
+                    ? String(currentAlert?.alert?.alertDurationTime) || "100"
+                    : "100")}            
+                  max={localStorage.getItem('alert_time') || 1000}
+                  min={100}
                   InputLabelProps={{ shrink: true }} required />                                                                                        
               </Grid>
               <Grid item xs={12}>
@@ -499,8 +509,8 @@ function Dashboard() {
                   <Grid item xs={12} sm={4.5}>
                     <AutoCompleteAirports 
                       ref={airportRefFrom}
-                      name="aiportFrom"
-                      label="Airpot From"
+                      name="airportFrom"
+                      label="Airport From"
                       placeholder="GIG"
                       defaultValue={(isEditing
                           ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
@@ -511,8 +521,8 @@ function Dashboard() {
                   <Grid item xs={12} sm={4.5}>
                     <AutoCompleteAirports 
                       ref={airportRefTo}
-                      name="aiportTo" 
-                      label="Airpot To" 
+                      name="airportTo" 
+                      label="Airport To" 
                       placeholder="FLN" 
                       defaultValue={(isEditing
                         ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
@@ -849,7 +859,7 @@ function Dashboard() {
                       </strong>
                     </>
                   }
-                  date={"updated " + dayjs().diff(dayjs(alert?.alertHistory?.[alert.alertHistory.length - 1]?.alertDateTime), 'minute') + " minutes ago"}
+                  date={"last alert was " + dayjs().diff(dayjs(alert?.alertHistory?.[alert.alertHistory.length - 1]?.alertDateTime), 'minute') + " minutes ago"}
                   chart={{
                     labels: alert?.alertHistory?.slice(0, 12).map(history => history.id) || [],
                     datasets: { label: "Flight Prices", data: alert?.alertHistory?.slice(0, 12).map(history => parseFloat(history.totalPrice)) || [] },

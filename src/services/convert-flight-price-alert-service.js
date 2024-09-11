@@ -9,8 +9,8 @@ export const convertFlightRequest = (alertData) => {
       departDate,
       returnDate,
       cabinClassType,
-      aiportFrom,
-      aiportTo,
+      airportFrom,
+      airportTo,
       adults,
       children,
       rangePriceStart,
@@ -90,8 +90,8 @@ export const convertFlightRequest = (alertData) => {
           returnDate: returnDate ? returnDate : null,
           airports: [
             {
-              airportFrom: aiportFrom ? aiportFrom : null,
-              airportTo: aiportTo ? aiportTo : null,
+              airportFrom: airportFrom ? airportFrom : null,
+              airportTo: airportTo ? airportTo : null,
               airportScales: null, 
             },
           ],
