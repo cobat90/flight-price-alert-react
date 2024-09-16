@@ -50,7 +50,6 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
-import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
 import React, { useState, useEffect, useRef } from "react";
 
@@ -60,7 +59,6 @@ const Notification = React.forwardRef(function Alert(props, ref) {
 
 function Dashboard() {
 
-  const { sales } = reportsLineChartData;
   const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
   const userAttributesCount = userAttributes ? Object.keys(userAttributes).length : 0;
   const userId = getAttributeValue(userAttributes, 'sub');
@@ -179,10 +177,9 @@ function Dashboard() {
       const response = await FlightPriceAlertService.findAllAlerts(userId);
       if (response.status === 200 && Array.isArray(response.data)) {
         setAlerts(response.data);
-        console.info("Alerts fetched successfully", response.data);
       } else if  (response.status === 404) {
         handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msg: "No Alerts Found" });
-        console.info("None Alert Found");
+        console.error("None Alert Found");
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) { 
@@ -219,9 +216,9 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.createAlert(alertData);
       if (response.status === 201) {
+        getAlertsData();
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Created' });
-        getAlertsData();
         localStorage.setItem("alert_time", localStorage.getItem('alert_time') - alertData.alert.alertDurationTime);
       }
     } catch (error) {
@@ -357,28 +354,40 @@ function Dashboard() {
       });
       setFlightPriceAlertId(alertData.flightPriceAlertId);
       const requestPayload = convertFlightRequest(alertData);
-  
-      if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
-      else{ createAlertData(requestPayload); }
+
+      if (alertData["alertDurationTime"] > 1000 || alertData["alertDurationTime"] < 100) {
+         setSubmitAlertError("Alert duration time should be between 100 and 1000") }
+      else if ((!alertData["airportFrom"] || !alertData["airportTo"]) || 
+      (alertData["airportFrom"].length !== 3 || alertData["airportTo"].length !== 3)){
+          setSubmitAlertError("Airports IATA codes should be 3 characters");
+      }
+      else{
+        if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
+        else{ createAlertData(requestPayload); }
+      }
     };
 
     return ( 
-      <Modal
-      open={Boolean(modalEditAlert)}
-      onClose={closeModalEditAlert}
-      aria-labelledby="parent-modal-title"
-      aria-describedby="parent-modal-description"
-      disableScrollLock={ true }>    
+      <Dialog
+        open={Boolean(modalEditAlert)}
+        onClose={closeModalEditAlert}
+        maxWidth="md" // Controls the maximum width of the dialog
+        fullWidth={true} // Ensures the dialog uses the full width of the maxWidth
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-description"
+        PaperProps={{
+          style: {
+            minHeight: '150vh', // Adjust the minimum height as needed
+            maxHeight: '200vh',  // Prevent it from going beyond a certain height
+          },
+        }}
+        scroll="body" // Or 'body', depending on your needs
+      >
+      <DialogContent dividers>
         <Card id="flight-alert-info" sx={{ 
-          overflow: "visible",
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 800, // Default width for larger screens
-          maxWidth: "90%", // Set maximum width for smaller screens
-          border: '2px solid #000',
-          }}>
+      width: '100%', 
+      border: '2px solid #000',
+    }}>
           <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
             <CloseIcon />
           </IconButton>
@@ -420,9 +429,10 @@ function Dashboard() {
                 <FormField name="alertDurationTime"                   
                   label="Duration(Points)"
                   defaultValue={(isEditing
-                    ? String(currentAlert?.alert?.alertDurationTime) || "0"
-                    : "0")}            
-                  max={localStorage.getItem('alert_time')}
+                    ? String(currentAlert?.alert?.alertDurationTime) || "100"
+                    : "100")}            
+                  max={localStorage.getItem('alert_time') || 1000}
+                  min={100}
                   InputLabelProps={{ shrink: true }} required />                                                                                        
               </Grid>
               <Grid item xs={12}>
@@ -446,6 +456,7 @@ function Dashboard() {
                       <DatePicker
                         name="departDate"
                         label="Depart Date"
+                        //views={['year', 'month']} // Enable only year and month selection
                         defaultValue={(isEditing
                           ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
                           : null)}
@@ -458,6 +469,7 @@ function Dashboard() {
                       />
                     </LocalizationProvider>
                   </Grid>
+                  {/*
                   <Grid item xs={12} sm={3.3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                       <DatePicker
@@ -476,6 +488,7 @@ function Dashboard() {
                       />
                     </LocalizationProvider>
                   </Grid>
+                  */}
                   <Grid item xs={12} sm={2.9}>
                     <Autocomplete
                       defaultValue={(isEditing
@@ -499,8 +512,8 @@ function Dashboard() {
                   <Grid item xs={12} sm={4.5}>
                     <AutoCompleteAirports 
                       ref={airportRefFrom}
-                      name="aiportFrom"
-                      label="Airpot From"
+                      name="airportFrom"
+                      label="Airport From"
                       placeholder="GIG"
                       defaultValue={(isEditing
                           ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
@@ -511,8 +524,8 @@ function Dashboard() {
                   <Grid item xs={12} sm={4.5}>
                     <AutoCompleteAirports 
                       ref={airportRefTo}
-                      name="aiportTo" 
-                      label="Airpot To" 
+                      name="airportTo" 
+                      label="Airport To" 
                       placeholder="FLN" 
                       defaultValue={(isEditing
                         ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
@@ -739,7 +752,8 @@ function Dashboard() {
             </MDBox>
           </MDBox>
         </Card>
-      </Modal>
+        </DialogContent>
+      </Dialog>
     );
   };
 
@@ -827,14 +841,33 @@ function Dashboard() {
                 />
                 <ReportsLineChart
                   color="success"
-                  title="monthly prices"
+                  title="lasts prices"
                   description={
                     <>
-                      (<strong>+15%</strong>) increase in today prices.
+                      <strong>
+                        {alert?.alertHistory?.length > 0 
+                          ? (alert.alertHistory
+                              .map(history => parseFloat(history.totalPrice))
+                              .reduce((sum, price) => sum + price, 0) / alert.alertHistory.length
+                            ).toFixed(2) + " " + alert.alertUser?.currency 
+                          : "No data"}
+                      </strong> is the average of prices.                      
+                      <br />
+                      <br />
+                      The lowest price was <strong>
+                        {alert?.alertHistory?.length > 0 
+                          ? Math.min(...alert.alertHistory
+                              .map(history => parseFloat(history.totalPrice))
+                            ).toFixed(2) + " " + alert.alertUser?.currency
+                          : "No data"}
+                      </strong>
                     </>
                   }
-                  date="updated 5 min ago"
-                  chart={sales}
+                  date={"last alert was " + dayjs().diff(dayjs(alert?.alertHistory?.[alert.alertHistory.length - 1]?.alertDateTime), 'minute') + " minutes ago"}
+                  chart={{
+                    labels: alert?.alertHistory?.slice(-12).map(history => history.id) || [],
+                    datasets: { label: "Flight Prices", data: alert?.alertHistory?.slice(-12).map(history => parseFloat(history.totalPrice)) || [] },
+                  }}
                 />
                 <CardContent>
                   <MDBox>               

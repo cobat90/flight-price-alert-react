@@ -97,7 +97,7 @@ const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
         {...otherProps}
       />
 
-      <div className="autocomplete-results">
+      <div className="autocomplete-results" translate="no">
         {results.map((result, i) => (
           <div
             key={i}

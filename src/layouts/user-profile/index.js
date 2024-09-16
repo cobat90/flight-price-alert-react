@@ -34,7 +34,8 @@ const UserProfile = () => {
   const countryRef = useRef(null);
   const currencyRef = useRef(null);
   const langKeyRef = useRef(null);
-  const [updateUserError, setUpdateUserError] = useState(null);
+  const [updateUserErrors, setUpdateUserError] = useState(null);
+  const [errors, setErrors] = useState({});
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -73,7 +74,7 @@ const UserProfile = () => {
         getUserData();
       } else {
         console.error("Invalid data format in response:", response);
-        setUpdateUserError("Invalid data format in response");
+        setErrors("Invalid data format in response");
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) { 
@@ -82,7 +83,7 @@ const UserProfile = () => {
           navigate("/auth/login");
         }
         else{
-          setUpdateUserError(error.response.data.message);
+          setErrors(error.response.data.message);
         }
       } else {
         console.error("Error fetching user");
@@ -92,7 +93,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     getUserData();
-    setUpdateUserError(null);
+    setErrors(null);
   }, []);
 
   const changeHandler = (e) => {
@@ -123,13 +124,30 @@ const UserProfile = () => {
     event.preventDefault(); 
     const formData = new FormData(event.target); 
     formData.append('userId', user.userId);
-    let userData = {
-    };
+    let userData = {};
+    let validationErrors = {};
+  
     formData.forEach((value, key) => {
       userData[key] = value;
+  
+      if (key === 'country' && value.length > 2) {
+        validationErrors[key] = 'Country must be less than 2 characters';
+      }
+      if (key === 'langKey' && value.length > 2) {
+        validationErrors[key] = 'Language must be less than 2 characters';
+      }
+      if (key === 'currency' && value.length > 3) {
+        validationErrors[key] = 'Currency must be less than 3 characters';
+      }
+
     });
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
     const requestPayload = convertUserUpdateRequest(userData);
     updateUserData(requestPayload);
+  
   };
 
   return (
@@ -229,14 +247,17 @@ const UserProfile = () => {
                 <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
                 label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }} required/>
               </Grid>
-                <Grid item xs={12}  >
-                  {updateUserError && (
-                    <MDTypography variant="caption" color="error" fontWeight="medium" >
-                      {updateUserError}
-                    </MDTypography>
-                  )}
-                </Grid>             
-           
+              <Grid item xs={12}>
+                {errors && Object.keys(errors).length > 0 && (
+                  Object.keys(errors).map((key) => (
+                    <Grid item xs={12} key={key}>
+                      <MDTypography variant="caption" color="error" fontWeight="medium">
+                        {errors[key]}
+                      </MDTypography>
+                    </Grid>
+                  ))
+                )}
+              </Grid>
               <Grid item xs={12} md={6}>
                 <MDButton
                   variant="gradient"

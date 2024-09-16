@@ -9,8 +9,8 @@ const AutoCompleteCurrencies = React.forwardRef(({ ...otherProps }, ref) => {
     shouldSort: true,
     threshold: 0.4,
     keys: [
-      { name: 'code', weight: 0.5 },
-      { name: 'name', weight: 0.5 },
+      { name: 'code', weight: 0.4 },
+      { name: 'name', weight: 0.3 },
     ],
   };
 
@@ -92,7 +92,7 @@ const AutoCompleteCurrencies = React.forwardRef(({ ...otherProps }, ref) => {
         {...otherProps}
       />
 
-      <div className="autocomplete-results">
+      <div className="autocomplete-results" translate="no">
         {results.map((result, i) => (
           <div
             key={i}
@@ -105,9 +105,6 @@ const AutoCompleteCurrencies = React.forwardRef(({ ...otherProps }, ref) => {
           >
             <div>
               <b>{result.item.name}</b> - {result.item.code}
-            </div>
-            <div className="autocomplete-location">
-              Decimals: {result.item.decimals}, Number: {result.item.number}
             </div>
           </div>
         ))}

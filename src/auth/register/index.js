@@ -144,7 +144,7 @@ function Register() {
               emailExistsError: true,
             });
           }
-          else if (error.response.data.message === "PhoneNumberExistsException"){
+          else if (error.response.data.__type === "UserLambdaValidationException"){
             setErrors({
               phoneNumberError: true,
               phoneNumberExistsError: true,
@@ -164,7 +164,6 @@ function Register() {
 
   const resendConfirmationCodeForUserEmail = async (userData) => {
     try {
-      console.info("userData resend: ", userData);
       const response = await AuthService.resendConfirmationCode(userData);
       if (response.status === 200) {
         setResendTimer(60);

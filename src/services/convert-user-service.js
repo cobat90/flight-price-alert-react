@@ -33,8 +33,6 @@ export const convertUserSignupRequest = (userData) => {
       { Name: 'name', Value: firstName },
       { Name: 'email', Value: email },
       { Name: 'phone_number', Value: phoneNumber },
-      { Name: 'custom:alert_time', Value: "100" },
-      { Name: 'custom:account_type', Value: "free" },
     ],
   };
 
@@ -172,6 +170,7 @@ export function getAttributeValue(attributes, attributeName) {
   const attribute = attributes.find(attr => attr.Name === attributeName);
   return attribute ? attribute.Value : null;
 }
+
 export function convertBalanceToDays(balance) {
   if (balance != null && balance > 0 ) {
     const days = balance / 50;
