@@ -129,7 +129,6 @@ const UserProfile = () => {
   
     formData.forEach((value, key) => {
       userData[key] = value;
-      console.info(key, value);
   
       if (key === 'country' && value.length > 2) {
         validationErrors[key] = 'Country must be less than 2 characters';

@@ -164,7 +164,6 @@ function Register() {
 
   const resendConfirmationCodeForUserEmail = async (userData) => {
     try {
-      console.info("userData resend: ", userData);
       const response = await AuthService.resendConfirmationCode(userData);
       if (response.status === 200) {
         setResendTimer(60);

@@ -59,7 +59,6 @@ function Login() {
    
     try {
       const response = await AuthService.login(convertUserLoginRequest(userData));
-      console.info("response: ", response);
       if (response && response.data && response.data.AuthenticationResult && response.data.AuthenticationResult.AccessToken) {
         const accessToken = response.data.AuthenticationResult.AccessToken;
         authContext.login(accessToken);

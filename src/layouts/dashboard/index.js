@@ -216,9 +216,9 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.createAlert(alertData);
       if (response.status === 201) {
+        getAlertsData();
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Created' });
-        getAlertsData();
         localStorage.setItem("alert_time", localStorage.getItem('alert_time') - alertData.alert.alertDurationTime);
       }
     } catch (error) {
@@ -354,8 +354,7 @@ function Dashboard() {
       });
       setFlightPriceAlertId(alertData.flightPriceAlertId);
       const requestPayload = convertFlightRequest(alertData);
-      console.info("airportFrom", alertData["airportFrom"]);
-      console.info("alertData", alertData);
+
       if (alertData["alertDurationTime"] > 1000 || alertData["alertDurationTime"] < 100) {
          setSubmitAlertError("Alert duration time should be between 100 and 1000") }
       else if ((!alertData["airportFrom"] || !alertData["airportTo"]) || 
@@ -369,22 +368,26 @@ function Dashboard() {
     };
 
     return ( 
-      <Modal
-      open={Boolean(modalEditAlert)}
-      onClose={closeModalEditAlert}
-      aria-labelledby="parent-modal-title"
-      aria-describedby="parent-modal-description"
-      disableScrollLock={ true }>    
+      <Dialog
+        open={Boolean(modalEditAlert)}
+        onClose={closeModalEditAlert}
+        maxWidth="md" // Controls the maximum width of the dialog
+        fullWidth={true} // Ensures the dialog uses the full width of the maxWidth
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-description"
+        PaperProps={{
+          style: {
+            minHeight: '150vh', // Adjust the minimum height as needed
+            maxHeight: '200vh',  // Prevent it from going beyond a certain height
+          },
+        }}
+        scroll="body" // Or 'body', depending on your needs
+      >
+      <DialogContent dividers>
         <Card id="flight-alert-info" sx={{ 
-          overflow: "visible",
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 800, // Default width for larger screens
-          maxWidth: "90%", // Set maximum width for smaller screens
-          border: '2px solid #000',
-          }}>
+      width: '100%', 
+      border: '2px solid #000',
+    }}>
           <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
             <CloseIcon />
           </IconButton>
@@ -749,7 +752,8 @@ function Dashboard() {
             </MDBox>
           </MDBox>
         </Card>
-      </Modal>
+        </DialogContent>
+      </Dialog>
     );
   };
 
@@ -861,8 +865,8 @@ function Dashboard() {
                   }
                   date={"last alert was " + dayjs().diff(dayjs(alert?.alertHistory?.[alert.alertHistory.length - 1]?.alertDateTime), 'minute') + " minutes ago"}
                   chart={{
-                    labels: alert?.alertHistory?.slice(0, 12).map(history => history.id) || [],
-                    datasets: { label: "Flight Prices", data: alert?.alertHistory?.slice(0, 12).map(history => parseFloat(history.totalPrice)) || [] },
+                    labels: alert?.alertHistory?.slice(-12).map(history => history.id) || [],
+                    datasets: { label: "Flight Prices", data: alert?.alertHistory?.slice(-12).map(history => parseFloat(history.totalPrice)) || [] },
                   }}
                 />
                 <CardContent>
