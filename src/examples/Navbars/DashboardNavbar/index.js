@@ -14,6 +14,7 @@ import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
 import MDBadge from "components/MDBadge";
 import MDBox from "components/MDBox";
 import Breadcrumbs from "examples/Breadcrumbs";
@@ -42,6 +43,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
 
@@ -113,6 +115,28 @@ function DashboardNavbar({ absolute, light, isMini }) {
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox display="flex" alignItems="center" color={light ? "white" : "inherit"}>
+            <IconButton
+                size="medium"
+                disableRipple
+                color="inherit"
+                sx={navbarIconButton}
+                aria-controls="notification-menu"
+                aria-haspopup="true"
+                variant="contained"
+                onClick={() => navigate('/dashboard')}
+              >
+                <HomeIcon sx={iconsStyle} />
+              </IconButton>
+              <IconButton
+                size="medium"
+                disableRipple
+                color="inherit"
+                sx={navbarIconButton}
+                onClick={handleOpenMenu}
+              >                
+                <AccountCircleIcon sx={iconsStyle}/>
+              </IconButton>
+              {renderMenu()}
               <IconButton
                 size="medium"
                 disableRipple
@@ -126,17 +150,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   <AccessTimeIcon sx={iconsStyle} />
                 </MDBadge>
               </IconButton>
-              <IconButton
-                size="medium"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                onClick={handleOpenMenu}
-              >                
-                <AccountCircleIcon sx={iconsStyle}/>
-              </IconButton>
 
-              {renderMenu()}
             </MDBox>
           </MDBox>
         )}
