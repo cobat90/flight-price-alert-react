@@ -454,7 +454,7 @@ function Dashboard() {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={3.3}>
+                  <Grid item xs={12} sm={4}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                       <DatePicker
                         name="departDate"
@@ -492,7 +492,7 @@ function Dashboard() {
                     </LocalizationProvider>
                   </Grid>
                   */}
-                  <Grid item xs={12} sm={2.9}>
+                  <Grid item xs={12} sm={4}>
                     <Autocomplete
                       defaultValue={(isEditing
                         ? (selectDataMapping.cabinClassType[currentAlert?.mainFilter?.cabinClassType] || 'Economy').toString()
@@ -1039,11 +1039,11 @@ function Dashboard() {
             </Typography>
               <br/>
               <br/>
-              In Telegram look for "Ittent" or "@ittent_bot". 
+              In Telegram look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
               <br/>
               <img src={botSearchImage} alt="Bot Search" />
           <br/>
-          Chat /username (To get your Telegram Username) and /chatId (To get your Telegram ChatId).
+          Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
           <br/>
           <img src={botChatIdImage} alt="Bot ChatId" />
           </DialogContentText>
