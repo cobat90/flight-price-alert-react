@@ -14,10 +14,21 @@ import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import HomeIcon from '@mui/icons-material/Home';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import MDBadge from "components/MDBadge";
 import MDBox from "components/MDBox";
 import Breadcrumbs from "examples/Breadcrumbs";
 import NotificationItem from "examples/Items/NotificationItem";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Typography from '@mui/material/Typography';
+import botChatIdImage from "assets/images/bot-chatid.png";
+import botSearchImage from "assets/images/bot-search.png";
+import Button from '@mui/material/Button';
 
 import {
   navbar,
@@ -27,7 +38,6 @@ import {
   navbarMobileMenu,
 } from "examples/Navbars/DashboardNavbar/styles";
 
-// Material Dashboard 2 React context
 import {
   useMaterialUIController,
   setTransparentNavbar,
@@ -41,7 +51,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
+  const [openDialogTutorial, setOpenDialogTutorial] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
 
@@ -63,6 +75,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
 
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
+  const handleDialogTutorialClose = () => { setOpenDialogTutorial(false); };
 
   const renderMenu = () => (
     <Menu
@@ -113,6 +126,40 @@ function DashboardNavbar({ absolute, light, isMini }) {
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox display="flex" alignItems="center" color={light ? "white" : "inherit"}>
+            <IconButton
+                size="medium"
+                disableRipple
+                color="inherit"
+                sx={navbarIconButton}
+                aria-controls="notification-menu"
+                aria-haspopup="true"
+                variant="contained"
+                onClick={() => navigate('/dashboard')}
+              >
+                <HomeIcon sx={iconsStyle} />
+              </IconButton>
+              <IconButton
+                size="medium"
+                disableRipple
+                color="inherit"
+                sx={navbarIconButton}
+                aria-controls="notification-menu"
+                aria-haspopup="true"
+                variant="contained"
+                onClick={() => setOpenDialogTutorial(true)}
+              >
+                <AutoStoriesIcon sx={iconsStyle} />
+              </IconButton>
+              <IconButton
+                size="medium"
+                disableRipple
+                color="inherit"
+                sx={navbarIconButton}
+                onClick={handleOpenMenu}
+              >                
+                <AccountCircleIcon sx={iconsStyle}/>
+              </IconButton>
+              {renderMenu()}
               <IconButton
                 size="medium"
                 disableRipple
@@ -126,22 +173,43 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   <AccessTimeIcon sx={iconsStyle} />
                 </MDBadge>
               </IconButton>
-              <IconButton
-                size="medium"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                onClick={handleOpenMenu}
-              >                
-                <AccountCircleIcon sx={iconsStyle}/>
-              </IconButton>
-
-              {renderMenu()}
             </MDBox>
           </MDBox>
         )}
       </Toolbar>
-    </AppBar>
+      <Dialog
+      open={openDialogTutorial}
+      onClose={handleDialogTutorialClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      disableScrollLock={ true } >             
+      <DialogTitle id="alert-dialog-title">
+        {"Tutorial"}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          Always keep your user profile updated for better accuracy when you create your Alerts.
+          <br/>
+          <br/>
+          <Typography component="span" variant="inherit" color="info">
+            <b>To use Ittent in Telegram:</b>
+          </Typography>
+            <br/>
+            <br/>
+            In Telegram look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
+            <br/>
+            <img src={botSearchImage} alt="Bot Search" />
+        <br/>
+        Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
+        <br/>
+        <img src={botChatIdImage} alt="Bot ChatId" />
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleDialogTutorialClose} autoFocus> Ok </Button>             
+      </DialogActions>
+    </Dialog>
+    </AppBar>    
   );
 }
 

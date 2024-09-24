@@ -50,7 +50,8 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
-
+import botChatIdImage from "assets/images/bot-chatid.png";
+import botSearchImage from "assets/images/bot-search.png";
 import React, { useState, useEffect, useRef } from "react";
 
 const Notification = React.forwardRef(function Alert(props, ref) {
@@ -66,6 +67,7 @@ function Dashboard() {
   const airportRefTo = useRef(null);
   const airportRefFrom = useRef(null);
   const [submitAlertError, setSubmitAlertError] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const navigate = useNavigate();
 
   const ExpandMore = styled((props) => {
@@ -235,6 +237,7 @@ function Dashboard() {
     try {
       const response = await FlightPriceAlertService.updateAlert(flightPriceAlertId, userId, alertData);
       if (response.status === 200) {
+        getAlertsData();
         closeModalEditAlert();
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Updated' });
         getUpdatedProfile();
@@ -371,23 +374,23 @@ function Dashboard() {
       <Dialog
         open={Boolean(modalEditAlert)}
         onClose={closeModalEditAlert}
-        maxWidth="md" // Controls the maximum width of the dialog
-        fullWidth={true} // Ensures the dialog uses the full width of the maxWidth
+        maxWidth="md"
+        fullWidth={true}
         aria-labelledby="dialog-title"
         aria-describedby="dialog-description"
         PaperProps={{
           style: {
-            minHeight: '150vh', // Adjust the minimum height as needed
-            maxHeight: '200vh',  // Prevent it from going beyond a certain height
+            maxHeight: '80vh', 
+            overflow: 'auto',
           },
         }}
-        scroll="body" // Or 'body', depending on your needs
+        scroll="paper"
       >
       <DialogContent dividers>
-        <Card id="flight-alert-info" sx={{ 
-      width: '100%', 
-      border: '2px solid #000',
-    }}>
+          <Card id="flight-alert-info" sx={{ 
+            width: '100%', 
+            border: '2px solid #000',
+          }}>
           <IconButton sx={{  marginLeft: 'auto'}} onClick={closeModalEditAlert}>
             <CloseIcon />
           </IconButton>
@@ -405,7 +408,7 @@ function Dashboard() {
                 <Autocomplete
                   defaultValue={(isEditing
                     ? (selectDataMapping.alertType[currentAlert?.alert?.alertType] || "").toString()
-                    : "")}          
+                    : "Telegram")}          
                   options={selectData.alertType}
                   renderInput={(params) => (
                     <FormField {...params} name="alerType" label="Alert Type"
@@ -441,7 +444,7 @@ function Dashboard() {
                     <Autocomplete
                       defaultValue={(isEditing
                         ? (selectDataMapping.flightType[currentAlert?.mainFilter?.flight?.flightType] || '').toString()
-                        : '')}
+                        : 'One Way')}
                       options={selectData.flightType}
                       onChange={(event, value) => setFlightType(value)}
                       renderInput={(params) => (
@@ -451,7 +454,7 @@ function Dashboard() {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={3.3}>
+                  <Grid item xs={12} sm={4}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                       <DatePicker
                         name="departDate"
@@ -489,7 +492,7 @@ function Dashboard() {
                     </LocalizationProvider>
                   </Grid>
                   */}
-                  <Grid item xs={12} sm={2.9}>
+                  <Grid item xs={12} sm={4}>
                     <Autocomplete
                       defaultValue={(isEditing
                         ? (selectDataMapping.cabinClassType[currentAlert?.mainFilter?.cabinClassType] || 'Economy').toString()
@@ -1033,15 +1036,21 @@ function Dashboard() {
             <br/>
             <Typography component="span" variant="inherit" color="info">
               <b>To use Ittent in Telegram:</b>
-              </Typography>
+            </Typography>
               <br/>
               <br/>
-              In Telegram look for "Ittent" or "@ittent_bot" and chat /username (To get your Telegram Username) and /chatId (To get your Telegram ChatId).
+              In Telegram look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
+              <br/>
+              <img src={botSearchImage} alt="Bot Search" />
+          <br/>
+          Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
+          <br/>
+          <img src={botChatIdImage} alt="Bot ChatId" />
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogLetStartClose}> Disagree </Button>
-          <Button onClick={handleDialogConfirmUpdateUser} autoFocus> Agree </Button>        
+          <Button onClick={handleDialogLetStartClose}> Cancel </Button>
+          <Button onClick={handleDialogConfirmUpdateUser} autoFocus> Ok </Button>        
         </DialogActions>
       </Dialog>
       <Dialog
