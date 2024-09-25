@@ -311,7 +311,11 @@ function Dashboard() {
   const [flightPriceAlertId, setFlightPriceAlertId] = useState(null);
   const [activeAlertDurationTime, setActiveAlertDurationTime] = useState(null);
   const [departDate, setDepartDate] = useState(null);
+  const [returnDate, setReturnDate] = useState(null);
   const [isSubmitting, setSubmitting] = useState(false);
+  const [modalEditAlert, setModalEditAlert] = useState(null);
+  const [alert, setAlert] = useState(null);
+  const openModalEditAlert = (event) => { setModalEditAlert(event.currentTarget); };
 
   const IconContainer = ({ backgroundColor, children }) => (
     <div
@@ -328,15 +332,11 @@ function Dashboard() {
       {children}
     </div>
   );
-
-  const [modalEditAlert, setModalEditAlert] = useState(null);
-  const [alert, setAlert] = useState(null);
-  
-  const openModalEditAlert = (event) => { setModalEditAlert(event.currentTarget); };
       
   const closeModalEditAlert = () => {
     setModalEditAlert(null);
     setDepartDate(null);
+    setReturnDate(null);
     setFlightType(null);
     setSubmitAlertError(null);
     closeCardAlertMenu();
@@ -350,6 +350,7 @@ function Dashboard() {
       const formData = new FormData(event.target);
       formData.append('userId', userId);
       formData.append('departDate', currentAlert?.mainFilter?.flight?.departDate ? dayjs(currentAlert.mainFilter.flight.departDate).format("YYYY-MM-DD") : dayjs(departDate).format("YYYY-MM-DD"));
+      formData.append('returnDate', currentAlert?.mainFilter?.flight?.returnDate ? dayjs(currentAlert.mainFilter.flight.returnDate).format("YYYY-MM-DD") : dayjs(returnDate).format("YYYY-MM-DD"));
 
       const alertData = {};
       formData.forEach((value, key) => {
@@ -357,7 +358,7 @@ function Dashboard() {
       });
       setFlightPriceAlertId(alertData.flightPriceAlertId);
       const requestPayload = convertFlightRequest(alertData);
-
+      console.info("requestPayload", requestPayload);
       if (alertData["alertDurationTime"] > 1000 || alertData["alertDurationTime"] < 100) {
          setSubmitAlertError("Alert duration time should be between 100 and 1000") }
       else if ((!alertData["airportFrom"] || !alertData["airportTo"]) || 
@@ -444,7 +445,7 @@ function Dashboard() {
                     <Autocomplete
                       defaultValue={(isEditing
                         ? (selectDataMapping.flightType[currentAlert?.mainFilter?.flight?.flightType] || '').toString()
-                        : 'One Way')}
+                        : 'Roundtrip')}
                       options={selectData.flightType}
                       onChange={(event, value) => setFlightType(value)}
                       renderInput={(params) => (
@@ -454,7 +455,7 @@ function Dashboard() {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={3.3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                       <DatePicker
                         name="departDate"
@@ -472,7 +473,6 @@ function Dashboard() {
                       />
                     </LocalizationProvider>
                   </Grid>
-                  {/*
                   <Grid item xs={12} sm={3.3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                       <DatePicker
@@ -482,8 +482,8 @@ function Dashboard() {
                           ? dayjs(currentAlert?.mainFilter?.flight?.returnDate)
                           : null)}
                         disablePast
-                        value={flightType === 'One Way'? '' : null}
-                        onChange={date => currentAlert.mainFilter.flight.returnDate = date}
+                        onChange={date => (isEditing
+                          ?  currentAlert.mainFilter.flight.returnDate = date: setReturnDate(date))}
                         disabled={flightType === 'One Way'}
                         slotProps={{
                           field: { clearable: true, onClear: () => setCleared(true) },
@@ -491,8 +491,7 @@ function Dashboard() {
                       />
                     </LocalizationProvider>
                   </Grid>
-                  */}
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={2.9}>
                     <Autocomplete
                       defaultValue={(isEditing
                         ? (selectDataMapping.cabinClassType[currentAlert?.mainFilter?.cabinClassType] || 'Economy').toString()
