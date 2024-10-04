@@ -6,10 +6,6 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import Icon from "@mui/material/Icon";
-
-import MDBox from "components/MDBox";
-
 import Sidenav from "examples/Sidenav";
 import theme from "assets/theme";
 import themeDark from "assets/theme-dark";
@@ -32,7 +28,6 @@ import { AuthContext } from "context";
 import UserProfile from "layouts/user-profile";
 import UserManagement from "layouts/user-management";
 import Settings from "layouts/settings";
-import { Helmet } from "react-helmet";
 
 export default function App() {
 

@@ -2,6 +2,7 @@ const selectDataMapping = {
     flightType: {
         ROUNDTRIP: "Roundtrip",
         ONE_WAY: "One Way",
+        CHEAPEST: "Cheapest",
     },
     alertType: {
         TELEGRAM: "Telegram",
