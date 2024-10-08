@@ -3,6 +3,7 @@ const selectDataMapping = {
         ROUNDTRIP: "Roundtrip",
         ONE_WAY: "One Way",
         CHEAPEST: "Cheapest",
+        MONTH: "Month",
     },
     alertType: {
         TELEGRAM: "Telegram",

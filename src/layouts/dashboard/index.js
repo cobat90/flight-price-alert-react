@@ -66,7 +66,6 @@ function Dashboard() {
   const airportRefTo = useRef(null);
   const airportRefFrom = useRef(null);
   const [submitAlertError, setSubmitAlertError] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0);
   const navigate = useNavigate();
 
   const ExpandMore = styled((props) => {
@@ -326,7 +325,7 @@ function Dashboard() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '40px', // Adjust the width and height as needed
+        width: '40px',
         height: '40px',
       }}
     >
@@ -356,22 +355,47 @@ function Dashboard() {
       formData.append('returnDate', currentAlert?.mainFilter?.flight?.returnDate ? dayjs(currentAlert.mainFilter.flight.returnDate).format("YYYY-MM-DD") : returnDate ? dayjs(returnDate).format("YYYY-MM-DD"): null);
       formData.append('departRangeDate', currentAlert?.preferencesFilter?.departRangeDate ? dayjs(currentAlert.preferencesFilter.departRangeDate).format("YYYY-MM-DD") : departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD"): null);
       formData.append('returnRangeDate', currentAlert?.preferencesFilter?.returnRangeDate ? dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : returnRangeDate ? dayjs(returnRangeDate).format("YYYY-MM-DD"): null);
+
       const alertData = {};
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
       setFlightPriceAlertId(alertData.flightPriceAlertId);
       const requestPayload = convertFlightRequest(alertData);
-      if (alertData["alertDurationTime"] > 1000 || alertData["alertDurationTime"] < 100) {
-         setSubmitAlertError("Alert duration time should be between 100 and 1000") }
+      if (alertData["alertName"] === "" || alertData["alertName"] === null){
+        setSubmitAlertError("Alert name is required.");
+      }
+      if (alertData["priceType"] === "" || alertData["priceType"] === null){
+        setSubmitAlertError("Price Type is required.");
+      }
+      else if (alertData["alertDurationTime"] > 1000 || alertData["alertDurationTime"] < 100) {
+        setSubmitAlertError("Alert duration time should be between 100 and 1000.") }
       else if ((!alertData["airportFrom"] || !alertData["airportTo"]) || 
       (alertData["airportFrom"].length !== 3 || alertData["airportTo"].length !== 3)){
-          setSubmitAlertError("Airports IATA codes should be 3 characters");
+        setSubmitAlertError("Airports IATA codes should be 3 characters");
+      }
+      else if (alertData["airportFrom"] === alertData["airportTo"]){
+        setSubmitAlertError("Flight for same airport not valid.");
+      }
+      else if (alertData["adults"] === "0" && alertData["children"]  === "0"){
+        setSubmitAlertError("Must be at least one child or adult.");
+      }
+      else if (alertData["flightType"] === "One Way" && alertData["departDate"] === "null") {
+        setSubmitAlertError("For One Way needs a departure date.");
+      }
+      else if (alertData["flightType"] === "Roundtrip" && (alertData["departDate"] === "null" || alertData["returnDate"] === "null")){
+        setSubmitAlertError("For Roundtrip needs a departure date and a return date.");
+      }
+      else if (alertData["flightType"] === "Month" && alertData["departDate"] === "null") {
+        setSubmitAlertError("For Month needs a departure date.");
+      }
+      else if ((Number(alertData["rangePriceStart"]) > Number(alertData["rangePriceEnd"]))){
+        setSubmitAlertError("Start Range Price must be high than End Range Price.");
       }
       else{
         if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
         else{ createAlertData(requestPayload); }
-      }
+      }  
     };
 
     return ( 
@@ -445,39 +469,55 @@ function Dashboard() {
               <Grid item xs={12}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={2.5}>
-                    <Autocomplete
-                      defaultValue={(isEditing
-                        ? (selectDataMapping.flightType[currentAlert?.mainFilter?.flight?.flightType] || '').toString()
-                        : 'Roundtrip')}
-                      options={selectData.flightType}
-                      onChange={(event, value) => setFlightType(value)}
-                      renderInput={(params) => (
-                        <FormField  {...params} name="flightType"      
-                          label="Flight Type" InputLabelProps={{ shrink: true }} required                      
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={3.3}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                      <DatePicker
-                        name="departDate"
-                        label="Depart Date"
-                        format="DD/MM/YY"
-                        defaultValue={(isEditing
-                          ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
-                          : null)}
-                        disablePast
-                        disabled={flightType === 'Cheapest'}
-                        onChange={date => (isEditing
-                          ?  currentAlert.mainFilter.flight.departDate = date: setDepartDate(date))}
-                        slotProps={{
-                        field: {required: true, clearable: true, onClear: () => setCleared(true) },
-                        }} 
+                  <Autocomplete
+                    defaultValue={(isEditing
+                      ? (selectDataMapping.flightType[currentAlert?.mainFilter?.flight?.flightType] || '').toString()
+                      : 'Roundtrip')}
+                    options={selectData.flightType}
+                    onChange={(event, value) => setFlightType(value)} 
+                    renderInput={(params) => (
+                      <FormField  {...params} name="flightType"      
+                        label="Flight Type" InputLabelProps={{ shrink: true }} required
                       />
-                    </LocalizationProvider>
+                    )}
+                  />
                   </Grid>
-                  <Grid item xs={12} sm={3.3}>
+                  <Grid item xs={12} sm={3.5}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                    <DatePicker
+                      name="departDate"
+                      label="Depart Date"
+                      format="DD/MM/YY"
+                      defaultValue={(isEditing
+                        ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
+                        : null)}
+                      disablePast
+                      disabled={flightType === 'Cheapest' || currentAlert?.mainFilter?.flight?.flightType === 'Cheapest'}
+                      onChange={date => {
+                        if (isEditing) {
+                          currentAlert.mainFilter.flight.departDate = date;
+                        } else {
+                          setDepartDate(date);
+                        }     
+      
+                        if (flightType === 'Month') {
+                          const startOfMonth = dayjs(date).startOf('month');
+                          const endOfMonth = dayjs(date).endOf('month');                    
+                          setDepartRangeDate(startOfMonth);
+                          setReturnRangeDate(endOfMonth);
+                          if (isEditing) {
+                            currentAlert.preferencesFilter.departRangeDate = startOfMonth;
+                            currentAlert.preferencesFilter.returnRangeDate = endOfMonth;
+                          }
+                        }
+                      }}
+                      slotProps={{
+                        field: { clearable: true, onClear: () => setCleared(true) },
+                      }} 
+                    />
+                  </LocalizationProvider>
+                  </Grid>
+                  <Grid item xs={12} sm={3.5}>
                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                       <DatePicker
                         name="returnDate"
@@ -487,7 +527,8 @@ function Dashboard() {
                           ? dayjs(currentAlert?.mainFilter?.flight?.returnDate)
                           : null)}
                         disablePast
-                        disabled={flightType === 'One Way' || flightType === 'Cheapest'}
+                        disabled={flightType === 'One Way' || flightType === 'Cheapest' || flightType === 'Month' 
+                          || currentAlert?.mainFilter?.flight?.flightType === 'Month'}
                         onChange={date => (isEditing
                           ?  currentAlert.mainFilter.flight.returnDate = date: setReturnDate(date))}
                         slotProps={{
@@ -496,7 +537,7 @@ function Dashboard() {
                       />
                     </LocalizationProvider>
                   </Grid>
-                  <Grid item xs={12} sm={2.9}>
+                  <Grid item xs={12} sm={2.5}>
                     <Autocomplete
                       defaultValue={(isEditing
                         ? (selectDataMapping.cabinClassType[currentAlert?.mainFilter?.cabinClassType] || 'Economy').toString()
@@ -598,7 +639,7 @@ function Dashboard() {
                       )}/>     
                     </Grid>
                     <Grid item xs={12} sm={3.5}>                  
-                      <Tooltip title="End Date of the Departure Range. The first Departure Date is the Start of the Range." placement="bottom">
+                      <Tooltip title="Start Date of Range" placement="bottom">
                         <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                             <DatePicker name="departRangeDate" label="Depart Range Date" 
@@ -611,13 +652,13 @@ function Dashboard() {
                                 ?  currentAlert.preferencesFilter.departRangeDate = date: setDepartRangeDate(date))}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
-                              }} disabled={flightType === 'One Way' || flightType === 'Roundtrip'}/> 
+                              }} disabled={flightType === 'One Way' || flightType === 'Roundtrip' || flightType === 'Month'}/> 
                           </LocalizationProvider>  
                         </div>
                       </Tooltip>                  
                     </Grid>
                     <Grid item xs={12} sm={3.5}>
-                      <Tooltip title="End Date of the Return Range. The first Return Date is the Start of the Range." placement="bottom">
+                      <Tooltip title="End Date Range" placement="bottom">
                         <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                             <DatePicker name="returnRangeDate" label="Return Range Date" 
@@ -630,7 +671,7 @@ function Dashboard() {
                                 ?  currentAlert.preferencesFilter.returnRangeDate = date: setReturnRangeDate(date))}
                               slotProps={{
                                 field: { clearable: true, onClear: () => setCleared(true) },
-                              }} disabled={flightType === 'One Way' || flightType === 'Roundtrip'}/> 
+                              }} disabled={flightType === 'One Way' || flightType === 'Roundtrip' || flightType === 'Month'}/> 
                           </LocalizationProvider>  
                         </div>            
                       </Tooltip>
@@ -1051,35 +1092,7 @@ function Dashboard() {
           <br/>
           Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
           <br/>
-          <img src={botChatIdImage} alt="Bot ChatId" />
-          <br/>
-          <Typography component="span" variant="inherit" color="info">
-            <b>Duration of Alerts:</b>
-          </Typography>
-          For each alert is verified on the interval of 30 minutes. The duration of each alert is counted for each one sented or added in history.
-          You can verify how much you have in your alert or how much you have for use on the right top corner of the page.
-          <br/>
-          <Typography component="span" variant="inherit" color="info">
-            <b>Types of Alerts:</b>
-          </Typography>
-          <br/>
-          <b>Price Types</b>
-          <br/>
-          Every: Receive an alert every price found.
-          <br/>
-          Lowest: Receive an alert every time a price lower than the previous was found.
-          <br/>
-          Range: Define the range of prices or dates to receive an alert.
-          <br/>
-          <b>Flight Types</b>
-          <br/>
-          One Way: For defined date one way flights.
-          <br/>
-          Roundtrip: For defined dates round-trip flights.
-          <br/>
-          Cheapest: For flexible dates and can be used with range of dates on preferences filter.
-          <br/>
-          Month: For flexible dates for one month and can be used with range of dates on preferences filter.
+          <img src={botChatIdImage} alt="Bot ChatId" />        
           </DialogContentText>
         </DialogContent>
         <DialogActions>
