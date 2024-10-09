@@ -1,7 +1,9 @@
 const selectDataMapping = {
     flightType: {
+        ROUNDTRIP: "Roundtrip",
         ONE_WAY: "One Way",
-        ROUND_TRIP: "Roundtrip",
+        CHEAPEST: "Cheapest",
+        MONTH: "Month",
     },
     alertType: {
         TELEGRAM: "Telegram",
@@ -39,7 +41,6 @@ const selectDataMapping = {
         KAYKE: "Kayke", 
         DECOLAR: "DecolarPix", 
     },
-
 };
 
 module.exports = selectDataMapping;

@@ -203,6 +203,35 @@ function DashboardNavbar({ absolute, light, isMini }) {
         Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
         <br/>
         <img src={botChatIdImage} alt="Bot ChatId" />
+        <br/>
+        <Typography component="span" variant="inherit" color="info">
+            <b>Duration of Alerts</b>
+          </Typography>
+          <br/>
+          For each alert is verified on the interval of 30 minutes. The duration of each alert is counted for each one sented or added in history.
+          You can verify how much you have in your alert or how much you have for use on the right top corner of the page.
+          <br/>
+          <Typography component="span" variant="inherit" color="info">
+          <b>Price Types</b>
+          </Typography>          
+          <br/>
+          Every: Receive an alert every price found.
+          <br/>
+          Lowest: Receive an alert every time a price lower than the previous was found.
+          <br/>
+          Range: Define the range of prices or dates to receive an alert.
+          <br/>
+          <Typography component="span" variant="inherit" color="info">
+          <b>Flight Types</b>
+          </Typography>
+          <br/>
+          One Way: For defined date one way flights.
+          <br/>
+          Roundtrip: For defined dates round-trip flights.
+          <br/>
+          Cheapest: For flexible dates and can be used with range of dates and prices on preferences filter.
+          <br/>
+          Month: For flexible dates for one month and can be used with range preferences filter too.
         </DialogContentText>
       </DialogContent>
       <DialogActions>
