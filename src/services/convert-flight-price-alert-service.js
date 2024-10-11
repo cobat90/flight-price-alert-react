@@ -15,6 +15,7 @@ export const convertFlightRequest = (alertData) => {
       children,
       rangePriceStart,
       rangePriceEnd,
+      alertEqualPrices,
       scalesQuantity,
       departRangeDate,
       returnRangeDate,
@@ -120,6 +121,7 @@ export const convertFlightRequest = (alertData) => {
           rangeStart: rangePriceStart ? parseFloat(rangePriceStart) : null, 
           rangeEnd: rangePriceEnd ? parseFloat(rangePriceEnd) : null,
         },
+        alertEqualPrices: alertEqualPrices ? alertEqualPrices : false,
         payment: {
           method: paymentMethod ? paymentMethod : null,
           parcels: paymentParcels ?  parseInt(paymentParcels) : null, 

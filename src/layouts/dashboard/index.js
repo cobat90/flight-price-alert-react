@@ -24,6 +24,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import Checkbox from '@mui/material/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 
 import { useLocation, useNavigate } from "react-router-dom";
 import MDBox from "components/MDBox";
@@ -312,10 +317,15 @@ function Dashboard() {
   const [returnDate, setReturnDate] = useState(null);
   const [departRangeDate, setDepartRangeDate] = useState(null);
   const [returnRangeDate, setReturnRangeDate] = useState(null);
+  const [alertEqualPrices, setAlertEqualPrices] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [modalEditAlert, setModalEditAlert] = useState(null);
   const [alert, setAlert] = useState(null);
   const openModalEditAlert = (event) => { setModalEditAlert(event.currentTarget); };
+
+  const handleChangeAlertEqualPrices = (event) => {
+    setAlertEqualPrices(event.target.checked);
+  };
 
   const IconContainer = ({ backgroundColor, children }) => (
     <div
@@ -341,6 +351,7 @@ function Dashboard() {
     setReturnRangeDate(null);
     setFlightType(null);
     setSubmitAlertError(null);
+    setAlertEqualPrices(false);
     closeCardAlertMenu();
   }
 
@@ -355,6 +366,7 @@ function Dashboard() {
       formData.append('returnDate', currentAlert?.mainFilter?.flight?.returnDate ? dayjs(currentAlert.mainFilter.flight.returnDate).format("YYYY-MM-DD") : returnDate ? dayjs(returnDate).format("YYYY-MM-DD"): null);
       formData.append('departRangeDate', currentAlert?.preferencesFilter?.departRangeDate ? dayjs(currentAlert.preferencesFilter.departRangeDate).format("YYYY-MM-DD") : departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD"): null);
       formData.append('returnRangeDate', currentAlert?.preferencesFilter?.returnRangeDate ? dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : returnRangeDate ? dayjs(returnRangeDate).format("YYYY-MM-DD"): null);
+      formData.append('alertEqualPrices', currentAlert?.preferencesFilter?.alertEqualPrices ? alertEqualPrices : false);
 
       const alertData = {};
       formData.forEach((value, key) => {
@@ -448,7 +460,7 @@ function Dashboard() {
                 <Autocomplete
                   defaultValue={(isEditing
                     ? (selectDataMapping.priceType[currentAlert?.alert?.priceType] || "").toString()
-                    : "")}          
+                    : null)}          
                   options={selectData.priceType}
                   renderInput={(params) => (
                     <FormField {...params} name="priceType" label="Price Types"
@@ -577,7 +589,7 @@ function Dashboard() {
                       placeholder="FLN" 
                       defaultValue={(isEditing
                         ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
-                        : "")} required/>
+                        : null)} required/>
                   </Grid>
                   <Grid item xs={12} sm={1.5}>
                     <Autocomplete
@@ -615,34 +627,38 @@ function Dashboard() {
               <Collapse in={expandedAlertModal} timeout="auto" unmountOnExit px={3}>
                 <MDBox pb={3} px={3}>
                   <Grid container spacing={3}>
-                    <Grid item xs={12} sm={1.75}>
-                      <FormField name="rangePriceStart" label="$ Range Start" placeholder="200" 
-                        defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeStart
-                        ? (currentAlert.preferencesFilter.rangePrice.rangeStart).toString()  || null
-                        : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />
-                    </Grid>
-                    <Grid item xs={12} sm={1.75}>
-                      <FormField name="rangePriceEnd" label="$ Range End" placeholder="500" 
-                      defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeEnd
-                        ? (currentAlert.preferencesFilter.rangePrice.rangeEnd).toString() || null
-                        : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />        
+                    <Grid item xs={12} sm={1.5}>
+                      <Tooltip title="Start of Range Price. For receving prices at start of this price." placement="bottom">
+                        <FormField name="rangePriceStart" label="Start Price" placeholder="200" 
+                          defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeStart
+                          ? (currentAlert.preferencesFilter.rangePrice.rangeStart).toString()  || null
+                          : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />
+                      </Tooltip>
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
-                      <Autocomplete
-                        defaultValue={(isEditing && currentAlert?.preferencesFilter?.scalesQuantity
-                          ? String(currentAlert.preferencesFilter.scalesQuantity) || null
-                          : null)}
-                        options={selectData.passagers}
-                        renderInput={(params) => (
-                          <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} 
-                          disabled />
-                      )}/>     
+                      <Tooltip title="End of Range Price. For receving alerts at end of this price." placement="bottom">
+                        <FormField name="rangePriceEnd" label="End Price" placeholder="500" 
+                        defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeEnd
+                          ? (currentAlert.preferencesFilter.rangePrice.rangeEnd).toString() || null
+                          : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />       
+                      </Tooltip> 
+                    </Grid>
+                    <Grid item xs={12} sm={2.0}>
+                      <Tooltip title="Alert Equal Prices. To receive alerts even if the previous price does not change." placement="bottom">
+                          <FormLabel component="legend" sx={{ fontSize: '12px' }}>Equal Prices</FormLabel>
+                          <FormGroup aria-label="position" row>
+                            <FormControlLabel control={<Checkbox name="alertEqualPrices" checked={(isEditing && currentAlert?.preferencesFilter?.alertEqualPrices
+                                ? currentAlert.preferencesFilter.alertEqualPrices 
+                                : alertEqualPrices)} onChange={handleChangeAlertEqualPrices} />} 
+                                />     
+                            </FormGroup>
+                      </Tooltip>            
                     </Grid>
                     <Grid item xs={12} sm={3.5}>                  
-                      <Tooltip title="Start Date of Range" placement="bottom">
+                      <Tooltip title="Start of Range Date. For receving alerts at start of this date." placement="bottom">
                         <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                            <DatePicker name="departRangeDate" label="Depart Range Date" 
+                            <DatePicker name="departRangeDate" label="Start Date" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeDate
                                 ? dayjs(currentAlert.preferencesFilter.departRangeDate) || null
                                 : null)}
@@ -658,10 +674,10 @@ function Dashboard() {
                       </Tooltip>                  
                     </Grid>
                     <Grid item xs={12} sm={3.5}>
-                      <Tooltip title="End Date Range" placement="bottom">
+                      <Tooltip title="End of Range Date. For receving alerts at end of this date." placement="bottom">
                         <div>
                           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                            <DatePicker name="returnRangeDate" label="Return Range Date" 
+                            <DatePicker name="returnRangeDate" label="End Range" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeDate
                                 ? dayjs(currentAlert.preferencesFilter.returnRangeDate) || null
                                 : null)}
@@ -678,7 +694,18 @@ function Dashboard() {
                     </Grid>
                     <Grid item xs={12}>
                       <Grid container spacing={3}>
-                        <Grid item xs={12} sm={3}>
+                      <Grid item xs={12} sm={1.5}>
+                      <Autocomplete
+                        defaultValue={(isEditing && currentAlert?.preferencesFilter?.scalesQuantity
+                          ? String(currentAlert.preferencesFilter.scalesQuantity) || null
+                          : null)}
+                        options={selectData.passagers}
+                        renderInput={(params) => (
+                          <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} 
+                          disabled />
+                      )}/>     
+                    </Grid>
+                        <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeTime?.rangeStart
@@ -686,7 +713,7 @@ function Dashboard() {
                                 : null)} disabled/>
                           </LocalizationProvider>              
                         </Grid>
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeTime?.rangeEnd
@@ -694,7 +721,7 @@ function Dashboard() {
                                 : null)} disabled/>
                           </LocalizationProvider>
                         </Grid>
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="returnRangeTimeStart" label="Start Return Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeTime?.rangeStart
@@ -702,7 +729,7 @@ function Dashboard() {
                                 : null)} disabled/>
                           </LocalizationProvider>
                         </Grid>
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeTime?.rangeEnd

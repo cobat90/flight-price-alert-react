@@ -29,6 +29,7 @@ import Typography from '@mui/material/Typography';
 import botChatIdImage from "assets/images/bot-chatid.png";
 import botSearchImage from "assets/images/bot-search.png";
 import Button from '@mui/material/Button';
+import Tooltip from "@mui/material/Tooltip";
 
 import {
   navbar,
@@ -126,53 +127,59 @@ function DashboardNavbar({ absolute, light, isMini }) {
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox display="flex" alignItems="center" color={light ? "white" : "inherit"}>
-            <IconButton
-                size="medium"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-                onClick={() => navigate('/dashboard')}
-              >
-                <HomeIcon sx={iconsStyle} />
-              </IconButton>
-              <IconButton
-                size="medium"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-                onClick={() => setOpenDialogTutorial(true)}
-              >
-                <AutoStoriesIcon sx={iconsStyle} />
-              </IconButton>
-              <IconButton
-                size="medium"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                onClick={handleOpenMenu}
-              >                
+              <Tooltip title="Home page" placement="bottom">
+                <IconButton
+                  size="medium"
+                  disableRipple
+                  color="inherit"
+                  sx={navbarIconButton}
+                  aria-controls="notification-menu"
+                  aria-haspopup="true"
+                  variant="contained"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <HomeIcon sx={iconsStyle} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Tutorial" placement="bottom">
+                <IconButton
+                  size="medium"
+                  disableRipple
+                  color="inherit"
+                  sx={navbarIconButton}
+                  aria-controls="notification-menu"
+                  aria-haspopup="true"
+                  variant="contained"
+                  onClick={() => setOpenDialogTutorial(true)}
+                >
+                  <AutoStoriesIcon sx={iconsStyle} />
+                </IconButton>
+              </Tooltip>
+                <IconButton
+                  size="medium"
+                  disableRipple
+                  color="inherit"
+                  sx={navbarIconButton}
+                  onClick={handleOpenMenu}
+                >                
                 <AccountCircleIcon sx={iconsStyle}/>
               </IconButton>
               {renderMenu()}
-              <IconButton
-                size="medium"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-              >
-                <MDBadge badgeContent={localStorage.getItem('alert_time')} max={9999} color="error" size="xs" circular>
-                  <AccessTimeIcon sx={iconsStyle} />
-                </MDBadge>
-              </IconButton>
+              <Tooltip title="Available balance" placement="bottom">
+                <IconButton
+                  size="medium"
+                  disableRipple
+                  color="inherit"
+                  sx={navbarIconButton}
+                  aria-controls="notification-menu"
+                  aria-haspopup="true"
+                  variant="contained"
+                >
+                  <MDBadge badgeContent={localStorage.getItem('alert_time')} max={9999} color="error" size="xs" circular>
+                    <AccessTimeIcon sx={iconsStyle} />
+                  </MDBadge>
+                </IconButton>
+              </Tooltip>
             </MDBox>
           </MDBox>
         )}
