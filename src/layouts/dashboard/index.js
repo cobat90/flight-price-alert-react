@@ -366,7 +366,7 @@ function Dashboard() {
       formData.append('returnDate', currentAlert?.mainFilter?.flight?.returnDate ? dayjs(currentAlert.mainFilter.flight.returnDate).format("YYYY-MM-DD") : returnDate ? dayjs(returnDate).format("YYYY-MM-DD"): null);
       formData.append('departRangeDate', currentAlert?.preferencesFilter?.departRangeDate ? dayjs(currentAlert.preferencesFilter.departRangeDate).format("YYYY-MM-DD") : departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD"): null);
       formData.append('returnRangeDate', currentAlert?.preferencesFilter?.returnRangeDate ? dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : returnRangeDate ? dayjs(returnRangeDate).format("YYYY-MM-DD"): null);
-      formData.append('alertEqualPrices', currentAlert?.preferencesFilter?.alertEqualPrices ? alertEqualPrices : false);
+      formData.append('alertEqualPrices', currentAlert?.preferencesFilter?.alertEqualPrices ? currentAlert?.preferencesFilter?.alertEqualPrices : alertEqualPrices);
 
       const alertData = {};
       formData.forEach((value, key) => {
@@ -644,15 +644,15 @@ function Dashboard() {
                       </Tooltip> 
                     </Grid>
                     <Grid item xs={12} sm={2.0}>
-                      <Tooltip title="Alert Equal Prices. To receive alerts even if the previous price does not change." placement="bottom">
-                          <FormLabel component="legend" sx={{ fontSize: '12px' }}>Equal Prices</FormLabel>
-                          <FormGroup aria-label="position" row>
-                            <FormControlLabel control={<Checkbox name="alertEqualPrices" checked={(isEditing && currentAlert?.preferencesFilter?.alertEqualPrices
-                                ? currentAlert.preferencesFilter.alertEqualPrices 
-                                : alertEqualPrices)} onChange={handleChangeAlertEqualPrices} />} 
-                                />     
-                            </FormGroup>
-                      </Tooltip>            
+                        <FormLabel component="legend" sx={{ fontSize: '12px' }}>Equal Prices</FormLabel>
+                        <FormGroup aria-label="position" row>
+                          <Tooltip title="Alert Equal Prices. To receive alerts even if the previous price does not change." placement="bottom">
+                          <FormControlLabel control={<Checkbox name="alertEqualPrices" checked={(isEditing && currentAlert?.preferencesFilter?.alertEqualPrices
+                              ? currentAlert.preferencesFilter.alertEqualPrices 
+                              : alertEqualPrices)} onChange={handleChangeAlertEqualPrices} />} 
+                              />     
+                          </Tooltip>
+                          </FormGroup>
                     </Grid>
                     <Grid item xs={12} sm={3.5}>                  
                       <Tooltip title="Start of Range Date. For receving alerts at start of this date." placement="bottom">
