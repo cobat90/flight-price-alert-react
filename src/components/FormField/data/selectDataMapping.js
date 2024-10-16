@@ -9,7 +9,7 @@ const selectDataMapping = {
         TELEGRAM: "Telegram",
     },
     priceType: {
-        LOWER: "Lower",
+        LOWEST: "Lowest",
         EVERY: "Every",
         RANGE: "Range",
     },

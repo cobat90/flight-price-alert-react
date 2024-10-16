@@ -165,7 +165,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 <AccountCircleIcon sx={iconsStyle}/>
               </IconButton>
               {renderMenu()}
-              <Tooltip title="Available balance" placement="bottom">
+              <Tooltip title="Available Balance" placement="bottom">
                 <IconButton
                   size="medium"
                   disableRipple
