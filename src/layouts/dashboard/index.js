@@ -386,20 +386,23 @@ function Dashboard() {
       const formData = new FormData(event.target);
       formData.append('userId', userId);
       formData.append('alertEqualPrices', alertEqualPrices != null ? alertEqualPrices : currentAlert?.preferencesFilter?.alertEqualPrices ? currentAlert?.preferencesFilter?.alertEqualPrices : false);
-      formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flight?.departDate && flightType !== "Cheapest" ? dayjs(currentAlert.mainFilter.flight.departDate).format("YYYY-MM-DD") : null);
-      formData.append('returnDate', returnDate ? dayjs(returnDate).format("YYYY-MM-DD") : (currentAlert?.mainFilter?.flight?.returnDate && flightType !== "Cheapest") 
-        && (currentAlert?.preferencesFilter?.returnDate && flightType !== "Month") ? dayjs(currentAlert.mainFilter.flight.returnDate).format("YYYY-MM-DD") : null);
+      formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flight?.departDate && formData.get("flightType") !== "Cheapest" ? dayjs(currentAlert.mainFilter.flight.departDate).format("YYYY-MM-DD") : null);
+      formData.append('returnDate', returnDate ? dayjs(returnDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flight?.returnDate && formData.get("flightType") === "Roundtrip" ?
+        dayjs(currentAlert.mainFilter.flight.returnDate).format("YYYY-MM-DD") : null);
       formData.append('departRangeDate', departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD") : 
-        (currentAlert?.preferencesFilter?.departRangeDate && flightType !== "Roundtrip") && (currentAlert?.preferencesFilter?.departRangeDate && flightType !== "One Way") ?
+        (currentAlert?.preferencesFilter?.departRangeDate && formData.get("flightType") === "Cheapest") || (currentAlert?.preferencesFilter?.departRangeDate && formData.get("flightType") === "Month") ?
         dayjs(currentAlert.preferencesFilter.departRangeDate).format("YYYY-MM-DD") : null);
       formData.append('returnRangeDate', returnRangeDate ? dayjs(returnRangeDate).format("YYYY-MM-DD") : 
-        (currentAlert?.preferencesFilter?.returnRangeDate && flightType !== "Roundtrip") && (currentAlert?.preferencesFilter?.returnRangeDate && flightType !== "One Way") ?
-         dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : null);
-
+        (formData.get("flightType") === "Cheapest" && currentAlert?.preferencesFilter?.returnRangeDate) || (formData.get("flightType") === "Month" && currentAlert?.preferencesFilter?.returnRangeDate) ?
+        dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : null);
+        console.info("currentAlert flightType ", currentAlert?.mainFilter?.flight?.flightType);
+        console.info("flightType ", formData.get("flightType"));
+        console.info("returnDate ", returnDate);
       const alertData = {};
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
+      console.info("alertData", alertData);
       setFlightPriceAlertId(alertData.flightPriceAlertId);
       const requestPayload = convertFlightRequest(alertData);
       if (alertData["alertName"] === "" || alertData["alertName"] === null){
@@ -538,14 +541,16 @@ function Dashboard() {
                         ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
                         : null)}
                       disablePast
-                      disabled={flightType === 'Cheapest' || currentAlert?.mainFilter?.flight?.flightType === 'Cheapest'}
+                      disabled={flightType ?  flightType === 'Cheapest' : currentAlert?.mainFilter?.flight?.flightType ?
+                        currentAlert?.mainFilter?.flight?.flightType === 'CHEAPEST' : false }
                       onChange={date => {
                         if (isEditing) {
                           currentAlert.mainFilter.flight.departDate = date;
                         } else {
                           setDepartDate(date);
                         }     
-                        if (flightType === 'Month') {
+                        if (flightType ?  flightType === 'Month' : currentAlert?.mainFilter?.flight?.flightType ?
+                          currentAlert?.mainFilter?.flight?.flightType === 'MONTH' : false) {
                           setDepartRangeDate(dayjs(date).startOf('month').format("YYYY-MM-DD"));
                           setReturnRangeDate(dayjs(date).endOf('month').format("YYYY-MM-DD"));
                         }
@@ -566,8 +571,8 @@ function Dashboard() {
                           ? dayjs(currentAlert?.mainFilter?.flight?.returnDate)
                           : null)}
                         disablePast
-                        disabled={flightType === 'One Way' || flightType === 'Cheapest' || flightType === 'Month' 
-                          || currentAlert?.mainFilter?.flight?.flightType === 'Month'}
+                        disabled={flightType ? flightType !== 'Roundtrip' : currentAlert?.mainFilter?.flight?.flightType ?
+                           currentAlert?.mainFilter?.flight?.flightType !== 'ROUNDTRIP' : false }
                         onChange={date => setReturnDate(date)}
                         slotProps={{
                           field: { clearable: true, onClear: () => setCleared(true) },
@@ -693,7 +698,8 @@ function Dashboard() {
                                   ?  currentAlert.preferencesFilter.departRangeDate = date: setDepartRangeDate(date))}
                                 slotProps={{
                                   field: { clearable: true, onClear: () => setCleared(true) },
-                                }} disabled={flightType === 'One Way' || flightType === 'Roundtrip' || flightType === 'Month'}/> 
+                                }} disabled={flightType ?  flightType !== 'Cheapest' : currentAlert?.mainFilter?.flight?.flightType ?
+                                  currentAlert?.mainFilter?.flight?.flightType !== 'CHEAPEST' : false }/> 
                             </LocalizationProvider>  
                           </div>
                       </Grid>
@@ -712,7 +718,8 @@ function Dashboard() {
                                   ?  currentAlert.preferencesFilter.returnRangeDate = date: setReturnRangeDate(date))}
                                 slotProps={{
                                   field: { clearable: true, onClear: () => setCleared(true) },
-                                }} disabled={flightType === 'One Way' || flightType === 'Roundtrip' || flightType === 'Month'}/> 
+                                }} disabled={flightType ?  flightType !== 'Cheapest' : currentAlert?.mainFilter?.flight?.flightType ?
+                                  currentAlert?.mainFilter?.flight?.flightType !== 'CHEAPEST' : false }/> 
                           </LocalizationProvider>  
                         </div>            
                       </Grid>
