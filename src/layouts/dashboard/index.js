@@ -43,12 +43,10 @@ import selectDataMapping from "components/FormField/data/selectDataMapping";
 import AutoCompleteAirports  from "components/AutoCompleteAirports";
 import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
-
 import AuthService from "services/auth-service";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 import { convertFlightRequest} from '../../services/convert-flight-price-alert-service';
 import { getAttributeValue} from '../../services/convert-user-service';
-
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
@@ -175,6 +173,7 @@ function Dashboard() {
 
   const handleDialogConfirmClose = () => { setOpenDialogConfirm(false);   };
   const handleDialogLetStartClose = () => { setOpenDialogLetStart(false); };
+  const handleDialogConfirmUpdateUser = () => { navigate("/user-profile");}
 
   const handleDialogActiveAlertClose = () => {
     setOpenDialogActiveAlert(false);
@@ -198,8 +197,6 @@ function Dashboard() {
     if (dialogConfirmAction === "Delete"){ deleteAlertData(flightPriceAlertId); }
     handleDialogConfirmClose();
   };
-
-  const handleDialogConfirmUpdateUser = () => { navigate("/user-profile");}
  
   const getAlertsData = async () => {
     try {
@@ -395,16 +392,12 @@ function Dashboard() {
       formData.append('returnRangeDate', returnRangeDate ? dayjs(returnRangeDate).format("YYYY-MM-DD") : 
         (formData.get("flightType") === "Cheapest" && currentAlert?.preferencesFilter?.returnRangeDate) || (formData.get("flightType") === "Month" && currentAlert?.preferencesFilter?.returnRangeDate) ?
         dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : null);
-        console.info("currentAlert flightType ", currentAlert?.mainFilter?.flight?.flightType);
-        console.info("flightType ", formData.get("flightType"));
-        console.info("returnDate ", returnDate);
+
       const alertData = {};
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
-      console.info("alertData", alertData);
-      setFlightPriceAlertId(alertData.flightPriceAlertId);
-      const requestPayload = convertFlightRequest(alertData);
+
       if (alertData["alertName"] === "" || alertData["alertName"] === null){
         setSubmitAlertError("Alert name is required.");
       }
@@ -423,23 +416,30 @@ function Dashboard() {
       else if (alertData["adults"] === "0" && alertData["children"]  === "0"){
         setSubmitAlertError("Must be at least one child or adult.");
       }
-      else if (alertData["flightType"] === "One Way" && alertData["departDate"] === null) {
+      else if (alertData["flightType"] === "One Way" && (alertData["departDate"] === null || alertData["departDate"] === "null")) {
         setSubmitAlertError("For One Way needs a departure date.");
       }
-      else if (alertData["flightType"] === "Roundtrip" && (alertData["departDate"] === null || alertData["returnDate"] === null)){
+      else if (alertData["flightType"] === "Roundtrip" && (alertData["departDate"] === null || alertData["returnDate"] === null || alertData["departDate"] === "null" || alertData["returnDate"] === "null")){
         setSubmitAlertError("For Roundtrip needs a departure date and a return date.");
       }
-      else if (alertData["flightType"] === "Month" && alertData["departDate"] === null) {
+      else if (alertData["flightType"] === "Month" && (alertData["departDate"] === null || alertData["departDate"] === "null")) {
         setSubmitAlertError("For Month needs a departure date.");
       }
-      else if (alertData["rangePrice"] && (Number(alertData.rangePrice.rangePriceStart) > Number(alertData.rangePrice.rangePriceEnd))){
+      else if (alertData["priceType"] !== "Range" && ((alertData["rangePriceStart"] != "" || alertData["rangePriceEnd"] != "" || alertData["departRangeDate"] != "null" || alertData["returnRangeDate"] != "null"))){
+        setSubmitAlertError("Range Price Type must be selected or remove Start/End Price/Date.");
+      }
+      else if ((alertData["rangePriceStart"] != null && alertData["rangePriceEnd"] != null)  && (Number(alertData["rangePriceStart"]) > Number(alertData["rangePriceEnd"]))){
         setSubmitAlertError("Start Range Price must be high than End Range Price.");
       }
       else if (alertData["departDate"] != null && alertData["returnDate"] != null && (dayjs(alertData["departDate"]) > dayjs(alertData["returnDate"]))){
         setSubmitAlertError("Return date must be high than Depart date.");
       }
-      
+      else if (alertData["departRangeDate"] != null && alertData["returnRangeDate"] != null && (dayjs(alertData["departRangeDate"]) > dayjs(alertData["returnRangeDate"]))){
+        setSubmitAlertError("Return Range date must be high than Depart Range date.");
+      }
       else{
+        setFlightPriceAlertId(alertData.flightPriceAlertId);
+        const requestPayload = convertFlightRequest(alertData);
         if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
         else{ createAlertData(requestPayload); }
       }  
@@ -521,7 +521,7 @@ function Dashboard() {
                   <Autocomplete
                     defaultValue={(isEditing
                       ? (selectDataMapping.flightType[currentAlert?.mainFilter?.flight?.flightType] || '').toString()
-                      : 'Roundtrip')}
+                      : null)}
                     options={selectData.flightType}
                     onChange={(event, value) => handleSetFlightType(value)} 
                     renderInput={(params) => (
