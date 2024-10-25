@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardHeader,  CardContent, styled, List } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
 import Grid from "@mui/material/Grid";
@@ -32,6 +33,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimeField } from '@mui/x-date-pickers/TimeField';
+import Add from '@mui/icons-material/Add';
 
 import AirportFields from "layouts/dashboard/airport-multicity";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -54,7 +56,7 @@ import Footer from "examples/Footer";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import botChatIdImage from "assets/images/bot-chatid.png";
 import botSearchImage from "assets/images/bot-search.png";
-import React, { useState, useEffect, useRef } from "react";
+
 
 const Notification = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
@@ -81,6 +83,14 @@ function Dashboard() {
       duration: theme.transitions.duration.shortest
     })
   }));
+  const airportFieldsRef = useRef();
+
+  const handleAddNewAirportField = () => {
+    if (airportFieldsRef.current) {
+      airportFieldsRef.current.addAirportField();
+    }
+  };
+
 
   const [expandedAlertCard, setCardExpanded] = useState(false);
   const [expandedAlertModal, setModalExpanded] = useState(false);
@@ -609,7 +619,7 @@ function Dashboard() {
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
-                <Grid item xs={12} sm={4.5}>
+                  <Grid item xs={12} sm={4.5}>
                     <AutoCompleteAirports 
                       ref={airportRefFrom}
                       name="airportFrom"
@@ -631,9 +641,18 @@ function Dashboard() {
                         ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
                         : null)} />
                   </Grid>
-                  <AirportFields isEditing={isEditing} currentAlert={currentAlert} />
+                  <Grid item xs={12} sm={3}>
+                    <Tooltip title="Add up to two legs of your journey. Only for Multicity Flight Type." placement="bottom">
+                      <IconButton aria-label="Add New Destination" onClick={handleAddNewAirportField}>
+                        <Add />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
                 </Grid>
+
               </Grid>
+              <AirportFields ref={airportFieldsRef} isEditing={false} />                     
+
               <MDBox p={3}>
                 <MDTypography variant="h5">Preferences
                   <ExpandMore

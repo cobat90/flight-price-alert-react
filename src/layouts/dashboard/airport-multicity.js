@@ -1,19 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { Grid, Button, IconButton } from '@mui/material';
-import AutoCompleteAirports  from "components/AutoCompleteAirports";
+import AutoCompleteAirports from "components/AutoCompleteAirports";
 import DeleteIcon from '@mui/icons-material/Delete';
-import Add from '@mui/icons-material/AddLocationAlt';
-import Tooltip from "@mui/material/Tooltip";
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import MDBox from "components/MDBox";
 
 
-const AirportFields = () => {
-  const [airportFields, setAirportFields] = useState([]);
+const MAX_DESTINATIONS = 2;
+
+const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) => {
+  const [airportFields, setAirportFields] = useState(
+    isEditing && currentAlert?.mainFilter?.flight?.airports?.length
+      ? currentAlert.mainFilter.flight.airports
+      : [] 
+  );
+
+  useImperativeHandle(ref, () => ({
+    addAirportField: handleAddAirportField
+  }));
 
   const handleAddAirportField = () => {
-    setAirportFields((prevFields) => [
-      ...prevFields,
-      { airportFrom: '', airportTo: '' }, 
-    ]);
+    if (airportFields.length < MAX_DESTINATIONS) {
+      setAirportFields((prevFields) => [
+        ...prevFields,
+        { departDate: '', airportFrom: '', airportTo: '' }, 
+      ]);
+    }
   };
 
   const handleRemoveAirportField = (index) => {
@@ -22,65 +36,60 @@ const AirportFields = () => {
 
   return (
     <div>
-      {/* Render each airport field */}
       {airportFields.map((field, index) => (
-        <Grid container spacing={3} key={index}>
-          <Grid item xs={12} sm={3.5}>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-              <DatePicker
-                name={`departDate_${index}`}
-                label={`Depart Date ${index + 1}`}
-                format="DD/MM/YY"
-                defaultValue={(isEditing
-                  ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
-                  : null)}
-                disablePast
-                disabled={flightType ?  flightType === 'Cheapest' : currentAlert?.mainFilter?.flight?.flightType ?
-                  currentAlert?.mainFilter?.flight?.flightType === 'CHEAPEST' : false }
-                onChange={date => {
-                  if (isEditing) {
-                    currentAlert.mainFilter.flight.departDate = date;
-                  } else {
-                    setDepartDate(date);
-                  }     
-                  
-                }}
-                slotProps={{
-                  field: { clearable: true, onClear: () => setCleared(true) },
-                }} 
-              />
-            </LocalizationProvider>
+                        <MDBox pt={3} px={3}>
+
+        <Grid item xs={12}>
+          <Grid container spacing={3} key={index}>
+            <Grid item xs={12} sm={3.5}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                <DatePicker
+                  name={`departDate_${index}`}
+                  label={`Depart Date ${index + 1}`}
+                  format="DD/MM/YY"
+                  defaultValue={(isEditing
+                    ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
+                    : null)}
+                  disablePast
+                  disabled={flightType ? flightType === 'Cheapest' : currentAlert?.mainFilter?.flight?.flightType === 'CHEAPEST'}
+                  onChange={date => {
+                    if (isEditing) {
+                      currentAlert.mainFilter.flight.departDate = date;
+                    } else {
+                      setDepartDate(date);
+                    }
+                  }}
+                  slotProps={{
+                    field: { clearable: true, onClear: () => setCleared(true) },
+                  }} 
+                />
+              </LocalizationProvider>
             </Grid>
-          <Grid item xs={12} sm={4.5}>
-            <AutoCompleteAirports
-              name={`airportFrom_${index}`}
-              label={`Airport From ${index + 1}`}
-              placeholder="GIG"
-            />
-          </Grid>
-          <Grid item xs={12} sm={4.5}>
-            <AutoCompleteAirports
-              name={`airportTo_${index}`}
-              label={`Airport To ${index + 1}`}
-              placeholder="FLN"
-            />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <IconButton aria-label="delete" onClick={() => handleRemoveAirportField(index)}>
-              <DeleteIcon />
-            </IconButton>
+            <Grid item xs={12} sm={3}>
+              <AutoCompleteAirports
+                name={`airportFrom_${index}`}
+                label={`Airport From ${index + 1}`}
+                placeholder="GIG"
+              />
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <AutoCompleteAirports
+                name={`airportTo_${index}`}
+                label={`Airport To ${index + 1}`}
+                placeholder="FLN"
+              />
+            </Grid>
+            <Grid item xs={12} sm={1}>
+              <IconButton aria-label="delete" onClick={() => handleRemoveAirportField(index)}>
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
           </Grid>
         </Grid>
+        </MDBox>
       ))}
-      <Grid item xs={12} sm={3}>
-        <Tooltip title="Add up to six legs of your journey. Only for Multicity Flight Type." placement="bottom">
-          <IconButton aria-label="Add New Destination" onClick={handleAddAirportField}>
-            <Add />
-          </IconButton>
-        </Tooltip>
-      </Grid>
     </div>
   );
-};
+});
 
 export default AirportFields;
