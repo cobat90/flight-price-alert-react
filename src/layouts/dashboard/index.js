@@ -28,15 +28,16 @@ import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
-
-import { useLocation, useNavigate } from "react-router-dom";
-import MDBox from "components/MDBox";
-import MDButton from "components/MDButton";
-import MDTypography from "components/MDTypography";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimeField } from '@mui/x-date-pickers/TimeField';
+
+import AirportFields from "layouts/dashboard/airport-multicity";
+import { useLocation, useNavigate } from "react-router-dom";
+import MDBox from "components/MDBox";
+import MDButton from "components/MDButton";
+import MDTypography from "components/MDTypography";
 import FormField from "components/FormField";
 import selectData from "components/FormField/data/selectData";
 import selectDataMapping from "components/FormField/data/selectDataMapping";
@@ -339,6 +340,8 @@ function Dashboard() {
   const [departRangeDate, setDepartRangeDate] = useState(null);
   const [returnRangeDate, setReturnRangeDate] = useState(null);
   const [alertEqualPrices, setAlertEqualPrices] = useState(null);
+  const [includeOriginNearbyAirports, setIncludeOriginNearbyAirports] = useState(null);
+  const [includeDestinationNearbyAirports, setIncludeDestinationNearbyAirports] = useState(null);
   const [isSubmitting, setSubmitting] = useState(false);
   const [modalEditAlert, setModalEditAlert] = useState(null);
   const [alert, setAlert] = useState(null);
@@ -347,7 +350,14 @@ function Dashboard() {
   const handleChangeAlertEqualPrices = (event) => {
     setAlertEqualPrices(event.target.checked);
   };
+  const handleChangeIncludeOriginNearbyAirports = (event) => {
+    setIncludeOriginNearbyAirports(event.target.checked);
+  };
+  const handleChangeIncludeDestinationNearbyAirports = (event) => {
+    setIncludeDestinationNearbyAirports(event.target.checked);
+  };
 
+  
   const IconContainer = ({ backgroundColor, children }) => (
     <div
       style={{
@@ -397,7 +407,6 @@ function Dashboard() {
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
-
       if (alertData["alertName"] === "" || alertData["alertName"] === null){
         setSubmitAlertError("Alert name is required.");
       }
@@ -425,7 +434,7 @@ function Dashboard() {
       else if (alertData["flightType"] === "Month" && (alertData["departDate"] === null || alertData["departDate"] === "null")) {
         setSubmitAlertError("For Month needs a departure date.");
       }
-      else if (alertData["priceType"] !== "Range" && ((alertData["rangePriceStart"] != "" || alertData["rangePriceEnd"] != "" || alertData["departRangeDate"] != "null" || alertData["returnRangeDate"] != "null"))){
+      else if (alertData["priceType"] !== "Range" && (alertData["rangePriceStart"] != null && (alertData["rangePriceStart"] != "" || alertData["rangePriceEnd"] != "" || alertData["departRangeDate"] != "null" || alertData["returnRangeDate"] != "null"))){
         setSubmitAlertError("Range Price Type must be selected or remove Start/End Price/Date.");
       }
       else if ((alertData["rangePriceStart"] != null && alertData["rangePriceEnd"] != null)  && (Number(alertData["rangePriceStart"]) > Number(alertData["rangePriceEnd"]))){
@@ -600,7 +609,7 @@ function Dashboard() {
               </Grid>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} sm={4.5}>
+                <Grid item xs={12} sm={4.5}>
                     <AutoCompleteAirports 
                       ref={airportRefFrom}
                       name="airportFrom"
@@ -620,28 +629,9 @@ function Dashboard() {
                       placeholder="FLN" 
                       defaultValue={(isEditing
                         ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
-                        : null)} required/>
+                        : null)} />
                   </Grid>
-                  <Grid item xs={12} sm={1.5}>
-                    <Autocomplete
-                        defaultValue={(isEditing
-                          ? String(currentAlert?.mainFilter?.adults) || "1"
-                          : "1")}
-                        options={selectData.passagers}
-                        renderInput={(params) => (
-                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  required />
-                    )}/>     
-                  </Grid>
-                  <Grid item xs={12} sm={1.5}>
-                    <Autocomplete
-                          defaultValue={(isEditing
-                            ? String(currentAlert?.mainFilter?.children) || "0"
-                            : "0")}
-                          options={selectData.passagers}
-                          renderInput={(params) => (
-                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  required/>
-                      )}/>    
-                  </Grid>
+                  <AirportFields isEditing={isEditing} currentAlert={currentAlert} />
                 </Grid>
               </Grid>
               <MDBox p={3}>
@@ -725,8 +715,38 @@ function Dashboard() {
                       </Grid>
                     </Tooltip>
                     <Grid item xs={12}>
-                      <Grid container spacing={3}>
-                      <Grid item xs={12} sm={1.5}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={1.5}>
+                    <Autocomplete
+                        defaultValue={(isEditing
+                          ? String(currentAlert?.mainFilter?.adults) || "1"
+                          : "1")}
+                        options={selectData.passagers}
+                        renderInput={(params) => (
+                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  />
+                    )}/>     
+                  </Grid>
+                  <Grid item xs={12} sm={1.5}>
+                    <Autocomplete
+                          defaultValue={(isEditing
+                            ? String(currentAlert?.mainFilter?.children) || "0"
+                            : "0")}
+                          options={selectData.passagers}
+                          renderInput={(params) => (
+                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  />
+                      )}/>
+                  </Grid>
+                  <Grid item xs={12} sm={1.5}>
+                    <Autocomplete
+                          defaultValue={(isEditing
+                            ? String(currentAlert?.mainFilter?.infants) || "0"
+                            : "0")}
+                          options={selectData.passagers}
+                          renderInput={(params) => (
+                            <FormField {...params} name="infants" label="Infants" InputLabelProps={{ shrink: true }}  />
+                      )}/>
+                  </Grid>
+                  <Grid item xs={12} sm={1.5}>
                       <Autocomplete
                         defaultValue={(isEditing && currentAlert?.preferencesFilter?.scalesQuantity
                           ? String(currentAlert.preferencesFilter.scalesQuantity) || null
@@ -736,7 +756,41 @@ function Dashboard() {
                           <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} 
                           disabled />
                       )}/>     
-                    </Grid>
+                  </Grid>
+                  <Tooltip title="Allow to add nearby airports for origin." placement="bottom">
+                      <Grid item xs={12} sm={2.0}>
+                          <FormLabel component="legend" sx={{ fontSize: '10px' }}>Nearby Origin</FormLabel>
+                          <FormGroup aria-label="position" row>
+                            <FormControlLabel 
+                              control={ <Checkbox name="includeOriginNearbyAirports" checked={isEditing && includeOriginNearbyAirports == null ?
+                               currentAlert?.preferencesFilter?.includeOriginNearbyAirports : includeOriginNearbyAirports} onChange={handleChangeIncludeOriginNearbyAirports}/>} />               
+                          </FormGroup>
+                      </Grid>
+                    </Tooltip>
+                    <Tooltip title="Allow to add nearby airports for destination." placement="bottom">
+                      <Grid item xs={12} sm={2.0}>
+                          <FormLabel component="legend" sx={{ fontSize: '10px' }}>Nearby Destination</FormLabel>
+                          <FormGroup aria-label="position" row>
+                            <FormControlLabel 
+                              control={ <Checkbox name="includeDestinationNearbyAirports" checked={isEditing && includeDestinationNearbyAirports == null ?
+                               currentAlert?.preferencesFilter?.includeDestinationNearbyAirports : includeDestinationNearbyAirports} onChange={handleChangeIncludeDestinationNearbyAirports}/>} />               
+                          </FormGroup>
+                      </Grid>
+                    </Tooltip>
+                  <Grid item xs={12} sm={1.5}>
+                          <Autocomplete
+                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.airline
+                              ? (currentAlert.preferencesFilter.airline).toString() || null
+                              : null)}
+                            options={selectData.airlines}
+                            renderInput={(params) => (
+                              <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} disabled />
+                            )}/> 
+                        </Grid>
+                </Grid>
+              </Grid>
+                    <Grid item xs={12}>
+                      <Grid container spacing={3}>
                         <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" 
@@ -805,16 +859,6 @@ function Dashboard() {
                             renderInput={(params) => (
                               <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} 
                               disabled />
-                            )}/> 
-                        </Grid>
-                        <Grid item xs={12} sm={1.5}>
-                          <Autocomplete
-                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.airline
-                              ? (currentAlert.preferencesFilter.airline).toString() || null
-                              : null)}
-                            options={selectData.airlines}
-                            renderInput={(params) => (
-                              <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} disabled />
                             )}/> 
                         </Grid>
                         <Grid item xs={12} sm={3}>

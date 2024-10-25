@@ -22,20 +22,17 @@ const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
   const [numResults, setNumResults] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-
-  
   const clearResults = () => {
     setResults([]);
     setNumResults(0);
   };
 
   const handleSelectIndex = (index) => {
-    if (results.length >= index + 1) {
+    if (results.length >= index + 1 && ref?.current) {
       ref.current.value = results[index].item.IATA;
       clearResults();
     }
   };
-  
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -44,10 +41,10 @@ const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
           setSelectedIndex((prevIndex) => (prevIndex <= -1 ? -1 : prevIndex - 1));
           break;
         case 13: // enter
-          selectIndex(selectedIndex);
+          handleSelectIndex(selectedIndex);
           break;
         case 9: // tab
-          selectIndex(selectedIndex);
+          handleSelectIndex(selectedIndex);
           e.stopPropagation();
           return;
         case 40: // down
@@ -61,11 +58,11 @@ const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
     };
 
     const handleSearch = (e) => {
-      if (e.which === 38 || e.which === 13 || e.which === 40) {
+      if ([38, 13, 40].includes(e.which)) {
         return;
       }
 
-      if (ref.current.value.length > 0) {
+      if (ref?.current?.value?.length > 0) {
         const searchResults = fuse.search(ref.current.value);
         setResults(searchResults.slice(0, 7));
         setNumResults(searchResults.length);
@@ -76,16 +73,20 @@ const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
       }
     };
 
-    ref.current.addEventListener('keydown', handleKeyDown);
-    ref.current.addEventListener('keyup', handleSearch);
+    // Ensure ref.current is not null before adding event listeners
+    if (ref?.current) {
+      ref.current.addEventListener('keydown', handleKeyDown);
+      ref.current.addEventListener('keyup', handleSearch);
+    }
 
     return () => {
-      if (ref.current) {
+      // Ensure ref.current is not null before removing event listeners
+      if (ref?.current) {
         ref.current.removeEventListener('keydown', handleKeyDown);
         ref.current.removeEventListener('keyup', handleSearch);
       }
     };
-  }, [fuse, results, numResults, selectedIndex]);
+  }, [fuse, numResults, selectedIndex, ref]);
 
   return (
     <div className="autocomplete-wrapper">
@@ -122,3 +123,4 @@ const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
 });
 
 export default AutoCompleteAirports;
+
