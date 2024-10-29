@@ -4,6 +4,7 @@ const selectDataMapping = {
         ONE_WAY: "One Way",
         CHEAPEST: "Cheapest",
         MONTH: "Month",
+        MULTICITY: "Multicity",
     },
     alertType: {
         TELEGRAM: "Telegram",

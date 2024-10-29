@@ -73,14 +73,12 @@ const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
       }
     };
 
-    // Ensure ref.current is not null before adding event listeners
     if (ref?.current) {
       ref.current.addEventListener('keydown', handleKeyDown);
       ref.current.addEventListener('keyup', handleSearch);
     }
 
     return () => {
-      // Ensure ref.current is not null before removing event listeners
       if (ref?.current) {
         ref.current.removeEventListener('keydown', handleKeyDown);
         ref.current.removeEventListener('keyup', handleSearch);
@@ -94,7 +92,7 @@ const AutoCompleteAirports = React.forwardRef(({ ...otherProps }, ref) => {
         type="text"
         onClick={(e) => e.stopPropagation()}
         onFocus={clearResults}
-        inputRef={ref}
+        inputRef={ref} // Pass ref here
         {...otherProps}
       />
 
