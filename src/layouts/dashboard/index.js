@@ -405,16 +405,15 @@ function Dashboard() {
       event.preventDefault();
       const formData = new FormData(event.target);
       formData.append('userId', userId);
-      formData.append('alertEqualPrices', alertEqualPrices != null ? alertEqualPrices : currentAlert?.preferencesFilter?.alertEqualPrices ? currentAlert?.preferencesFilter?.alertEqualPrices : null);
       if (formData.get("flightType") === "Multicity") {
-        formData.append('departDate_0', airportFieldsRef.current?.getFormData()?.dates[0] ? dayjs(airportFieldsRef.current.getFormData().dates[0]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flight[1]?.departDate ? dayjs(currentAlert.mainFilter.flight[0].departDate).format("YYYY-MM-DD") : null);
-        formData.append('departDate_1', airportFieldsRef.current?.getFormData()?.dates[1] ? dayjs(airportFieldsRef.current.getFormData().dates[1]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flight[1]?.departDate ? dayjs(currentAlert.mainFilter.flight[1].departDate).format("YYYY-MM-DD") : null);
-        formData.append('departDate_2', airportFieldsRef.current?.getFormData()?.dates[2] ? dayjs(airportFieldsRef.current.getFormData().dates[2]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flight[2]?.departDate ? dayjs(currentAlert.mainFilter.flight[2].departDate).format("YYYY-MM-DD") : null);
+        formData.append('departDate_0', airportFieldsRef.current?.getFormData()?.dates[0] ? dayjs(airportFieldsRef.current.getFormData().dates[0]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[1]?.departDate ? dayjs(currentAlert.mainFilter.flights[0].departDate).format("YYYY-MM-DD") : null);
+        formData.append('departDate_1', airportFieldsRef.current?.getFormData()?.dates[1] ? dayjs(airportFieldsRef.current.getFormData().dates[1]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[1]?.departDate ? dayjs(currentAlert.mainFilter.flights[1].departDate).format("YYYY-MM-DD") : null);
+        formData.append('departDate_2', airportFieldsRef.current?.getFormData()?.dates[2] ? dayjs(airportFieldsRef.current.getFormData().dates[2]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[2]?.departDate ? dayjs(currentAlert.mainFilter.flights[2].departDate).format("YYYY-MM-DD") : null);
       }
       else{
-        formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flight[0]?.departDate && formData.get("flightType") !== "Cheapest" ? dayjs(currentAlert.mainFilter.flight[0].departDate).format("YYYY-MM-DD") : null);
-        formData.append('returnDate', returnDate ? dayjs(returnDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flight[0]?.returnDate && formData.get("flightType") === "Roundtrip" ?
-          dayjs(currentAlert.mainFilter.flight[0].returnDate).format("YYYY-MM-DD") : null);
+        formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[0]?.departDate && formData.get("flightType") !== "Cheapest" ? dayjs(currentAlert.mainFilter.flights[0].departDate).format("YYYY-MM-DD") : null);
+        formData.append('returnDate', returnDate ? dayjs(returnDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[0]?.returnDate && formData.get("flightType") === "Roundtrip" ?
+          dayjs(currentAlert.mainFilter.flights[0].returnDate).format("YYYY-MM-DD") : null);
         formData.append('departRangeDate', departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD") : 
           (currentAlert?.preferencesFilter?.departRangeDate && formData.get("flightType") === "Cheapest") || (currentAlert?.preferencesFilter?.departRangeDate && formData.get("flightType") === "Month") ?
           dayjs(currentAlert.preferencesFilter.departRangeDate).format("YYYY-MM-DD") : null);
@@ -422,6 +421,9 @@ function Dashboard() {
           (formData.get("flightType") === "Cheapest" && currentAlert?.preferencesFilter?.returnRangeDate) || (formData.get("flightType") === "Month" && currentAlert?.preferencesFilter?.returnRangeDate) ?
           dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : null);
       }
+      formData.append('alertEqualPrices', alertEqualPrices ? alertEqualPrices : currentAlert?.preferencesFilter?.alertEqualPrices ? currentAlert?.preferencesFilter?.alertEqualPrices : null);
+      formData.append('includeOriginNearbyAirports', includeOriginNearbyAirports ? includeOriginNearbyAirports : currentAlert?.preferencesFilter?.includeOriginNearbyAirports ? currentAlert?.preferencesFilter?.includeOriginNearbyAirports : null);
+      formData.append('includeDestinationNearbyAirports', includeDestinationNearbyAirports ? includeDestinationNearbyAirports : currentAlert?.preferencesFilter?.includeDestinationNearbyAirports ? currentAlert?.preferencesFilter?.includeDestinationNearbyAirports : null);
 
       const alertData = {};
       formData.forEach((value, key) => {
@@ -456,7 +458,7 @@ function Dashboard() {
       else if (alertData["flightType"] === "Month" && (alertData["departDate"] === null || alertData["departDate"] === "null")) {
         setSubmitAlertError("For Month needs a departure date.");
       }
-      else if (alertData["priceType"] !== "Range" && (alertData["rangePriceStart"] != null && (alertData["rangePriceStart"] != "" || alertData["rangePriceEnd"] != "" || alertData["departRangeDate"] != "null" || alertData["returnRangeDate"] != "null"))){
+      else if ((alertData["flightType"] !== "Multicity" && alertData["priceType"] !== "Range") && (alertData["rangePriceStart"] != null && (alertData["rangePriceStart"] != "" || alertData["rangePriceEnd"] != "" || alertData["departRangeDate"] != "null" || alertData["returnRangeDate"] != "null"))){
         setSubmitAlertError("Range Price Type must be selected or remove Start/End Price/Date.");
       }
       else if ((alertData["rangePriceStart"] != null && alertData["rangePriceEnd"] != null)  && (Number(alertData["rangePriceStart"]) > Number(alertData["rangePriceEnd"]))){
@@ -569,14 +571,14 @@ function Dashboard() {
                       label="Depart Date"
                       format="DD/MM/YY"
                       defaultValue={(isEditing
-                        ? dayjs(currentAlert?.mainFilter?.flight[0]?.departDate)
+                        ? dayjs(currentAlert?.mainFilter?.flights[0]?.departDate)
                         : null)}
                       disablePast
                       disabled={flightType ?  flightType === 'Cheapest' : currentAlert?.mainFilter?.flightType ?
                         currentAlert?.mainFilter?.flightType === 'CHEAPEST' : false }
                       onChange={date => {
                         if (isEditing) {
-                          currentAlert.mainFilter.flight[0].departDate = date;
+                          currentAlert.mainFilter.flights[0].departDate = date;
                         } else {
                           setDepartDate(date);
                         }     
@@ -599,7 +601,7 @@ function Dashboard() {
                         label="Return Date"
                         format="DD/MM/YY"
                         defaultValue={(isEditing
-                          ? dayjs(currentAlert?.mainFilter?.flight[0]?.returnDate)
+                          ? dayjs(currentAlert?.mainFilter?.flights[0]?.returnDate)
                           : null)}
                         disablePast
                         disabled={flightType ? flightType !== 'Roundtrip' : currentAlert?.mainFilter?.flightType ?
@@ -638,7 +640,7 @@ function Dashboard() {
                       label="Airport From"
                       placeholder="GIG"
                       defaultValue={(isEditing
-                          ? (currentAlert?.mainFilter?.flight[0]?.airports?.airportFrom || "").toString()
+                          ? (currentAlert?.mainFilter?.flights[0]?.airports?.airportFrom || "").toString()
                           : "")}
                         required
                     />       
@@ -650,11 +652,11 @@ function Dashboard() {
                       label="Airport To" 
                       placeholder="FLN" 
                       defaultValue={(isEditing
-                        ? (currentAlert?.mainFilter?.flight[0]?.airports?.airportTo || "").toString()
+                        ? (currentAlert?.mainFilter?.flights[0]?.airports?.airportTo || "").toString()
                         : null)} />
                   </Grid>
                   <Grid item xs={12} sm={3}>
-                    <Tooltip title="Add up to two legs of your journey. Only for Multicity Flight Type." placement="bottom">
+                    <Tooltip title="Add up to three legs of your journey. Only for Multicity Flight Type." placement="bottom">
                       <IconButton aria-label="Add New Destination"  onClick={() => handleAddNewAirportField()}
                          disabled={flightType ? flightType !== 'Multicity' : currentAlert?.mainFilter?.flightType !== 'MULTICITY'}>
                         <Add />
@@ -662,7 +664,6 @@ function Dashboard() {
                     </Tooltip>
                   </Grid>
                 </Grid>
-
               </Grid>
               <AirportFields ref={airportFieldsRef} isEditing={isEditing} currentAlert={currentAlert} flightType={flightType}  />                     
 
@@ -1099,18 +1100,18 @@ function Dashboard() {
                       <ListItem disablePadding>
                         <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
                           <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Flight: " + selectDataMapping.flightType[alert.mainFilter?.flightType]}</span>} />
-                          <ListItemText primary={<span style={{ fontSize: '16px' }}>Depart: {alert.mainFilter?.flight[0]?.departDate !== "Invalid Date"? alert.mainFilter.flight[0].departDate : "N/A"}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px' }}>Depart: {alert.mainFilter?.flights[0]?.departDate !== "Invalid Date"? alert.mainFilter.flights[0].departDate : "N/A"}</span>} />
                           <ListItemText
-                            primary={<span style={{ fontSize: '16px' }}>Return: {alert.mainFilter?.flight[0]?.returnDate !== "Invalid Date"? alert.mainFilter.flight[0].returnDate : "N/A"}</span>}/>        
+                            primary={<span style={{ fontSize: '16px' }}>Return: {alert.mainFilter?.flights[0]?.returnDate !== "Invalid Date"? alert.mainFilter.flights[0].returnDate : "N/A"}</span>}/>        
                   
                         </div>
                       </ListItem>
                       <ListItem disablePadding>
                         <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
-                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px' }}>{"From: " + (alert.mainFilter?.flight[0].airports.airportFrom || "N/A")}</span>} />
-                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px'  }}>{"To: " + (alert.mainFilter?.flight[0].airports.airportTo || "N/A")}</span>} />
-                          {alert.mainFilter?.flight[0]?.airports?.airportScales != null && (
-                            <ListItemText primary={<span style={{ fontSize: '16px'  }}>{"Scales: " + (alert.mainFilter.flight[0].airports.airportScales || "N/A")}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px' }}>{"From: " + (alert.mainFilter?.flights[0].airports.airportFrom || "N/A")}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px'  }}>{"To: " + (alert.mainFilter?.flights[0].airports.airportTo || "N/A")}</span>} />
+                          {alert.mainFilter?.flights[0]?.airports?.airportScales != null && (
+                            <ListItemText primary={<span style={{ fontSize: '16px'  }}>{"Scales: " + (alert.mainFilter.flights[0].airports.airportScales || "N/A")}</span>} />
                           )}
                         </div>
                       </ListItem>

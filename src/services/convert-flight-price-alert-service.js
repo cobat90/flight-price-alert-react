@@ -27,6 +27,8 @@ export const convertFlightRequest = (alertData) => {
     rangePriceEnd,
     alertEqualPrices,
     scalesQuantity,
+    includeOriginNearbyAirports,
+    includeDestinationNearbyAirports,
     departRangeDate,
     returnRangeDate,
     departRangeTimeStart,
@@ -85,6 +87,39 @@ export const convertFlightRequest = (alertData) => {
     }
   });
 
+  // Create the flights array and filter out entries with all null values
+  const flights = [
+    {
+      departDate: departDate || null,
+      returnDate: returnDate || null,
+      airports: {
+        airportFrom: airportFrom && flightType !== 'Multicity' ? airportFrom : null,
+        airportTo: airportTo && flightType !== 'Multicity' ? airportTo : null,
+      },
+    },
+    {
+      departDate: departDate_0 && flightType === 'Multicity' ? departDate_0 : null,
+      airports: {
+        airportFrom: airportFrom_0 && flightType === 'Multicity' ? airportFrom_0 : null,
+        airportTo: airportTo_0 && flightType === 'Multicity' ? airportTo_0 : null,
+      },
+    },
+    {
+      departDate: departDate_1 && flightType === 'Multicity' ? departDate_1 : null,
+      airports: {
+        airportFrom: airportFrom_1 && flightType === 'Multicity' ? airportFrom_1 : null,
+        airportTo: airportTo_1 && flightType === 'Multicity' ? airportTo_1 : null,
+      },
+    },
+    {
+      departDate: departDate_2 && flightType === 'Multicity' ? departDate_2 : null,
+      airports: {
+        airportFrom: airportFrom_2 && flightType === 'Multicity' ? airportFrom_2 : null,
+        airportTo: airportTo_2 && flightType === 'Multicity' ? airportTo_2 : null,
+      },
+    },
+  ].filter(flight => flight.departDate || flight.airports.airportFrom || flight.airports.airportTo);
+
   const payload = {
     userId: userId,
     alert: {
@@ -92,45 +127,15 @@ export const convertFlightRequest = (alertData) => {
       alertType: [alertType ? alertType.toUpperCase() : 'TELEGRAM'],
       priceType: priceType ? priceType.toUpperCase() : "EVERY",
       alertDurationTime: parseInt(alertDurationTime),
-      alertDisabled: alertDisabled ? alertDisabled : false,
+      alertDisabled: alertDisabled || false,
     },
     mainFilter: {
       flightType: flightType === 'One Way' ? 'ONE_WAY' : flightType.toUpperCase(),
       cabinClassType: cabinClassType ? cabinClassType.toUpperCase() : 'ECONOMY',
       adults: adults ? parseInt(adults): 1,
-      children: children ? parseInt(children): null,
-      infants: infants ? parseInt(infants): null,
-      flights: [
-        {
-          departDate: departDate || null,
-          returnDate: returnDate || null,
-          airports: {
-            airportFrom: airportFrom && flightType !== 'Multicity' ? airportFrom : null,
-            airportTo: airportTo && flightType !== 'Multicity' ? airportTo : null,
-          },
-        },
-        {
-          departDate: departDate_0 && flightType === 'Multicity' ? departDate_0 : null,
-          airports: {
-            airportFrom: airportFrom_0 && flightType === 'Multicity' ? airportFrom_0 : null,
-            airportTo: airportTo_0 && flightType === 'Multicity' ? airportTo_0 : null,
-          },
-        },
-        {
-          departDate: departDate_1 && flightType === 'Multicity' ? departDate_1 : null,
-          airports: {
-            airportFrom: airportFrom_1 && flightType === 'Multicity' ? airportFrom_1 : null,
-            airportTo: airportTo_1 && flightType === 'Multicity' ? airportTo_1 : null,
-          },
-        },
-        {
-          departDate: departDate_2 && flightType === 'Multicity' ? departDate_2 : null,
-          airports: {
-            airportFrom: airportFrom_2 && flightType === 'Multicity' ? airportFrom_2 : null,
-            airportTo: airportTo_2 && flightType === 'Multicity' ? airportTo_2 : null,
-          },
-        },
-      ].filter(flight => Object.values(flight).some(value => value !== null)),
+      children: children ? parseInt(children): 0,
+      infants: infants ? parseInt(infants): 0,
+      flights: flights,
     },
     preferencesFilter: {
       scalesQuantity: scalesQuantity ? parseInt(scalesQuantity) : null,
@@ -140,6 +145,13 @@ export const convertFlightRequest = (alertData) => {
         rangeStart: departRangeTimeStart || null,
         rangeEnd: departRangeTimeEnd || null,
       },
+      rangePrice: {
+        rangeStart: rangePriceStart ? parseFloat(rangePriceStart) : null,
+        rangeEnd: rangePriceEnd ? parseFloat(rangePriceEnd) : null,
+      },
+      alertEqualPrices: alertEqualPrices || null,
+      includeOriginNearbyAirports: includeOriginNearbyAirports || null,
+      includeDestinationNearbyAirports: includeDestinationNearbyAirports || null,
       returnRangeTime: {
         rangeStart: returnRangeTimeStart || null,
         rangeEnd: returnRangeTimeEnd || null,
@@ -148,18 +160,13 @@ export const convertFlightRequest = (alertData) => {
         total: total || null,
         scales: scales || null,
       },
-      rangePrice: {
-        rangeStart: rangePriceStart ? parseFloat(rangePriceStart) : null,
-        rangeEnd: rangePriceEnd ? parseFloat(rangePriceEnd) : null,
-      },
-      alertEqualPrices: alertEqualPrices ? alertEqualPrices : null,
+      airline: airline || null,
       payment: {
         method: paymentMethod || null,
         parcels: paymentParcels ? parseInt(paymentParcels) : null,
       },
       airplaneModel: airplaneModel || null,
       otherPreferences: otherPreferences || null,
-      airline: airline || null,
       searchSites: searchSites || null,
       lowerCO2: lowerCO2 || null,
     },
