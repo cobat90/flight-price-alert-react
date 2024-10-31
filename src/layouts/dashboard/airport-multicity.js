@@ -1,4 +1,4 @@
-import React, { useState, useImperativeHandle, forwardRef, useRef } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Grid, Button, IconButton } from '@mui/material';
 import AutoCompleteAirports from "components/AutoCompleteAirports";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -7,38 +7,47 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import MDBox from "components/MDBox";
 
-const MAX_DESTINATIONS = 3;
+import dayjs from 'dayjs';
+
+const MAX_DESTINATIONS = 5;
 
 const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) => {
-  const [airportFields, setAirportFields] = useState(
-    isEditing && currentAlert?.mainFilter?.flight?.airports?.length
-      ? currentAlert.mainFilter.flight[0].airports
-      : [] 
-  );
+  const [airportFields, setAirportFields] = useState([]);
+  const [dates, setDates] = useState([]);
 
-  const [dates, setDates] = useState(
-    airportFields.map(field => field.departDate || null)
-  );
+  // Populate fields from currentAlert if in editing mode
+  useEffect(() => {
+    if (isEditing && currentAlert?.mainFilter?.flights?.length) {
+      const initialFields = currentAlert.mainFilter.flights.map(flight => ({
+        departDate: flight.departDate ? dayjs(flight.departDate) : null, // Convert to dayjs
+        airportFrom: flight.airports?.airportFrom || '',
+        airportTo: flight.airports?.airportTo || '',
+      }));
+      setAirportFields(initialFields);
+      setDates(initialFields.map(field => field.departDate || null));
+    }
+  }, [isEditing, currentAlert]);
 
-  // Method to update date for each index
   const handleDateChange = (index, date) => {
     setDates(prevDates => {
       const newDates = [...prevDates];
-      newDates[index] = date;
+      newDates[index] = dayjs(date); // Ensure date is a dayjs object
       return newDates;
     });
   };
 
-  // Add the new field and date
-  const handleAddAirportField = (departDate = '', airportFrom = '', airportTo = '') => {
+  const handleAddAirportField = (departDate = dayjs(), airportFrom = '', airportTo = '') => {
     if (airportFields.length < MAX_DESTINATIONS) {
-      setAirportFields(prevFields => [
-        ...prevFields,
-        { departDate, airportFrom, airportTo },
-      ]);
-      setDates(prevDates => [...prevDates, departDate || null]);
+      const newField = {
+        departDate,  // Ensure it's a dayjs object, received directly or as dayjs()
+        airportFrom,
+        airportTo,
+      };
+      setAirportFields(prevFields => [...prevFields, newField]);
+      setDates(prevDates => [...prevDates, newField.departDate]);
     }
   };
+  
 
   useImperativeHandle(ref, () => ({
     addAirportField: handleAddAirportField,
@@ -49,7 +58,6 @@ const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) 
   }));
 
   const handleRemoveAirportField = index => {
-    console.info('Removing airport field:', index);
     setAirportFields(prevFields => prevFields.filter((_, i) => i !== index));
     setDates(prevDates => prevDates.filter((_, i) => i !== index));
   };
@@ -66,7 +74,7 @@ const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) 
                     name={`departDate_${index}`}
                     label={`${index + 1}º Depart Date`}
                     format="DD/MM/YY"
-                    value={dates[index] || null} // Use value instead of defaultValue
+                    value={dates[index] || null} // Ensure this is a Day.js object or null
                     disablePast
                     disabled={
                       flightType ? flightType !== 'Multicity' : currentAlert?.mainFilter?.flightType !== 'MULTICITY'
@@ -74,7 +82,7 @@ const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) 
                     onChange={date => handleDateChange(index, date)}
                     slotProps={{
                       field: { clearable: true },
-                    }} 
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>
@@ -110,4 +118,3 @@ const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) 
 });
 
 export default AirportFields;
-

@@ -87,10 +87,13 @@ function Dashboard() {
 
   const handleAddNewAirportField = () => {
     if (airportFieldsRef.current) {
+      // Ensure departDate is a valid dayjs object
+      const validDepartDate = departDate ? dayjs(departDate) : dayjs(); // Default to today if undefined
+  
       airportFieldsRef.current.addAirportField(
-        departDate, 
-        airportRefFrom?.current?.value, 
-        airportRefTo?.current?.value
+        validDepartDate,
+        airportRefFrom?.current?.value || '',  // Default to empty string if undefined
+        airportRefTo?.current?.value || ''     // Default to empty string if undefined
       );
     }
   };

@@ -87,38 +87,7 @@ export const convertFlightRequest = (alertData) => {
     }
   });
 
-  // Create the flights array and filter out entries with all null values
-  const flights = [
-    {
-      departDate: departDate || null,
-      returnDate: returnDate || null,
-      airports: {
-        airportFrom: airportFrom && flightType !== 'Multicity' ? airportFrom : null,
-        airportTo: airportTo && flightType !== 'Multicity' ? airportTo : null,
-      },
-    },
-    {
-      departDate: departDate_0 && flightType === 'Multicity' ? departDate_0 : null,
-      airports: {
-        airportFrom: airportFrom_0 && flightType === 'Multicity' ? airportFrom_0 : null,
-        airportTo: airportTo_0 && flightType === 'Multicity' ? airportTo_0 : null,
-      },
-    },
-    {
-      departDate: departDate_1 && flightType === 'Multicity' ? departDate_1 : null,
-      airports: {
-        airportFrom: airportFrom_1 && flightType === 'Multicity' ? airportFrom_1 : null,
-        airportTo: airportTo_1 && flightType === 'Multicity' ? airportTo_1 : null,
-      },
-    },
-    {
-      departDate: departDate_2 && flightType === 'Multicity' ? departDate_2 : null,
-      airports: {
-        airportFrom: airportFrom_2 && flightType === 'Multicity' ? airportFrom_2 : null,
-        airportTo: airportTo_2 && flightType === 'Multicity' ? airportTo_2 : null,
-      },
-    },
-  ].filter(flight => flight.departDate || flight.airports.airportFrom || flight.airports.airportTo);
+  
 
   const payload = {
     userId: userId,
@@ -127,15 +96,49 @@ export const convertFlightRequest = (alertData) => {
       alertType: [alertType ? alertType.toUpperCase() : 'TELEGRAM'],
       priceType: priceType ? priceType.toUpperCase() : "EVERY",
       alertDurationTime: parseInt(alertDurationTime),
-      alertDisabled: alertDisabled || false,
+      alertDisabled: alertDisabled ? alertDisabled : false,
     },
     mainFilter: {
       flightType: flightType === 'One Way' ? 'ONE_WAY' : flightType.toUpperCase(),
       cabinClassType: cabinClassType ? cabinClassType.toUpperCase() : 'ECONOMY',
-      adults: adults ? parseInt(adults): 1,
-      children: children ? parseInt(children): 0,
-      infants: infants ? parseInt(infants): 0,
-      flights: flights,
+      adults: adults ? parseInt(adults) : 1,
+      children: children ? parseInt(children) : 0,
+      infants: infants ? parseInt(infants) : 0,
+      flights: [
+        // Only add index 0 if no other _0, _1, or _2 fields are filled
+        ...(departDate && !departDate_0 && !departDate_1 && !departDate_2
+          ? [{
+              departDate: departDate || null,
+              returnDate: returnDate || null,
+              airports: {
+                airportFrom: airportFrom && flightType !== 'Multicity' ? airportFrom : null,
+                airportTo: airportTo && flightType !== 'Multicity' ? airportTo : null,
+              },
+            }]
+          : []
+        ),
+        {
+          departDate: departDate_0 && flightType === 'Multicity' ? departDate_0 : null,
+          airports: {
+            airportFrom: airportFrom_0 && flightType === 'Multicity' ? airportFrom_0 : null,
+            airportTo: airportTo_0 && flightType === 'Multicity' ? airportTo_0 : null,
+          },
+        },
+        {
+          departDate: departDate_1 && flightType === 'Multicity' ? departDate_1 : null,
+          airports: {
+            airportFrom: airportFrom_1 && flightType === 'Multicity' ? airportFrom_1 : null,
+            airportTo: airportTo_1 && flightType === 'Multicity' ? airportTo_1 : null,
+          },
+        },
+        {
+          departDate: departDate_2 && flightType === 'Multicity' ? departDate_2 : null,
+          airports: {
+            airportFrom: airportFrom_2 && flightType === 'Multicity' ? airportFrom_2 : null,
+            airportTo: airportTo_2 && flightType === 'Multicity' ? airportTo_2 : null,
+          },
+        },
+      ].filter(flight => Object.values(flight).some(value => value !== null)), // Remove null-only flights
     },
     preferencesFilter: {
       scalesQuantity: scalesQuantity ? parseInt(scalesQuantity) : null,
@@ -182,7 +185,6 @@ export const convertFlightRequest = (alertData) => {
     },
   };
 
-  // Helper function to recursively remove null or empty objects
   const cleanObject = (obj) => {
     Object.keys(obj).forEach(key => {
       if (obj[key] && typeof obj[key] === 'object') {
