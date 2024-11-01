@@ -85,11 +85,9 @@ function Dashboard() {
   }));
   const airportFieldsRef = useRef();
 
-  const handleAddNewAirportField = () => {
+  const handleAddNewAirportField = (currentDepartDate) => {
     if (airportFieldsRef.current) {
-      // Ensure departDate is a valid dayjs object
-      const validDepartDate = departDate ? dayjs(departDate) : dayjs(); // Default to today if undefined
-  
+      const validDepartDate = departDate ? dayjs(departDate) : dayjs(currentDepartDate); // Default to today if undefined
       airportFieldsRef.current.addAirportField(
         validDepartDate,
         airportRefFrom?.current?.value || '',  // Default to empty string if undefined
@@ -582,6 +580,7 @@ function Dashboard() {
                       onChange={date => {
                         if (isEditing) {
                           currentAlert.mainFilter.flights[0].departDate = date;
+                          setDepartDate(date);
                         } else {
                           setDepartDate(date);
                         }     
@@ -660,7 +659,7 @@ function Dashboard() {
                   </Grid>
                   <Grid item xs={12} sm={3}>
                     <Tooltip title="Add up to three legs of your journey. Only for Multicity Flight Type." placement="bottom">
-                      <IconButton aria-label="Add New Destination"  onClick={() => handleAddNewAirportField()}
+                      <IconButton aria-label="Add New Destination"  onClick={() => handleAddNewAirportField(currentAlert?.mainFilter?.flights[0]?.departDate)}
                          disabled={flightType ? flightType !== 'Multicity' : currentAlert?.mainFilter?.flightType !== 'MULTICITY'}>
                         <Add />
                       </IconButton>

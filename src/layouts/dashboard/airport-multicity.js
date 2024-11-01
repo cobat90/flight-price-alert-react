@@ -9,7 +9,7 @@ import MDBox from "components/MDBox";
 
 import dayjs from 'dayjs';
 
-const MAX_DESTINATIONS = 5;
+const MAX_DESTINATIONS = 3;
 
 const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) => {
   const [airportFields, setAirportFields] = useState([]);

@@ -87,8 +87,6 @@ export const convertFlightRequest = (alertData) => {
     }
   });
 
-  
-
   const payload = {
     userId: userId,
     alert: {
@@ -138,7 +136,7 @@ export const convertFlightRequest = (alertData) => {
             airportTo: airportTo_2 && flightType === 'Multicity' ? airportTo_2 : null,
           },
         },
-      ].filter(flight => Object.values(flight).some(value => value !== null)), // Remove null-only flights
+      ].filter(flight => Object.values(flight).some(value => value !== null)),
     },
     preferencesFilter: {
       scalesQuantity: scalesQuantity ? parseInt(scalesQuantity) : null,
