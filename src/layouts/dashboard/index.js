@@ -430,8 +430,7 @@ function Dashboard() {
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
-      console.info("alertData: ", alertData);
-      console.info("airportFieldsRef: ", airportFieldsRef.current?.getFormData());
+
       if (alertData["alertName"] === "" || alertData["alertName"] === null){
         setSubmitAlertError("Alert name is required.");
       }
@@ -659,10 +658,15 @@ function Dashboard() {
                   </Grid>
                   <Grid item xs={12} sm={3}>
                     <Tooltip title="Add up to three legs of your journey. Only for Multicity Flight Type." placement="bottom">
-                      <IconButton aria-label="Add New Destination"  onClick={() => handleAddNewAirportField(currentAlert?.mainFilter?.flights[0]?.departDate)}
-                         disabled={flightType ? flightType !== 'Multicity' : currentAlert?.mainFilter?.flightType !== 'MULTICITY'}>
-                        <Add />
-                      </IconButton>
+                      <span>
+                        <IconButton 
+                          aria-label="Add New Destination"  
+                          onClick={() => handleAddNewAirportField(currentAlert?.mainFilter?.flights[0]?.departDate)}
+                          disabled={flightType ? flightType !== 'Multicity' : currentAlert?.mainFilter?.flightType !== 'MULTICITY'}
+                        >
+                          <Add />
+                        </IconButton>
+                      </span>
                     </Tooltip>
                   </Grid>
                 </Grid>

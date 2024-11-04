@@ -15,11 +15,10 @@ const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) 
   const [airportFields, setAirportFields] = useState([]);
   const [dates, setDates] = useState([]);
 
-  // Populate fields from currentAlert if in editing mode
   useEffect(() => {
-    if (isEditing && currentAlert?.mainFilter?.flights?.length) {
+    if (isEditing && currentAlert?.mainFilter?.flights?.length > 1) { 
       const initialFields = currentAlert.mainFilter.flights.map(flight => ({
-        departDate: flight.departDate ? dayjs(flight.departDate) : null, // Convert to dayjs
+        departDate: flight.departDate ? dayjs(flight.departDate) : null,
         airportFrom: flight.airports?.airportFrom || '',
         airportTo: flight.airports?.airportTo || '',
       }));
@@ -27,6 +26,7 @@ const AirportFields = forwardRef(({ isEditing, currentAlert, flightType }, ref) 
       setDates(initialFields.map(field => field.departDate || null));
     }
   }, [isEditing, currentAlert]);
+  
 
   const handleDateChange = (index, date) => {
     setDates(prevDates => {
