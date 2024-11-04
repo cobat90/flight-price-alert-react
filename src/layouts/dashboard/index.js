@@ -536,7 +536,7 @@ function Dashboard() {
                   )}
                 />
               </Grid>
-              <Tooltip title="Alert Balance for this alert. Each alert consumes one Alert Balance." placement="bottom">
+              <Tooltip title="Alert Balance for this alert. Each alert consumes one of alert balance." placement="bottom">
               <Grid item xs={12} sm={2}>
                 <FormField name="alertDurationTime"                   
                   label="Alert Balance"
@@ -1085,12 +1085,6 @@ function Dashboard() {
                   </MDBox>
                 </CardContent>
                 <CardActions disableSpacing>
-                  <IconButton aria-label="add to favorites">
-                    <FavoriteIcon />
-                  </IconButton>
-                  <IconButton aria-label="share">
-                    <ShareIcon />
-                  </IconButton>
                   <ExpandMore
                     expand={expandedAlertCard}
                     onClick={handleExpandCardClick}
