@@ -1,2 +1,2 @@
 # ittent-flight-price-alert-react
-Plataform of alert/notificaions of flight price alert front-end
+Plataform of alert/notifications of flight price alert front-end

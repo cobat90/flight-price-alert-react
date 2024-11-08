@@ -4,12 +4,13 @@ const selectDataMapping = {
         ONE_WAY: "One Way",
         CHEAPEST: "Cheapest",
         MONTH: "Month",
+        MULTICITY: "Multicity",
     },
     alertType: {
         TELEGRAM: "Telegram",
     },
     priceType: {
-        LOWER: "Lower",
+        LOWEST: "Lowest",
         EVERY: "Every",
         RANGE: "Range",
     },

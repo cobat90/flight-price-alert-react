@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardHeader,  CardContent, styled, List } from '@mui/material';
 import CardActions from '@mui/material/CardActions';
 import Grid from "@mui/material/Grid";
@@ -24,34 +25,38 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-
-import { useLocation, useNavigate } from "react-router-dom";
-import MDBox from "components/MDBox";
-import MDButton from "components/MDButton";
-import MDTypography from "components/MDTypography";
+import Checkbox from '@mui/material/Checkbox';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimeField } from '@mui/x-date-pickers/TimeField';
+import Add from '@mui/icons-material/Add';
+
+import AirportFields from "layouts/dashboard/airport-multicity";
+import { useLocation, useNavigate } from "react-router-dom";
+import MDBox from "components/MDBox";
+import MDButton from "components/MDButton";
+import MDTypography from "components/MDTypography";
 import FormField from "components/FormField";
 import selectData from "components/FormField/data/selectData";
 import selectDataMapping from "components/FormField/data/selectDataMapping";
 import AutoCompleteAirports  from "components/AutoCompleteAirports";
 import dayjs from "dayjs";
 import "dayjs/locale/en-gb";
-
 import AuthService from "services/auth-service";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 import { convertFlightRequest} from '../../services/convert-flight-price-alert-service';
 import { getAttributeValue} from '../../services/convert-user-service';
-
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import botChatIdImage from "assets/images/bot-chatid.png";
 import botSearchImage from "assets/images/bot-search.png";
-import React, { useState, useEffect, useRef } from "react";
+
 
 const Notification = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
@@ -78,6 +83,18 @@ function Dashboard() {
       duration: theme.transitions.duration.shortest
     })
   }));
+  const airportFieldsRef = useRef();
+
+  const handleAddNewAirportField = (currentDepartDate) => {
+    if (airportFieldsRef.current) {
+      const validDepartDate = departDate ? dayjs(departDate) : dayjs(currentDepartDate); // Default to today if undefined
+      airportFieldsRef.current.addAirportField(
+        validDepartDate,
+        airportRefFrom?.current?.value || '',  // Default to empty string if undefined
+        airportRefTo?.current?.value || ''     // Default to empty string if undefined
+      );
+    }
+  };
 
   const [expandedAlertCard, setCardExpanded] = useState(false);
   const [expandedAlertModal, setModalExpanded] = useState(false);
@@ -101,6 +118,31 @@ function Dashboard() {
   const [cardAlertIndex, setCardAlertIndex] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const formRef = useRef();
+
+  const handleSetFlightType = (value) => { 
+    setFlightType(value);
+    if (value === 'One Way') {
+      setReturnDate(null);
+      setDepartRangeDate(null);
+      setReturnRangeDate(null);
+    }
+    else if (value === 'Roundtrip') {
+      setDepartRangeDate(null);
+      setReturnRangeDate(null);
+    }
+    else if (value === 'Month') {
+      setReturnDate(null);
+      if (departDate != null){
+        setDepartRangeDate(dayjs(departDate).startOf('month').format("YYYY-MM-DD"));
+        setReturnRangeDate(dayjs(departDate).endOf('month').format("YYYY-MM-DD"));
+      }
+    }
+    else if (value === 'Cheapest') {
+      setDepartDate(null);
+      setReturnDate(null); 
+    }
+  };
+
 
   const openCardAlertMenu = (event, index) => { 
     setCardAlertMenu(event.currentTarget);
@@ -146,6 +188,7 @@ function Dashboard() {
 
   const handleDialogConfirmClose = () => { setOpenDialogConfirm(false);   };
   const handleDialogLetStartClose = () => { setOpenDialogLetStart(false); };
+  const handleDialogConfirmUpdateUser = () => { navigate("/user-profile");}
 
   const handleDialogActiveAlertClose = () => {
     setOpenDialogActiveAlert(false);
@@ -169,8 +212,6 @@ function Dashboard() {
     if (dialogConfirmAction === "Delete"){ deleteAlertData(flightPriceAlertId); }
     handleDialogConfirmClose();
   };
-
-  const handleDialogConfirmUpdateUser = () => { navigate("/user-profile");}
  
   const getAlertsData = async () => {
     try {
@@ -312,11 +353,25 @@ function Dashboard() {
   const [returnDate, setReturnDate] = useState(null);
   const [departRangeDate, setDepartRangeDate] = useState(null);
   const [returnRangeDate, setReturnRangeDate] = useState(null);
+  const [alertEqualPrices, setAlertEqualPrices] = useState(null);
+  const [includeOriginNearbyAirports, setIncludeOriginNearbyAirports] = useState(null);
+  const [includeDestinationNearbyAirports, setIncludeDestinationNearbyAirports] = useState(null);
   const [isSubmitting, setSubmitting] = useState(false);
   const [modalEditAlert, setModalEditAlert] = useState(null);
   const [alert, setAlert] = useState(null);
   const openModalEditAlert = (event) => { setModalEditAlert(event.currentTarget); };
 
+  const handleChangeAlertEqualPrices = (event) => {
+    setAlertEqualPrices(event.target.checked);
+  };
+  const handleChangeIncludeOriginNearbyAirports = (event) => {
+    setIncludeOriginNearbyAirports(event.target.checked);
+  };
+  const handleChangeIncludeDestinationNearbyAirports = (event) => {
+    setIncludeDestinationNearbyAirports(event.target.checked);
+  };
+
+  
   const IconContainer = ({ backgroundColor, children }) => (
     <div
       style={{
@@ -341,27 +396,41 @@ function Dashboard() {
     setReturnRangeDate(null);
     setFlightType(null);
     setSubmitAlertError(null);
+    setAlertEqualPrices(null);
     closeCardAlertMenu();
   }
 
   const modalEditAlertContent = (alert, index) => {
     const currentAlert = alerts[index];
-
     const handleSubmit = (event) => {
       event.preventDefault();
       const formData = new FormData(event.target);
       formData.append('userId', userId);
-      formData.append('departDate', currentAlert?.mainFilter?.flight?.departDate ? dayjs(currentAlert.mainFilter.flight.departDate).format("YYYY-MM-DD") : departDate ? dayjs(departDate).format("YYYY-MM-DD"): null);
-      formData.append('returnDate', currentAlert?.mainFilter?.flight?.returnDate ? dayjs(currentAlert.mainFilter.flight.returnDate).format("YYYY-MM-DD") : returnDate ? dayjs(returnDate).format("YYYY-MM-DD"): null);
-      formData.append('departRangeDate', currentAlert?.preferencesFilter?.departRangeDate ? dayjs(currentAlert.preferencesFilter.departRangeDate).format("YYYY-MM-DD") : departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD"): null);
-      formData.append('returnRangeDate', currentAlert?.preferencesFilter?.returnRangeDate ? dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : returnRangeDate ? dayjs(returnRangeDate).format("YYYY-MM-DD"): null);
+      if (formData.get("flightType") === "Multicity") {
+        formData.append('departDate_0', airportFieldsRef.current?.getFormData()?.dates[0] ? dayjs(airportFieldsRef.current.getFormData().dates[0]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[1]?.departDate ? dayjs(currentAlert.mainFilter.flights[0].departDate).format("YYYY-MM-DD") : null);
+        formData.append('departDate_1', airportFieldsRef.current?.getFormData()?.dates[1] ? dayjs(airportFieldsRef.current.getFormData().dates[1]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[1]?.departDate ? dayjs(currentAlert.mainFilter.flights[1].departDate).format("YYYY-MM-DD") : null);
+        formData.append('departDate_2', airportFieldsRef.current?.getFormData()?.dates[2] ? dayjs(airportFieldsRef.current.getFormData().dates[2]).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[2]?.departDate ? dayjs(currentAlert.mainFilter.flights[2].departDate).format("YYYY-MM-DD") : null);
+      }
+      else{
+        formData.append('departDate', departDate ? dayjs(departDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[0]?.departDate && formData.get("flightType") !== "Cheapest" ? dayjs(currentAlert.mainFilter.flights[0].departDate).format("YYYY-MM-DD") : null);
+        formData.append('returnDate', returnDate ? dayjs(returnDate).format("YYYY-MM-DD") : currentAlert?.mainFilter?.flights[0]?.returnDate && formData.get("flightType") === "Roundtrip" ?
+          dayjs(currentAlert.mainFilter.flights[0].returnDate).format("YYYY-MM-DD") : null);
+        formData.append('departRangeDate', departRangeDate ? dayjs(departRangeDate).format("YYYY-MM-DD") : 
+          (currentAlert?.preferencesFilter?.departRangeDate && formData.get("flightType") === "Cheapest") || (currentAlert?.preferencesFilter?.departRangeDate && formData.get("flightType") === "Month") ?
+          dayjs(currentAlert.preferencesFilter.departRangeDate).format("YYYY-MM-DD") : null);
+        formData.append('returnRangeDate', returnRangeDate ? dayjs(returnRangeDate).format("YYYY-MM-DD") : 
+          (formData.get("flightType") === "Cheapest" && currentAlert?.preferencesFilter?.returnRangeDate) || (formData.get("flightType") === "Month" && currentAlert?.preferencesFilter?.returnRangeDate) ?
+          dayjs(currentAlert.preferencesFilter.returnRangeDate).format("YYYY-MM-DD") : null);
+      }
+      formData.append('alertEqualPrices', alertEqualPrices ? alertEqualPrices : currentAlert?.preferencesFilter?.alertEqualPrices ? currentAlert?.preferencesFilter?.alertEqualPrices : null);
+      formData.append('includeOriginNearbyAirports', includeOriginNearbyAirports ? includeOriginNearbyAirports : currentAlert?.preferencesFilter?.includeOriginNearbyAirports ? currentAlert?.preferencesFilter?.includeOriginNearbyAirports : null);
+      formData.append('includeDestinationNearbyAirports', includeDestinationNearbyAirports ? includeDestinationNearbyAirports : currentAlert?.preferencesFilter?.includeDestinationNearbyAirports ? currentAlert?.preferencesFilter?.includeDestinationNearbyAirports : null);
 
       const alertData = {};
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
-      setFlightPriceAlertId(alertData.flightPriceAlertId);
-      const requestPayload = convertFlightRequest(alertData);
+
       if (alertData["alertName"] === "" || alertData["alertName"] === null){
         setSubmitAlertError("Alert name is required.");
       }
@@ -369,7 +438,7 @@ function Dashboard() {
         setSubmitAlertError("Price Type is required.");
       }
       else if (alertData["alertDurationTime"] > 1000 || alertData["alertDurationTime"] < 100) {
-        setSubmitAlertError("Alert duration time should be between 100 and 1000.") }
+        setSubmitAlertError("Alert Balance should be between 100 and 1000.") }
       else if ((!alertData["airportFrom"] || !alertData["airportTo"]) || 
       (alertData["airportFrom"].length !== 3 || alertData["airportTo"].length !== 3)){
         setSubmitAlertError("Airports IATA codes should be 3 characters");
@@ -380,19 +449,30 @@ function Dashboard() {
       else if (alertData["adults"] === "0" && alertData["children"]  === "0"){
         setSubmitAlertError("Must be at least one child or adult.");
       }
-      else if (alertData["flightType"] === "One Way" && alertData["departDate"] === "null") {
+      else if (alertData["flightType"] === "One Way" && (alertData["departDate"] === null || alertData["departDate"] === "null")) {
         setSubmitAlertError("For One Way needs a departure date.");
       }
-      else if (alertData["flightType"] === "Roundtrip" && (alertData["departDate"] === "null" || alertData["returnDate"] === "null")){
+      else if (alertData["flightType"] === "Roundtrip" && (alertData["departDate"] === null || alertData["returnDate"] === null || alertData["departDate"] === "null" || alertData["returnDate"] === "null")){
         setSubmitAlertError("For Roundtrip needs a departure date and a return date.");
       }
-      else if (alertData["flightType"] === "Month" && alertData["departDate"] === "null") {
+      else if (alertData["flightType"] === "Month" && (alertData["departDate"] === null || alertData["departDate"] === "null")) {
         setSubmitAlertError("For Month needs a departure date.");
       }
-      else if ((Number(alertData["rangePriceStart"]) > Number(alertData["rangePriceEnd"]))){
+      else if ((alertData["flightType"] !== "Multicity" && alertData["priceType"] !== "Range") && (alertData["rangePriceStart"] != null && (alertData["rangePriceStart"] != "" || alertData["rangePriceEnd"] != "" || alertData["departRangeDate"] != "null" || alertData["returnRangeDate"] != "null"))){
+        setSubmitAlertError("Range Price Type must be selected or remove Start/End Price/Date.");
+      }
+      else if ((alertData["rangePriceStart"] != null && alertData["rangePriceEnd"] != null)  && (Number(alertData["rangePriceStart"]) > Number(alertData["rangePriceEnd"]))){
         setSubmitAlertError("Start Range Price must be high than End Range Price.");
       }
+      else if (alertData["departDate"] != null && alertData["returnDate"] != null && (dayjs(alertData["departDate"]) > dayjs(alertData["returnDate"]))){
+        setSubmitAlertError("Return date must be high than Depart date.");
+      }
+      else if (alertData["departRangeDate"] != null && alertData["returnRangeDate"] != null && (dayjs(alertData["departRangeDate"]) > dayjs(alertData["returnRangeDate"]))){
+        setSubmitAlertError("Return Range date must be high than Depart Range date.");
+      }
       else{
+        setFlightPriceAlertId(alertData.flightPriceAlertId);
+        const requestPayload = convertFlightRequest(alertData);
         if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
         else{ createAlertData(requestPayload); }
       }  
@@ -448,7 +528,7 @@ function Dashboard() {
                 <Autocomplete
                   defaultValue={(isEditing
                     ? (selectDataMapping.priceType[currentAlert?.alert?.priceType] || "").toString()
-                    : "")}          
+                    : null)}          
                   options={selectData.priceType}
                   renderInput={(params) => (
                     <FormField {...params} name="priceType" label="Price Types"
@@ -456,9 +536,10 @@ function Dashboard() {
                   )}
                 />
               </Grid>
+              <Tooltip title="Alert Balance for this alert. Each alert consumes one of alert balance." placement="bottom">
               <Grid item xs={12} sm={2}>
                 <FormField name="alertDurationTime"                   
-                  label="Duration(Points)"
+                  label="Alert Balance"
                   defaultValue={(isEditing
                     ? String(currentAlert?.alert?.alertDurationTime) || "100"
                     : "100")}            
@@ -466,15 +547,16 @@ function Dashboard() {
                   min={100}
                   InputLabelProps={{ shrink: true }} required />                                                                                        
               </Grid>
+              </Tooltip>
               <Grid item xs={12}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={2.5}>
                   <Autocomplete
                     defaultValue={(isEditing
-                      ? (selectDataMapping.flightType[currentAlert?.mainFilter?.flight?.flightType] || '').toString()
-                      : 'Roundtrip')}
+                      ? (selectDataMapping.flightType[currentAlert?.mainFilter?.flightType] || '').toString()
+                      : null)}
                     options={selectData.flightType}
-                    onChange={(event, value) => setFlightType(value)} 
+                    onChange={(event, value) => handleSetFlightType(value)} 
                     renderInput={(params) => (
                       <FormField  {...params} name="flightType"      
                         label="Flight Type" InputLabelProps={{ shrink: true }} required
@@ -489,26 +571,22 @@ function Dashboard() {
                       label="Depart Date"
                       format="DD/MM/YY"
                       defaultValue={(isEditing
-                        ? dayjs(currentAlert?.mainFilter?.flight?.departDate)
+                        ? dayjs(currentAlert?.mainFilter?.flights[0]?.departDate)
                         : null)}
                       disablePast
-                      disabled={flightType === 'Cheapest' || currentAlert?.mainFilter?.flight?.flightType === 'Cheapest'}
+                      disabled={flightType ?  flightType === 'Cheapest' : currentAlert?.mainFilter?.flightType ?
+                        currentAlert?.mainFilter?.flightType === 'CHEAPEST' : false }
                       onChange={date => {
                         if (isEditing) {
-                          currentAlert.mainFilter.flight.departDate = date;
+                          currentAlert.mainFilter.flights[0].departDate = date;
+                          setDepartDate(date);
                         } else {
                           setDepartDate(date);
                         }     
-      
-                        if (flightType === 'Month') {
-                          const startOfMonth = dayjs(date).startOf('month');
-                          const endOfMonth = dayjs(date).endOf('month');                    
-                          setDepartRangeDate(startOfMonth);
-                          setReturnRangeDate(endOfMonth);
-                          if (isEditing) {
-                            currentAlert.preferencesFilter.departRangeDate = startOfMonth;
-                            currentAlert.preferencesFilter.returnRangeDate = endOfMonth;
-                          }
+                        if (flightType ?  flightType === 'Month' : currentAlert?.mainFilter?.flightType ?
+                          currentAlert?.mainFilter?.flightType === 'MONTH' : false) {
+                          setDepartRangeDate(dayjs(date).startOf('month').format("YYYY-MM-DD"));
+                          setReturnRangeDate(dayjs(date).endOf('month').format("YYYY-MM-DD"));
                         }
                       }}
                       slotProps={{
@@ -524,13 +602,12 @@ function Dashboard() {
                         label="Return Date"
                         format="DD/MM/YY"
                         defaultValue={(isEditing
-                          ? dayjs(currentAlert?.mainFilter?.flight?.returnDate)
+                          ? dayjs(currentAlert?.mainFilter?.flights[0]?.returnDate)
                           : null)}
                         disablePast
-                        disabled={flightType === 'One Way' || flightType === 'Cheapest' || flightType === 'Month' 
-                          || currentAlert?.mainFilter?.flight?.flightType === 'Month'}
-                        onChange={date => (isEditing
-                          ?  currentAlert.mainFilter.flight.returnDate = date: setReturnDate(date))}
+                        disabled={flightType ? flightType !== 'Roundtrip' : currentAlert?.mainFilter?.flightType ?
+                           currentAlert?.mainFilter?.flightType !== 'ROUNDTRIP' : false }
+                        onChange={date => setReturnDate(date)}
                         slotProps={{
                           field: { clearable: true, onClear: () => setCleared(true) },
                         }}
@@ -564,7 +641,7 @@ function Dashboard() {
                       label="Airport From"
                       placeholder="GIG"
                       defaultValue={(isEditing
-                          ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportFrom || "").toString()
+                          ? (currentAlert?.mainFilter?.flights[0]?.airports?.airportFrom || "").toString()
                           : "")}
                         required
                     />       
@@ -576,31 +653,26 @@ function Dashboard() {
                       label="Airport To" 
                       placeholder="FLN" 
                       defaultValue={(isEditing
-                        ? (currentAlert?.mainFilter?.flight?.airports[0]?.airportTo || "").toString()
-                        : "")} required/>
+                        ? (currentAlert?.mainFilter?.flights[0]?.airports?.airportTo || "").toString()
+                        : null)} />
                   </Grid>
-                  <Grid item xs={12} sm={1.5}>
-                    <Autocomplete
-                        defaultValue={(isEditing
-                          ? String(currentAlert?.mainFilter?.adults) || "1"
-                          : "1")}
-                        options={selectData.passagers}
-                        renderInput={(params) => (
-                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  required />
-                    )}/>     
-                  </Grid>
-                  <Grid item xs={12} sm={1.5}>
-                    <Autocomplete
-                          defaultValue={(isEditing
-                            ? String(currentAlert?.mainFilter?.children) || "0"
-                            : "0")}
-                          options={selectData.passagers}
-                          renderInput={(params) => (
-                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  required/>
-                      )}/>    
+                  <Grid item xs={12} sm={3}>
+                    <Tooltip title="Add up to three legs of your journey. Only for Multicity Flight Type." placement="bottom">
+                      <span>
+                        <IconButton 
+                          aria-label="Add New Destination"  
+                          onClick={() => handleAddNewAirportField(currentAlert?.mainFilter?.flights[0]?.departDate)}
+                          disabled={flightType ? flightType !== 'Multicity' : currentAlert?.mainFilter?.flightType !== 'MULTICITY'}
+                        >
+                          <Add />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
                   </Grid>
                 </Grid>
               </Grid>
+              <AirportFields ref={airportFieldsRef} isEditing={isEditing} currentAlert={currentAlert} flightType={flightType}  />                     
+
               <MDBox p={3}>
                 <MDTypography variant="h5">Preferences
                   <ExpandMore
@@ -615,70 +687,150 @@ function Dashboard() {
               <Collapse in={expandedAlertModal} timeout="auto" unmountOnExit px={3}>
                 <MDBox pb={3} px={3}>
                   <Grid container spacing={3}>
-                    <Grid item xs={12} sm={1.75}>
-                      <FormField name="rangePriceStart" label="$ Range Start" placeholder="200" 
-                        defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeStart
-                        ? (currentAlert.preferencesFilter.rangePrice.rangeStart).toString()  || null
-                        : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />
-                    </Grid>
-                    <Grid item xs={12} sm={1.75}>
-                      <FormField name="rangePriceEnd" label="$ Range End" placeholder="500" 
-                      defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeEnd
-                        ? (currentAlert.preferencesFilter.rangePrice.rangeEnd).toString() || null
-                        : null)} required={currentAlert?.preferencesFilter?.priceType === "Range"} />        
-                    </Grid>
-                    <Grid item xs={12} sm={1.5}>
+                    <Tooltip title="Start of Range Price. For receving prices at start of this price." placement="bottom">
+                      <Grid item xs={12} sm={1.5}>
+                          <FormField name="rangePriceStart" label="Start Price" placeholder="200" 
+                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeStart
+                            ? (currentAlert.preferencesFilter.rangePrice.rangeStart).toString()  || null
+                            : null)} />
+                      </Grid>
+                    </Tooltip>
+                    <Tooltip title="End of Range Price. For receving alerts at end of this price." placement="bottom">
+                      <Grid item xs={12} sm={1.5}>
+                          <FormField name="rangePriceEnd" label="End Price" placeholder="500" 
+                          defaultValue={(isEditing && currentAlert?.preferencesFilter?.rangePrice?.rangeEnd
+                            ? (currentAlert.preferencesFilter.rangePrice.rangeEnd).toString() || null
+                            : null)} />       
+                      </Grid>
+                    </Tooltip> 
+                    <Tooltip title="Alert Equal Prices. To receive alerts even if the previous price does not change." placement="bottom">
+                      <Grid item xs={12} sm={2.0}>
+                          <FormLabel component="legend" sx={{ fontSize: '12px' }}>Equal Prices</FormLabel>
+                          <FormGroup aria-label="position" row>
+                            <FormControlLabel 
+                              control={ <Checkbox name="alertEqualPrices" checked={isEditing && alertEqualPrices == null ?
+                               currentAlert?.preferencesFilter?.alertEqualPrices : alertEqualPrices} onChange={handleChangeAlertEqualPrices}/>} />               
+                          </FormGroup>
+                      </Grid>
+                    </Tooltip>
+                    <Tooltip title="Start of Range Date. For receving alerts at start of this date." placement="bottom">
+                      <Grid item xs={12} sm={3.5}>                  
+                          <div>
+                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                              <DatePicker name="departRangeDate" label="Start Date" 
+                                defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeDate
+                                  ? dayjs(currentAlert.preferencesFilter.departRangeDate) || null
+                                  : null)}
+                                format="DD/MM/YY"
+                                disablePast
+                                onChange={date => (isEditing
+                                  ?  currentAlert.preferencesFilter.departRangeDate = date: setDepartRangeDate(date))}
+                                slotProps={{
+                                  field: { clearable: true, onClear: () => setCleared(true) },
+                                }} disabled={flightType ?  flightType !== 'Cheapest' : currentAlert?.mainFilter?.flightType ?
+                                  currentAlert?.mainFilter?.flightType !== 'CHEAPEST' : false }/> 
+                            </LocalizationProvider>  
+                          </div>
+                      </Grid>
+                    </Tooltip>                  
+                    <Tooltip title="End of Range Date. For receving alerts at end of this date." placement="bottom">
+                      <Grid item xs={12} sm={3.5}>
+                        <div>
+                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                              <DatePicker name="returnRangeDate" label="End Range" 
+                                defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeDate
+                                  ? dayjs(currentAlert.preferencesFilter.returnRangeDate) || null
+                                  : null)}
+                                format="DD/MM/YY"
+                                disablePast
+                                onChange={date => (isEditing
+                                  ?  currentAlert.preferencesFilter.returnRangeDate = date: setReturnRangeDate(date))}
+                                slotProps={{
+                                  field: { clearable: true, onClear: () => setCleared(true) },
+                                }} disabled={flightType ?  flightType !== 'Cheapest' : currentAlert?.mainFilter?.flightType ?
+                                  currentAlert?.mainFilter?.flightType !== 'CHEAPEST' : false }/> 
+                          </LocalizationProvider>  
+                        </div>            
+                      </Grid>
+                    </Tooltip>
+                    <Grid item xs={12}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={1.5}>
+                    <Autocomplete
+                        defaultValue={(isEditing
+                          ? String(currentAlert?.mainFilter?.adults) || "1"
+                          : "1")}
+                        options={selectData.passagers}
+                        renderInput={(params) => (
+                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  />
+                    )}/>     
+                  </Grid>
+                  <Grid item xs={12} sm={1.5}>
+                    <Autocomplete
+                          defaultValue={(isEditing
+                            ? String(currentAlert?.mainFilter?.children) || "0"
+                            : "0")}
+                          options={selectData.passagers}
+                          renderInput={(params) => (
+                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  />
+                      )}/>
+                  </Grid>
+                  <Grid item xs={12} sm={1.5}>
+                    <Autocomplete
+                          defaultValue={(isEditing
+                            ? String(currentAlert?.mainFilter?.infants) || "0"
+                            : "0")}
+                          options={selectData.passagers}
+                          renderInput={(params) => (
+                            <FormField {...params} name="infants" label="Infants" InputLabelProps={{ shrink: true }}  />
+                      )}/>
+                  </Grid>
+                  <Grid item xs={12} sm={1.5}>
                       <Autocomplete
                         defaultValue={(isEditing && currentAlert?.preferencesFilter?.scalesQuantity
                           ? String(currentAlert.preferencesFilter.scalesQuantity) || null
                           : null)}
-                        options={selectData.passagers}
+                        options={selectData.scales}
                         renderInput={(params) => (
                           <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} 
-                          disabled />
+                           />
                       )}/>     
-                    </Grid>
-                    <Grid item xs={12} sm={3.5}>                  
-                      <Tooltip title="Start Date of Range" placement="bottom">
-                        <div>
-                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                            <DatePicker name="departRangeDate" label="Depart Range Date" 
-                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeDate
-                                ? dayjs(currentAlert.preferencesFilter.departRangeDate) || null
-                                : null)}
-                              format="DD/MM/YY"
-                              disablePast
-                              onChange={date => (isEditing
-                                ?  currentAlert.preferencesFilter.departRangeDate = date: setDepartRangeDate(date))}
-                              slotProps={{
-                                field: { clearable: true, onClear: () => setCleared(true) },
-                              }} disabled={flightType === 'One Way' || flightType === 'Roundtrip' || flightType === 'Month'}/> 
-                          </LocalizationProvider>  
-                        </div>
-                      </Tooltip>                  
-                    </Grid>
-                    <Grid item xs={12} sm={3.5}>
-                      <Tooltip title="End Date Range" placement="bottom">
-                        <div>
-                          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-                            <DatePicker name="returnRangeDate" label="Return Range Date" 
-                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeDate
-                                ? dayjs(currentAlert.preferencesFilter.returnRangeDate) || null
-                                : null)}
-                              format="DD/MM/YY"
-                              disablePast
-                              onChange={date => (isEditing
-                                ?  currentAlert.preferencesFilter.returnRangeDate = date: setReturnRangeDate(date))}
-                              slotProps={{
-                                field: { clearable: true, onClear: () => setCleared(true) },
-                              }} disabled={flightType === 'One Way' || flightType === 'Roundtrip' || flightType === 'Month'}/> 
-                          </LocalizationProvider>  
-                        </div>            
-                      </Tooltip>
-                    </Grid>
+                  </Grid>
+                  <Tooltip title="Allow to add nearby airports for origin." placement="bottom">
+                      <Grid item xs={12} sm={2.0}>
+                          <FormLabel component="legend" sx={{ fontSize: '10px' }}>Nearby Origin</FormLabel>
+                          <FormGroup aria-label="position" row>
+                            <FormControlLabel 
+                              control={ <Checkbox name="includeOriginNearbyAirports" checked={isEditing && includeOriginNearbyAirports == null ?
+                               currentAlert?.preferencesFilter?.includeOriginNearbyAirports : includeOriginNearbyAirports} onChange={handleChangeIncludeOriginNearbyAirports}/>} />               
+                          </FormGroup>
+                      </Grid>
+                    </Tooltip>
+                    <Tooltip title="Allow to add nearby airports for destination." placement="bottom">
+                      <Grid item xs={12} sm={2.0}>
+                          <FormLabel component="legend" sx={{ fontSize: '10px' }}>Nearby Destination</FormLabel>
+                          <FormGroup aria-label="position" row>
+                            <FormControlLabel 
+                              control={ <Checkbox name="includeDestinationNearbyAirports" checked={isEditing && includeDestinationNearbyAirports == null ?
+                               currentAlert?.preferencesFilter?.includeDestinationNearbyAirports : includeDestinationNearbyAirports} onChange={handleChangeIncludeDestinationNearbyAirports}/>} />               
+                          </FormGroup>
+                      </Grid>
+                    </Tooltip>
+                  <Grid item xs={12} sm={1.5}>
+                          <Autocomplete
+                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.airline
+                              ? (currentAlert.preferencesFilter.airline).toString() || null
+                              : null)}
+                            options={selectData.airlines}
+                            renderInput={(params) => (
+                              <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} disabled />
+                            )}/> 
+                        </Grid>
+                </Grid>
+              </Grid>
                     <Grid item xs={12}>
                       <Grid container spacing={3}>
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="departRangeTimeStart" label="Start Depart Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeTime?.rangeStart
@@ -686,7 +838,7 @@ function Dashboard() {
                                 : null)} disabled/>
                           </LocalizationProvider>              
                         </Grid>
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="departRangeTimeEnd" label="End Depart Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.departRangeTime?.rangeEnd
@@ -694,7 +846,7 @@ function Dashboard() {
                                 : null)} disabled/>
                           </LocalizationProvider>
                         </Grid>
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="returnRangeTimeStart" label="Start Return Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeTime?.rangeStart
@@ -702,7 +854,7 @@ function Dashboard() {
                                 : null)} disabled/>
                           </LocalizationProvider>
                         </Grid>
-                        <Grid item xs={12} sm={3}>
+                        <Grid item xs={12} sm={2.6}>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimeField name="returnRangeTimeEnd" label="End Return Range Time" format="HH:mm" 
                               defaultValue={(isEditing && currentAlert?.preferencesFilter?.returnRangeTime?.rangeEnd
@@ -746,16 +898,6 @@ function Dashboard() {
                             renderInput={(params) => (
                               <FormField {...params} name="otherPreferences" label="Others Preferences" InputLabelProps={{ shrink: true }} 
                               disabled />
-                            )}/> 
-                        </Grid>
-                        <Grid item xs={12} sm={1.5}>
-                          <Autocomplete
-                            defaultValue={(isEditing && currentAlert?.preferencesFilter?.airline
-                              ? (currentAlert.preferencesFilter.airline).toString() || null
-                              : null)}
-                            options={selectData.airlines}
-                            renderInput={(params) => (
-                              <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} disabled />
                             )}/> 
                         </Grid>
                         <Grid item xs={12} sm={3}>
@@ -816,7 +958,7 @@ function Dashboard() {
       onClose={closeCardAlertMenu}
       keepMounted
       disableAutoFocusItem
-      disableScrollLock={ true }
+      disablescrolllock="true"
     >
       <MenuItem onClick={(e) => {
         e.stopPropagation(); 
@@ -933,22 +1075,16 @@ function Dashboard() {
                       </ListItem>
                       <ListItem disablePadding>
                         <ListItemText>
-                          <MDTypography variant="h6">{"Duration: " + alert?.alert?.alertDurationTime}</MDTypography>
+                          <MDTypography variant="h6">{"Balance: " + alert?.alert?.alertDurationTime}</MDTypography>
                         </ListItemText>
                         <ListItemText>
-                          <MDTypography variant="h6">{"Duration Used: " + (alert?.alert?.alertDurationTimeCreated - alert?.alert?.alertDurationTime)}</MDTypography>    
+                          <MDTypography variant="h6">{"Alerts Used: " + (alert?.alert?.alertDurationTimeCreated - alert?.alert?.alertDurationTime)}</MDTypography>    
                         </ListItemText>
                       </ListItem>
                     </List>
                   </MDBox>
                 </CardContent>
                 <CardActions disableSpacing>
-                  <IconButton aria-label="add to favorites">
-                    <FavoriteIcon />
-                  </IconButton>
-                  <IconButton aria-label="share">
-                    <ShareIcon />
-                  </IconButton>
                   <ExpandMore
                     expand={expandedAlertCard}
                     onClick={handleExpandCardClick}
@@ -963,19 +1099,19 @@ function Dashboard() {
                     <List>
                       <ListItem disablePadding>
                         <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
-                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Flight: " + selectDataMapping.flightType[alert.mainFilter?.flight?.flightType]}</span>} />
-                          <ListItemText primary={<span style={{ fontSize: '16px' }}>Depart: {alert.mainFilter?.flight?.departDate !== "Invalid Date"? alert.mainFilter.flight.departDate : "N/A"}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '8px' }}>{"Flight: " + selectDataMapping.flightType[alert.mainFilter?.flightType]}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px' }}>Depart: {alert.mainFilter?.flights[0]?.departDate !== "Invalid Date"? alert.mainFilter.flights[0].departDate : "N/A"}</span>} />
                           <ListItemText
-                            primary={<span style={{ fontSize: '16px' }}>Return: {alert.mainFilter?.flight?.returnDate !== "Invalid Date"? alert.mainFilter.flight.returnDate : "N/A"}</span>}/>        
+                            primary={<span style={{ fontSize: '16px' }}>Return: {alert.mainFilter?.flights[0]?.returnDate !== "Invalid Date"? alert.mainFilter.flights[0].returnDate : "N/A"}</span>}/>        
                   
                         </div>
                       </ListItem>
                       <ListItem disablePadding>
                         <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
-                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px' }}>{"From: " + (alert.mainFilter?.flight.airports[0].airportFrom || "N/A")}</span>} />
-                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px'  }}>{"To: " + (alert.mainFilter?.flight.airports[0].airportTo || "N/A")}</span>} />
-                          {alert.mainFilter?.flight?.airports[0]?.airportScales != null && (
-                            <ListItemText primary={<span style={{ fontSize: '16px'  }}>{"Scales: " + (alert.mainFilter.flight.airports[0].airportScales || "N/A")}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px' }}>{"From: " + (alert.mainFilter?.flights[0].airports.airportFrom || "N/A")}</span>} />
+                          <ListItemText primary={<span style={{ fontSize: '16px', marginRight: '15px'  }}>{"To: " + (alert.mainFilter?.flights[0].airports.airportTo || "N/A")}</span>} />
+                          {alert.mainFilter?.flights[0]?.airports?.airportScales != null && (
+                            <ListItemText primary={<span style={{ fontSize: '16px'  }}>{"Scales: " + (alert.mainFilter.flights[0].airports.airportScales || "N/A")}</span>} />
                           )}
                         </div>
                       </ListItem>
@@ -1022,7 +1158,7 @@ function Dashboard() {
           key={vertical + horizontal}
           autoHideDuration={4000}
           onClose={handleSnackBarClose}
-          disableScrollLock={ true }>     
+          disablescrolllock="true">     
           <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
             Flight Price Alert {msg} Successfully!
           </Notification >
@@ -1035,7 +1171,7 @@ function Dashboard() {
           key={verticalE + horizontalE}
           autoHideDuration={5000}
           onClose={handleSnackBarErrorClose}
-          disableScrollLock={ true }>     
+          disablescrolllock="true">     
           <Notification onClose={handleSnackBarErrorClose} severity="error" sx={{ width: '100%' }}>
             {msgE}
           </Notification >
@@ -1046,7 +1182,7 @@ function Dashboard() {
         onClose={handleDialogConfirmClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        disableScrollLock={ true } >             
+        disablescrolllock="true" >             
         <DialogTitle id="alert-dialog-title">
           {"Are you sure ?"}
         </DialogTitle>
@@ -1072,7 +1208,7 @@ function Dashboard() {
         onClose={handleDialogConfirmClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        disableScrollLock={ true } >             
+        disablescrolllock="true" >             
         <DialogTitle id="alert-dialog-title">
           {"Let's get started!"}
         </DialogTitle>
@@ -1105,7 +1241,7 @@ function Dashboard() {
         onClose={handleDialogConfirmClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        disableScrollLock={ true } >             
+        disablescrolllock="true" >             
         <DialogTitle id="alert-dialog-title">
           {"Before active your Alert"}
         </DialogTitle>
@@ -1119,7 +1255,7 @@ function Dashboard() {
               <br/>
               <Grid item xs={12} sm={2}>
                 <FormField name="activeAlertDurationTime"                   
-                  label="Duration(Points)"
+                  label="Alert Balance"
                   defaultValue={(localStorage.getItem('alert_time')
                     ? localStorage.getItem('alert_time') : "0")}                           
                   onChange={(e) => setActiveAlertDurationTime(e.target.value)}                                                                                        
