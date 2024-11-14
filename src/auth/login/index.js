@@ -18,11 +18,9 @@ import { AuthContext } from "context";
 
 function Login() {
   const authContext = useContext(AuthContext);
-
   const [credentialsErros, setCredentialsError] = useState(null);
-
   const [inputs, setInputs] = useState({
-    username: "",
+    username: localStorage.getItem("login") ? localStorage.getItem("login") : "",
     password: "",
   });
 
@@ -30,7 +28,6 @@ function Login() {
     usernameError: false,
     passwordError: false,
   });
-
 
   const changeHandler = (e) => { 
     setInputs({

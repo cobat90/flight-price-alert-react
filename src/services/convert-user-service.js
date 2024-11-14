@@ -18,9 +18,7 @@ export const convertUserLoginRequest = (userData) => {
 
 export const convertUserSignupRequest = (userData) => {
   const {
-    firstName,
     email,
-    phoneNumber,
     password,
   } = userData;
 
@@ -30,9 +28,7 @@ export const convertUserSignupRequest = (userData) => {
     Username: email,
     Password: password,
     UserAttributes: [
-      { Name: 'name', Value: firstName },
       { Name: 'email', Value: email },
-      { Name: 'phone_number', Value: phoneNumber },
     ],
   };
 
@@ -41,13 +37,10 @@ export const convertUserSignupRequest = (userData) => {
 
 export const convertUserUpdateRequest = (userData) => {
   const {
-    firstName,
-    lastName,
     email,
     phoneNumber,
     login,
     country,
-    city,
     currency,
     langKey,
     telegramUserName,
@@ -59,13 +52,10 @@ export const convertUserUpdateRequest = (userData) => {
     UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
     username: login,
     UserAttributes: [
-      { Name: 'name', Value: firstName }, 
-      { Name: 'family_name', Value: lastName }, 
       { Name: 'email', Value: email },
       { Name: 'phone_number', Value: phoneNumber },
-      { Name: 'custom:country', Value: country }, 
-      { Name: 'custom:city', Value: city }, 
-      { Name: 'custom:currency', Value: currency }, 
+      { Name: 'custom:country', Value: country },
+      { Name: 'custom:currency', Value: currency },
       { Name: 'custom:lang_key', Value: langKey }, 
       { Name: 'custom:telegramUserName', Value: telegramUserName }, 
       { Name: 'custom:telegramChatId', Value: telegramChatId }, 

@@ -434,6 +434,7 @@ function Dashboard() {
       if (alertData["alertName"] === "" || alertData["alertName"] === null){
         setSubmitAlertError("Alert name is required.");
       }
+
       if (alertData["priceType"] === "" || alertData["priceType"] === null){
         setSubmitAlertError("Price Type is required.");
       }
@@ -510,13 +511,13 @@ function Dashboard() {
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4.5}>
                 <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
-                  defaultValue={(isEditing ? (currentAlert?.alert?.alertName || "").toString() : "")} required />                                   
+                  defaultValue={(isEditing ? (currentAlert?.alert?.alertName || "").toString() : "")} required inputProps={{ maxLength: 25 }}/>                                   
               </Grid>
               <Grid item xs={12} sm={3}>
                 <Autocomplete
                   defaultValue={(isEditing
                     ? (selectDataMapping.alertType[currentAlert?.alert?.alertType] || "").toString()
-                    : "Telegram")}          
+                    : null)}          
                   options={selectData.alertType}
                   renderInput={(params) => (
                     <FormField {...params} name="alerType" label="Alert Type"

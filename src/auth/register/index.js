@@ -29,11 +29,8 @@ function Register() {
   });
 
   const [errors, setErrors] = useState({
-    firstNameError: false,
     emailError: false,
     emailExistsError: false,
-    phoneNumberError: false,
-    phoneNumberExistsError: false,
     passwordError: false,
     confirmPasswordError: false,
     agreeError: false,
@@ -65,14 +62,10 @@ function Register() {
     });
   };
 
-
-
   const submitHandler = async (e) => {
     e.preventDefault();
 
     const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    const phoneFormat = /^\+(?:[0-9] ?){7,25}[0-9]$/;
-
     const formData = new FormData(e.target); 
     let userData = {};
     formData.forEach((value, key) => {
@@ -85,12 +78,7 @@ function Register() {
         return;
       }
     }
-    if (userData.phoneNumber){
-      if (userData.phoneNumber.trim().length === 0 || !userData.phoneNumber.trim().match(phoneFormat)) {
-        setErrors({ ...errors, phoneNumberError: true });
-        return;
-      }
-    }
+
     if (inputs.agree === false) {
       setErrors({ ...errors, agreeError: true });
       return;
@@ -110,9 +98,7 @@ function Register() {
         
         setErrors({
           ...errors,
-          firstNameError: false,
           emailError: false,
-          phoneNumberError: false,
           passwordError: false,
           confirmPasswordError: false,
           agreeError: false,
@@ -144,12 +130,6 @@ function Register() {
             setErrors({
               emailError: true,
               emailExistsError: true,
-            });
-          }
-          else if (error.response.data.__type === "UserLambdaValidationException"){
-            setErrors({
-              phoneNumberError: true,
-              phoneNumberExistsError: true,
             });
           }
           else if (error.response.data.message) 
@@ -187,9 +167,7 @@ function Register() {
   };
 
   const [resendTimer, setResendTimer] = useState(null);
-
   const openOneMinuteTimer = () => {
-
     const interval = setInterval(() => {
       setResendTimer(prevTimer => {
         if (prevTimer === 0) {
@@ -227,24 +205,6 @@ function Register() {
           <MDBox component="form" role="form" method="POST" onSubmit={submitHandler}>
             <MDBox mb={2}>
               <MDInput
-                type="text"
-                label="First Name"
-                variant="standard"
-                fullWidth
-                name="firstName"
-                error={errors.firstNameError}
-                required
-                minLength={3}
-                maxLength={45}
-              />
-              {errors.firstNameError && (
-                <MDTypography variant="caption" color="error" fontWeight="light">
-                  The name can not be empty
-                </MDTypography>
-              )}
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput
                 type="email"
                 label="Email"
                 variant="standard"
@@ -258,24 +218,6 @@ function Register() {
               {errors.emailError && (
                 <MDTypography variant="caption" color="error" fontWeight="light">
                   {errors.emailExistsError ? 'The Email already in use' : 'Email must be valid.'}
-                </MDTypography>
-              )}
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput
-                type="text"
-                label="Phone Number"
-                variant="standard"
-                fullWidth
-                name="phoneNumber"
-                error={errors.phoneNumberError}
-                required
-                minLength={7}
-                maxLength={25}
-              />
-              {errors.phoneNumberError && (
-                <MDTypography variant="caption" color="error" fontWeight="medium">
-                  {errors.phoneNumberExistsError ? 'The Phone Number already in use' : 'Invalid Phone Number. Ex: +99 99 9999 9999.'}
                 </MDTypography>
               )}
             </MDBox>

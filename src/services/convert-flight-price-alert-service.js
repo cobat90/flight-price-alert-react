@@ -91,7 +91,7 @@ export const convertFlightRequest = (alertData) => {
     userId: userId,
     alert: {
       alertName: alertName,
-      alertType: [alertType ? alertType.toUpperCase() : 'TELEGRAM'],
+      alertType: [alertType ? alertType.toUpperCase() : 'SMS'],
       priceType: priceType ? priceType.toUpperCase() : "EVERY",
       alertDurationTime: parseInt(alertDurationTime),
       alertDisabled: alertDisabled ? alertDisabled : false,

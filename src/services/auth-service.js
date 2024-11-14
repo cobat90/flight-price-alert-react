@@ -63,6 +63,18 @@ class AuthService {
     return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
   }
 
+  getUserAttributeVerificationCode = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.GetUserAttributeVerificationCode' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
+  }
+  
+  verifyUserAttribute = async (payload) => {
+    const headers= { 'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.VerifyUserAttribute' };
+    return await userAxiosInstance.post(API_COGNITO_URL, payload, { headers });
+  }
+
   resendConfirmationCode = async (payload) => {
     const headers= { 'Content-Type': 'application/x-amz-json-1.1',
       'X-Amz-Target': 'AWSCognitoIdentityProviderService.ResendConfirmationCode' };

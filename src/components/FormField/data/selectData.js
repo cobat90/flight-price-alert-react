@@ -1,6 +1,5 @@
 const selectData = {
-  gender: ["Male", "Female"],
-  alertType: ["Telegram"],
+  alertType: ["Telegram", "SMS"],
   priceType: ["Every", "Lowest", "Range"],
   flightType: ["One Way", "Roundtrip", "Cheapest", "Month", "Multicity"],
   cabinClassType: ["Economy", "Premium Economy", "Business Class", "First Class"],

@@ -1,3 +1,5 @@
+const { Sms } = require("@mui/icons-material");
+
 const selectDataMapping = {
     flightType: {
         ROUNDTRIP: "Roundtrip",
@@ -8,6 +10,7 @@ const selectDataMapping = {
     },
     alertType: {
         TELEGRAM: "Telegram",
+        SMS: "SMS",
     },
     priceType: {
         LOWEST: "Lowest",

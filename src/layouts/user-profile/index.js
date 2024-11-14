@@ -49,7 +49,6 @@ const UserProfile = () => {
         setUser(convertUserResponse(response.data));
         if (response.data.UserAttributes) {
           const userAttributes = response.data.UserAttributes;
-        
           localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
           localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
         }    
@@ -177,31 +176,7 @@ const UserProfile = () => {
                   disabled
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField name="phoneNumber" defaultValue={(user?.phoneNumber ? (user.phoneNumber || "").toString() : "")}
-                  label="Phone Number"
-                  placeholder="+55 99765 4646"
-                  inputProps={{ type: "text" }}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField name="email" defaultValue={(user?.email ? (user.email || "").toString() : "")}
-                  label="Email"
-                  placeholder="example@email.com"
-                  onChange={changeHandler}
-                  inputProps={{ type: "email" }}
-                  disabled
-                />  
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField name="emailConfirmation" defaultValue={(user?.email ? (user.email || "").toString() : "")}
-                  label="Confirmation Email"
-                  placeholder="example@email.com"
-                  inputProps={{ type: "email", pattern: user.email }}
-                  disabled
-                />
-              </Grid>
+
               <Grid item xs={12} sm={6}>
               <AutoCompleteCountries
                   ref={countryRef}
@@ -212,10 +187,6 @@ const UserProfile = () => {
                   defaultValue={(user?.country ? (user.country || "").toString() : "")}
                   required
                 />       
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField name="city"  defaultValue={(user?.city ? (user.city || "").toString() : "")}
-                label="City" placeholder="Rio de Janeiro" inputProps={{ type: "text" }}/>
               </Grid>
               <Grid item xs={12} md={6}>
               <AutoCompleteCurrencies
@@ -238,6 +209,15 @@ const UserProfile = () => {
                     defaultValue={(user?.langKey ? (user.langKey || "").toString() : "")}
                     required
                   />       
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormField name="phoneNumber" defaultValue={(user?.phoneNumber ? (user.phoneNumber || "").toString() : "")}
+                  label="Phone Number"
+                  placeholder="+55 99765 4646"
+                  inputProps={{ type: "text" }}
+                  required
+                />
+
               </Grid>
               <Grid item xs={12} md={6}>
                 <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
