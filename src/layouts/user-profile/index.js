@@ -34,10 +34,39 @@ const UserProfile = () => {
   const countryRef = useRef(null);
   const currencyRef = useRef(null);
   const langKeyRef = useRef(null);
-  const [updateUserErrors, setUpdateUserError] = useState(null);
   const [errors, setErrors] = useState({});
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
+
+  const handleDialogConfirmOpen = () => {   
+    setOpenDialogConfirm(true);
+  };
+
+  const handleDialogConfirmClose = () => {
+    setOpenDialogConfirm(false);
+  };
+
+  const handleResendConfirmationCode = () => {
+    let userData = {
+      email: localStorage.getItem("login"),
+    }
+    resendConfirmationCodeForUserEmail(convertResendConfirmationCode(userData));
+  };
+
+  const openOneMinuteTimer = () => {
+    const interval = setInterval(() => {
+      setResendTimer(prevTimer => {
+        if (prevTimer === 0) {
+          clearInterval(interval);
+          return prevTimer;
+        }
+        return prevTimer - 1;
+      });
+
+    }, 1000);
+  };
 
   const getUserData = async () => {
     try {
@@ -176,7 +205,6 @@ const UserProfile = () => {
                   disabled
                 />
               </Grid>
-
               <Grid item xs={12} sm={6}>
               <AutoCompleteCountries
                   ref={countryRef}
@@ -217,7 +245,17 @@ const UserProfile = () => {
                   inputProps={{ type: "text" }}
                   required
                 />
-
+                <Tooltip title="For receving notifications by SMS, it's necessary to validate your phone number" placement="bottom">
+                  <Grid item xs={12} md={6}>
+                    <MDButton
+                      variant="gradient"
+                      color="info"
+                      type="button"
+                      onClick={openDialogConfirm}>                  
+                      Verify
+                    </MDButton>
+                  </Grid>    
+                </Tooltip>
               </Grid>
               <Grid item xs={12} md={6}>
                 <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
@@ -276,6 +314,43 @@ const UserProfile = () => {
         </Snackbar>
       </MDBox>
       <Footer />
+      <Dialog
+        open={openDialogConfirm}
+        onClose={handleDialogConfirmClose}
+        aria-labelledby="verify-dialog-title"
+        aria-describedby="verify-dialog-description"
+        disableScrollLock={true}
+      >
+        <DialogTitle id="verify-dialog-title">
+          {"Check your phone"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="verify-dialog-description">
+            An SMS was sent for verify your phone number. Wait here until you receive it.
+          </DialogContentText>
+          {resendTimer > 0 && (
+            <DialogContentText id="resend-timer">
+              To resend the SMS, please wait <b>{resendTimer}</b> seconds.
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              handleResendConfirmationCode();
+              setResendTimer(60);
+            }}
+            disabled={resendTimer > 0}
+          >
+            Resend
+          </Button>
+          <Button
+            onClick={handleDialogConfirmClose}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </DashboardLayout>
   );
 };
