@@ -10,9 +10,16 @@ import MuiAlert from '@mui/material/Alert';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
+import Tooltip from "@mui/material/Tooltip";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { convertUserUpdateRequest, convertUserResponse } from '../../services/convert-user-service';
+import { convertUserUpdateRequest, convertUserResponse, convertGetVerificationCodeRequest, convertVerifyCodeRequest } from '../../services/convert-user-service';
 import AuthService from "../../services/auth-service";
 import AutoCompleteCountries  from "components/AutoCompleteCountries";
 import AutoCompleteCurrencies  from "components/AutoCompleteCurrencies";
@@ -29,32 +36,25 @@ const UserProfile = () => {
     open: false,
     vertical: 'top',
     horizontal: 'center',
+    message: '',
   });
-  const { vertical, horizontal, open } = snackBarState;
+  const { vertical, horizontal, open, message } = snackBarState;
   const countryRef = useRef(null);
   const currencyRef = useRef(null);
   const langKeyRef = useRef(null);
+  const phoneFormat = /^\+(?:[0-9] ?){7,25}[0-9]$/;
   const [errors, setErrors] = useState({});
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
-
   const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
-
-  const handleDialogConfirmOpen = () => {   
-    setOpenDialogConfirm(true);
-  };
+  const verificationCodeRef = useRef(null);
 
   const handleDialogConfirmClose = () => {
     setOpenDialogConfirm(false);
+    verificationCodeRef.current.value = null;
   };
 
-  const handleResendConfirmationCode = () => {
-    let userData = {
-      email: localStorage.getItem("login"),
-    }
-    resendConfirmationCodeForUserEmail(convertResendConfirmationCode(userData));
-  };
-
+  const [resendTimer, setResendTimer] = useState(null);
   const openOneMinuteTimer = () => {
     const interval = setInterval(() => {
       setResendTimer(prevTimer => {
@@ -64,9 +64,53 @@ const UserProfile = () => {
         }
         return prevTimer - 1;
       });
-
     }, 1000);
   };
+
+  const handleGetVerificationCode = (attribute) => {
+    if (userData.phoneNumber){
+        if (userData.phoneNumber.trim().length === 0 || !userData.phoneNumber.trim().match(phoneFormat)) {
+          setErrors({ ...errors, phoneNumberError: true });
+          return;
+        }
+      }
+    getVerificationCode(convertGetVerificationCodeRequest(attribute));
+  };
+
+  const getVerificationCode = async (userData) => {
+    try {
+      const response = await AuthService.getUserAttributeVerificationCode(userData);
+      if (response.status === 200) {
+        setResendTimer(60);
+        openOneMinuteTimer();
+      } 
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) { 
+        setErrors({ ...errors, error: true, errorText: error.response.data.message });
+      } else {
+        console.error("Error Get Verification Code");
+      }
+    }
+  }
+
+  const handleVerifyCode = (attribute, code) => {
+    verifyCode(convertVerifyCodeRequest(attribute, code));
+  };
+
+  const verifyCode = async (userData) => {
+    try {
+      const response = await AuthService.verifyUserAttribute(userData);
+      if (response.status === 200) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', message: 'Phone Number Verified!' });
+      } 
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) { 
+        setErrors({ ...errors, error: true, errorText: error.response.data.message });
+      } else {
+        console.error("Error Verifying Code");
+      }
+    }
+  }
 
   const getUserData = async () => {
     try {
@@ -98,7 +142,7 @@ const UserProfile = () => {
     try {
       const response = await AuthService.updateProfile(userData);
       if (response.status === 200) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', message: 'User Profile Saved!' });
         getUserData();
       } else {
         console.error("Invalid data format in response:", response);
@@ -124,15 +168,8 @@ const UserProfile = () => {
     setErrors(null);
   }, []);
 
-  const changeHandler = (e) => {
-    setUser({
-      ...user,
-      email: e.target.value,
-    });
-  };
-
-  const handleSnackBarOpen = (newState) => {
-    setSnackBarState({ ...newState, open: true });
+  const handleSnackBarOpen = (newState, message) => {
+    setSnackBarState({ ...newState, message, open: true });
   };
 
   const handleSnackBarClose = () => {
@@ -188,23 +225,8 @@ const UserProfile = () => {
             <MDTypography variant="h5">Profile Info</MDTypography>
           </MDBox>
           <MDBox component="form" pb={3} px={3} ref={formRef} onSubmit={handleSubmit}>
+          <MDBox p={3}>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <FormField name="firstName"  defaultValue={(user?.firstName ? (user.firstName || "").toString() : "")}
-                  label="First Name" placeholder="Fernando" inputProps={{ type: "text" }} required/>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField name="lastName"  defaultValue={(user?.lastName ? (user.lastName || "").toString() : "")}
-                label="Last Name" placeholder="Silva" inputProps={{ type: "text" }}/>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField name="login" defaultValue={(user?.login ? (user.login || "").toString() : "")}
-                  label="Login"
-                  placeholder="User"
-                  inputProps={{ type: "text" }}
-                  disabled
-                />
-              </Grid>
               <Grid item xs={12} sm={6}>
               <AutoCompleteCountries
                   ref={countryRef}
@@ -238,33 +260,55 @@ const UserProfile = () => {
                     required
                   />       
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField name="phoneNumber" defaultValue={(user?.phoneNumber ? (user.phoneNumber || "").toString() : "")}
-                  label="Phone Number"
-                  placeholder="+55 99765 4646"
-                  inputProps={{ type: "text" }}
-                  required
-                />
-                <Tooltip title="For receving notifications by SMS, it's necessary to validate your phone number" placement="bottom">
+              </Grid>
+              </MDBox>
+              <MDBox>
+                <MDTypography variant="h6">SMS Notifications</MDTypography>
+              </MDBox>
+              <MDBox p={3}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
+                    <FormField name="phoneNumber" defaultValue={(user?.phoneNumber ? (user.phoneNumber || "").toString() : "")}
+                      label="Phone Number"
+                      placeholder="+55 99765 4646"
+                      inputProps={{ type: "text" }}
+                      required
+                    />
+                    </Grid>
+                    <Tooltip title="For receving notifications by SMS, it's necessary to validate your Phone Number." placement="bottom">
+                      <Grid item xs={12} md={2}>
+                        <MDButton
+                          variant="gradient"
+                          color="error"
+                          type="button"
+                          onClick={() => {
+                            handleGetVerificationCode("phone_number");
+                            setResendTimer(60);
+                          }}
+                          disabled={resendTimer > 0}>                  
+                          Verify
+                        </MDButton>
+                      </Grid>    
+                    </Tooltip>
+                  </Grid>
+              </MDBox>
+              <MDBox>
+                <MDTypography variant="h6">Telegram Notifications</MDTypography>
+              </MDBox>
+              <MDBox p={3}>
+                <Grid container spacing={3}>
                   <Grid item xs={12} md={6}>
-                    <MDButton
-                      variant="gradient"
-                      color="info"
-                      type="button"
-                      onClick={openDialogConfirm}>                  
-                      Verify
-                    </MDButton>
-                  </Grid>    
-                </Tooltip>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
-                label="Telegram UserName" placeholder="telegramUsername" inputProps={{ type: "text" }} required/>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
-                label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }} required/>
-              </Grid>
+                    <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
+                    label="Telegram UserName" placeholder="telegramUsername" inputProps={{ type: "text" }} required/>
+                  </Grid>
+                  <Tooltip title="It's necessary to look for ittent_bot and text '/chatId' in Telegram." placement="bottom">
+                    <Grid item xs={12} md={6}>
+                      <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
+                      label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }} required/>
+                    </Grid>
+                  </Tooltip>
+                </Grid>
+              </MDBox>
               <Grid item xs={12}>
                 {errors && Object.keys(errors).length > 0 && (
                   Object.keys(errors).map((key) => (
@@ -276,6 +320,8 @@ const UserProfile = () => {
                   ))
                 )}
               </Grid>
+              <MDBox p={3}>
+              <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <MDButton
                   variant="gradient"
@@ -293,8 +339,9 @@ const UserProfile = () => {
                   onClick={handleClearForm}>                  
                   Clear
                 </MDButton>
-              </Grid>    
-            </Grid>
+              </Grid>
+              </Grid>
+              </MDBox>
           </MDBox>
         </Card>
         ) : (
@@ -309,7 +356,7 @@ const UserProfile = () => {
           onClose={handleSnackBarClose}
           disablescrolllock="true">     
           <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
-            User Profile Saved!
+            {message}
           </Notification >
         </Snackbar>
       </MDBox>
@@ -333,12 +380,25 @@ const UserProfile = () => {
               To resend the SMS, please wait <b>{resendTimer}</b> seconds.
             </DialogContentText>
           )}
+          <Grid item xs={12} sm={6}>
+          <FormField name="verificationCode"
+            label="Verification Code"
+            inputProps={{ type: "text" }}
+            required
+            ref={verificationCodeRef}
+            maxLength={6}
+          />
+          </Grid>
         </DialogContent>
         <DialogActions>
+          <Button onClick={verificationCodeRef.current.value ? handleVerifyCode("phone_number", verificationCodeRef.current.value) : null}>
+            Verify Code
+          </Button>
           <Button
             onClick={() => {
               handleResendConfirmationCode();
               setResendTimer(60);
+              openOneMinuteTimer();
             }}
             disabled={resendTimer > 0}
           >

@@ -156,6 +156,24 @@ export const convertResendConfirmationCode = (userData) => {
   return payload;
 };
 
+export const convertGetVerificationCodeRequest = (attribute) => {
+  const payload = {
+    AccessToken: localStorage.getItem("token"),
+    AttributeName: attribute,  
+  };
+  return payload;
+};
+
+export const convertVerifyCodeRequest = (attribute, code) => {
+  const payload = {
+    AccessToken: localStorage.getItem("token"),
+    AttributeName: attribute,
+    Code: code, 
+  };
+  return payload;
+};
+
+
 export function getAttributeValue(attributes, attributeName) {
   const attribute = attributes.find(attr => attr.Name === attributeName);
   return attribute ? attribute.Value : null;
