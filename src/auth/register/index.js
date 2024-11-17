@@ -33,7 +33,7 @@ function Register() {
     emailExistsError: false,
     passwordError: false,
     confirmPasswordError: false,
-    agreeError: false,
+    //agreeError: false,
     error: false,
     errorText: "",
   });
@@ -79,10 +79,10 @@ function Register() {
       }
     }
 
-    if (inputs.agree === false) {
+ /*    if (inputs.agree === false) {
       setErrors({ ...errors, agreeError: true });
       return;
-    }
+    } */
     if (userData.confirmPassword || userData.password) {     
       if (userData.password.trim().length < 8) {
         setErrors({ ...errors, passwordError: true });
@@ -94,17 +94,16 @@ function Register() {
       }
 
       if (userData.password.length > 0 && userData.confirmPassword.length > 0 ) {
-        registerUserData(convertUserSignupRequest(userData));
-        
         setErrors({
-          ...errors,
           emailError: false,
           passwordError: false,
           confirmPasswordError: false,
-          agreeError: false,
+          //agreeError: false,
           error: false,
           errorText: "",
+          emailExistsError: false,
         });  
+        registerUserData(convertUserSignupRequest(userData));
       }
     }
   };
@@ -198,7 +197,7 @@ function Register() {
             Sing up
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            Join now and receive free 10 alert days
+            Sign up now and get 1000 free balance 
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
@@ -257,7 +256,7 @@ function Register() {
                 </MDTypography>
               )}
             </MDBox>
-            <MDBox display="flex" alignItems="center" ml={-1}>
+ {/*           <MDBox display="flex" alignItems="center" ml={-1}>
               <Checkbox name="agree" id="agree" onChange={changeHandler} />
               <InputLabel
                 variant="standard"
@@ -268,7 +267,7 @@ function Register() {
               >
                 &nbsp;&nbsp;I agree to the&nbsp;
               </InputLabel>
-              <MDTypography
+               <MDTypography
                 component={Link}
                 to="/auth/login"
                 variant="button"
@@ -277,13 +276,13 @@ function Register() {
                 textGradient
               >
                 Terms and Conditions
-              </MDTypography>
+              </MDTypography> 
             </MDBox>
-            {errors.agreeError ? (
+             {errors.agreeError ? (
               <MDTypography variant="caption" color="error" fontWeight="medium">
                 You must agree to the Terms and Conditions
               </MDTypography>
-            ) : null}
+            ) : null} */}
             <MDBox mt={4} mb={1}>
               <MDButton variant="gradient" color="info" fullWidth type="submit" disabled={resendTimer > 0}>
                 sign up

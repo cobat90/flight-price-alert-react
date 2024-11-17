@@ -90,7 +90,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
       onClose={handleCloseMenu}
       sx={{ mt: 2 }}
       disableScrollLock={ true }
-    >      
+    >
+      <NotificationItem title={<i>{localStorage.getItem('login')}</i>} />
       <NotificationItem icon={<Icon>person</Icon>} title="User Profile" link="/user-profile" />
       <NotificationItem icon={<Icon>settings</Icon>} title="Settings" link='/settings' />    
       <NotificationItem icon={<Icon>logout</Icon>} title="Logout" onClick={handleLogOut}/>
@@ -195,28 +196,18 @@ function DashboardNavbar({ absolute, light, isMini }) {
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          Always keep your user profile updated for better accuracy when you create your Alerts.
+          <Typography component="span" variant="inherit" color="info">
+            <b>Always keep your user profile updated for better accuracy when you create your Alerts.</b>
+          </Typography>
           <br/>
           <br/>
           <Typography component="span" variant="inherit" color="info">
-            <b>To use Ittent in Telegram:</b>
-          </Typography>
-            <br/>
-            <br/>
-            In Telegram look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
-            <br/>
-            <img src={botSearchImage} alt="Bot Search" />
-        <br/>
-        Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
-        <br/>
-        <img src={botChatIdImage} alt="Bot ChatId" />
-        <br/>
-        <Typography component="span" variant="inherit" color="info">
             <b>Duration of Alerts</b>
           </Typography>
           <br/>
           For each alert is verified on the interval of 30 minutes. The duration of each alert is counted for each one sented or added in history.
           You can verify how much you have in your alert or how much you have for use on the right top corner of the page.
+          <br/>
           <br/>
           <Typography component="span" variant="inherit" color="info">
           <b>Price Types</b>
@@ -227,6 +218,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
           Lowest: Receive an alert every time a price lower than the previous was found.
           <br/>
           Range: Define the range of prices or dates to receive an alert.
+          <br/>
           <br/>
           <Typography component="span" variant="inherit" color="info">
           <b>Flight Types</b>
@@ -239,6 +231,19 @@ function DashboardNavbar({ absolute, light, isMini }) {
           Cheapest: For flexible dates and can be used with range of dates and prices on preferences filter.
           <br/>
           Month: For flexible dates for one month and can be used with range preferences filter too.
+          <br/>
+          <br/>
+          <Typography component="span" variant="inherit" color="info">
+            <b>To use Ittent in Telegram:</b>
+          </Typography>
+            <br/>
+            In Telegram look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
+            <br/>
+            <img src={botSearchImage} alt="Bot Search" />
+        <br/>
+        Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
+        <br/>
+        <img src={botChatIdImage} alt="Bot ChatId" />        
         </DialogContentText>
       </DialogContent>
       <DialogActions>

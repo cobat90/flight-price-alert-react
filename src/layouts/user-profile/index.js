@@ -6,6 +6,7 @@ import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Snackbar from '@mui/material/Snackbar';
 import FormField from "components/FormField";
+import MDInput from "components/MDInput";
 import MuiAlert from '@mui/material/Alert';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -36,13 +37,14 @@ const UserProfile = () => {
     open: false,
     vertical: 'top',
     horizontal: 'center',
-    message: '',
   });
-  const { vertical, horizontal, open, message } = snackBarState;
+  const { vertical, horizontal, open } = snackBarState;
+  const [snackBarMessage, setSnackBarMessage] = useState(null);
   const countryRef = useRef(null);
   const currencyRef = useRef(null);
   const langKeyRef = useRef(null);
   const phoneFormat = /^\+(?:[0-9] ?){7,25}[0-9]$/;
+  const phoneNumberRef = useRef(null);
   const [errors, setErrors] = useState({});
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
@@ -51,7 +53,6 @@ const UserProfile = () => {
 
   const handleDialogConfirmClose = () => {
     setOpenDialogConfirm(false);
-    verificationCodeRef.current.value = null;
   };
 
   const [resendTimer, setResendTimer] = useState(null);
@@ -67,28 +68,32 @@ const UserProfile = () => {
     }, 1000);
   };
 
-  const handleGetVerificationCode = (attribute) => {
-    if (userData.phoneNumber){
-        if (userData.phoneNumber.trim().length === 0 || !userData.phoneNumber.trim().match(phoneFormat)) {
-          setErrors({ ...errors, phoneNumberError: true });
-          return;
-        }
-      }
-    getVerificationCode(convertGetVerificationCodeRequest(attribute));
+  const handleGetVerificationCode = (attributeName, attributeValue, attributeCurrentValue) => {
+    console.info("handleGetVerificationCode: ", attributeName);
+    console.info("attributeValue: ", attributeValue);
+    console.info("attributeCurrentValue: ", attributeCurrentValue);
+    if (attributeValue && attributeValue === attributeCurrentValue) {
+      getVerificationCode(convertGetVerificationCodeRequest(attributeName));
+    }
+    else{
+      setErrors({ ...errors, errorText: "Please save profile with a new phone number first." });
+    }
   };
 
   const getVerificationCode = async (userData) => {
     try {
       const response = await AuthService.getUserAttributeVerificationCode(userData);
       if (response.status === 200) {
+        setErrors(null);
         setResendTimer(60);
         openOneMinuteTimer();
+        setOpenDialogConfirm(true);
       } 
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) { 
-        setErrors({ ...errors, error: true, errorText: error.response.data.message });
+        setErrors({ ...errors, errorText: error.response.data.message });
       } else {
-        console.error("Error Get Verification Code");
+        setErrors({ ...errors, errorText: "Error Get Verification Code" });
       }
     }
   }
@@ -101,13 +106,18 @@ const UserProfile = () => {
     try {
       const response = await AuthService.verifyUserAttribute(userData);
       if (response.status === 200) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', message: 'Phone Number Verified!' });
+        setErrors(null);
+        setSnackBarMessage("Phone Number Verified!");
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center'});
+        setOpenDialogConfirm(false);
       } 
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) { 
-        setErrors({ ...errors, error: true, errorText: error.response.data.message });
+      if (error.response && error.response.data && error.response.data.message) {
+        setSnackBarMessage(error.response.data.message);
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center'});
+        setErrors({ ...errors, errorText: error.response.data.message });
       } else {
-        console.error("Error Verifying Code");
+        setErrors({ ...errors, errorText: "Error Verifying Code" });
       }
     }
   }
@@ -119,6 +129,7 @@ const UserProfile = () => {
       }
       const response = await AuthService.getProfile(userData);
       if (response.status === 200 && response.data) {
+        setErrors(null);
         setUser(convertUserResponse(response.data));
         if (response.data.UserAttributes) {
           const userAttributes = response.data.UserAttributes;
@@ -132,9 +143,10 @@ const UserProfile = () => {
         if (error.response.data.message == "Access Token has expired") {
           authContext.logout();
         }
-      } else {
-        console.error("Error fetching user");
-      }
+        else {
+          console.error("Error fetching user");
+        }
+      } 
     }
   };
 
@@ -142,12 +154,11 @@ const UserProfile = () => {
     try {
       const response = await AuthService.updateProfile(userData);
       if (response.status === 200) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', message: 'User Profile Saved!' });
+        setErrors(null);
+        setSnackBarMessage("User Profile Saved!");
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
         getUserData();
-      } else {
-        console.error("Invalid data format in response:", response);
-        setErrors("Invalid data format in response");
-      }
+      } 
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) { 
         if (error.response.data.message == "Access Token has expired") {
@@ -155,21 +166,21 @@ const UserProfile = () => {
           navigate("/auth/login");
         }
         else{
-          setErrors(error.response.data.message);
+          setErrors({ ...errors, errorText: error.response.data.message });
         }
       } else {
-        console.error("Error fetching user");
+        setErrors({ ...errors, errorText: "Error updateUserData" });
       }
     }
   };
 
   useEffect(() => {
-    getUserData();
     setErrors(null);
+    getUserData();
   }, []);
 
-  const handleSnackBarOpen = (newState, message) => {
-    setSnackBarState({ ...newState, message, open: true });
+  const handleSnackBarOpen = (newState) => {
+    setSnackBarState({ ...newState, open: true });
   };
 
   const handleSnackBarClose = () => {
@@ -204,15 +215,17 @@ const UserProfile = () => {
       if (key === 'currency' && value.length > 3) {
         validationErrors[key] = 'Currency must be less than 3 characters';
       }
-
+      if (key === 'phoneNumber'){
+        if (value.trim().length === 0 || !value.trim().match(phoneFormat)) {
+          validationErrors[key] = 'Invalid Phone Number, example: +99 99 99999 9999';
+        }
+      }
     });
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    const requestPayload = convertUserUpdateRequest(userData);
-    updateUserData(requestPayload);
-  
+    updateUserData(convertUserUpdateRequest(userData));
   };
 
   return (
@@ -271,7 +284,7 @@ const UserProfile = () => {
                     <FormField name="phoneNumber" defaultValue={(user?.phoneNumber ? (user.phoneNumber || "").toString() : "")}
                       label="Phone Number"
                       placeholder="+55 99765 4646"
-                      inputProps={{ type: "text" }}
+                      inputProps={{ type: "text", ref: phoneNumberRef }}
                       required
                     />
                     </Grid>
@@ -282,10 +295,9 @@ const UserProfile = () => {
                           color="error"
                           type="button"
                           onClick={() => {
-                            handleGetVerificationCode("phone_number");
-                            setResendTimer(60);
+                            handleGetVerificationCode("phone_number", (user?.phoneNumber || "").toString(), phoneNumberRef?.current?.value);
                           }}
-                          disabled={resendTimer > 0}>                  
+                            disabled={resendTimer > 0}>                  
                           Verify
                         </MDButton>
                       </Grid>    
@@ -314,7 +326,7 @@ const UserProfile = () => {
                   Object.keys(errors).map((key) => (
                     <Grid item xs={12} key={key}>
                       <MDTypography variant="caption" color="error" fontWeight="medium">
-                        {errors[key]}
+                      {errors[key].toString()}
                       </MDTypography>
                     </Grid>
                   ))
@@ -352,12 +364,16 @@ const UserProfile = () => {
           anchorOrigin={{ vertical, horizontal }}
           open={open}
           key={vertical + horizontal}
-          autoHideDuration={2000}
+          autoHideDuration={5000}
           onClose={handleSnackBarClose}
-          disablescrolllock="true">     
-          <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
-            {message}
-          </Notification >
+          disablescrolllock="true">
+          <Notification
+            onClose={handleSnackBarClose}
+            severity={errors && Object.keys(errors).length > 0 ? "error" : "success"}
+            sx={{ width: '100%' }}
+          >
+            {snackBarMessage}
+          </Notification>
         </Snackbar>
       </MDBox>
       <Footer />
@@ -373,32 +389,35 @@ const UserProfile = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="verify-dialog-description">
-            An SMS was sent for verify your phone number. Wait here until you receive it.
+            An SMS was sent for verify your phone number.
+            <br/> 
+            Wait here until you receive it.
+            <br/> 
           </DialogContentText>
           {resendTimer > 0 && (
             <DialogContentText id="resend-timer">
               To resend the SMS, please wait <b>{resendTimer}</b> seconds.
             </DialogContentText>
           )}
+          <br/>
           <Grid item xs={12} sm={6}>
-          <FormField name="verificationCode"
+          <MDInput name="verificationCode"
             label="Verification Code"
-            inputProps={{ type: "text" }}
+            inputProps={{ type: "text", ref: verificationCodeRef, maxLength: 6 }}
             required
-            ref={verificationCodeRef}
-            maxLength={6}
           />
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={verificationCodeRef.current.value ? handleVerifyCode("phone_number", verificationCodeRef.current.value) : null}>
+          <Button  onClick={() => {
+            if (verificationCodeRef.current) {
+              handleVerifyCode("phone_number", verificationCodeRef?.current?.value);
+            }}}>
             Verify Code
           </Button>
           <Button
             onClick={() => {
-              handleResendConfirmationCode();
-              setResendTimer(60);
-              openOneMinuteTimer();
+              handleGetVerificationCode("phone_number", (user?.phoneNumber || "").toString(), phoneNumberRef?.current?.value);
             }}
             disabled={resendTimer > 0}
           >

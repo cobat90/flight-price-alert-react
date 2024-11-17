@@ -52,7 +52,7 @@ export const convertUserUpdateRequest = (userData) => {
     UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
     username: login,
     UserAttributes: [
-      { Name: 'email', Value: email },
+      { Name: 'email', Value: localStorage.getItem("login") },
       { Name: 'phone_number', Value: phoneNumber },
       { Name: 'custom:country', Value: country },
       { Name: 'custom:currency', Value: currency },
