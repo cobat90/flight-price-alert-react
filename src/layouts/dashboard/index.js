@@ -428,6 +428,7 @@ function Dashboard() {
       formData.forEach((value, key) => {
         alertData[key] = value;
       });
+      console.info("alertData: ", alertData);
 
       if (alertData["alertName"] === "" || alertData["alertName"] === null){
         setSubmitAlertError("Alert name is required.");
@@ -472,6 +473,7 @@ function Dashboard() {
       else{
         setFlightPriceAlertId(alertData.flightPriceAlertId);
         const requestPayload = convertFlightRequest(alertData);
+        console.info("requestPayload: ", requestPayload);
         if (isEditing) { updateAlertData(alertData.flightPriceAlertId, requestPayload);  }   
         else{ createAlertData(requestPayload); }
       }  
@@ -518,7 +520,7 @@ function Dashboard() {
                     : null)}          
                   options={selectData.alertType}
                   renderInput={(params) => (
-                    <FormField {...params} name="alerType" label="Alert Type"
+                    <FormField {...params} name="alertType" label="Alert Type"
                      InputLabelProps={{ shrink: true }} required/>                      
                   )}
                 />

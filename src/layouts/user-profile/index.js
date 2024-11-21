@@ -311,14 +311,38 @@ const UserProfile = () => {
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={6}>
                     <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
-                    label="Telegram UserName" placeholder="telegramUsername" inputProps={{ type: "text" }} required/>
+                    label="Telegram UserName" placeholder="telegramUsername" inputProps={{ type: "text" }}/>
                   </Grid>
                   <Tooltip title="It's necessary to look for ittent_bot and text '/chatId' in Telegram." placement="bottom">
                     <Grid item xs={12} md={6}>
                       <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
-                      label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }} required/>
+                      label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }}/>
                     </Grid>
                   </Tooltip>
+                </Grid>
+              </MDBox>
+              <MDBox>
+                <MDTypography variant="h6">Email Notifications</MDTypography>
+              </MDBox>
+              <MDBox p={3}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <FormField name="email" defaultValue={(user?.email ? (user.email || "").toString() : "")} label="Email" disabled/>     
+                  </Grid>
+                  <Tooltip title="For receving notifications by Email, it's necessary to validate the subscrition." placement="bottom">
+                      <Grid item xs={12} md={2}>
+                        <MDButton
+                          variant="gradient"
+                          color="error"
+                          type="button"
+                          onClick={() => {
+                            handleGetVerificationCode("phone_number", (user?.phoneNumber || "").toString(), phoneNumberRef?.current?.value);
+                          }}
+                            disabled={resendTimer > 0}>                  
+                          Verify
+                        </MDButton>
+                      </Grid>    
+                    </Tooltip>
                 </Grid>
               </MDBox>
               <Grid item xs={12}>

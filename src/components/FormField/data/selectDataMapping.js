@@ -11,6 +11,7 @@ const selectDataMapping = {
     alertType: {
         TELEGRAM: "Telegram",
         SMS: "SMS",
+        EMAIL: "Email",
     },
     priceType: {
         LOWEST: "Lowest",
