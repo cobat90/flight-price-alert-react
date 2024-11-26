@@ -32,7 +32,6 @@ function Register() {
     emailError: false,
     emailExistsError: false,
     passwordError: false,
-    confirmPasswordError: false,
     //agreeError: false,
     error: false,
     errorText: "",
@@ -82,7 +81,7 @@ function Register() {
  /*    if (inputs.agree === false) {
       setErrors({ ...errors, agreeError: true });
       return;
-    } */
+    } 
     if (userData.confirmPassword || userData.password) {     
       if (userData.password.trim().length < 8) {
         setErrors({ ...errors, passwordError: true });
@@ -92,12 +91,11 @@ function Register() {
         setErrors({ ...errors, confirmPasswordError: true, passwordError: false,});
         return;
       }
-
-      if (userData.password.length > 0 && userData.confirmPassword.length > 0 ) {
+*/
+      if (userData.password.length > 0 ) {
         setErrors({
           emailError: false,
           passwordError: false,
-          confirmPasswordError: false,
           //agreeError: false,
           error: false,
           errorText: "",
@@ -105,7 +103,7 @@ function Register() {
         });  
         registerUserData(convertUserSignupRequest(userData));
       }
-    }
+  
   };
 
   const registerUserData = async (userData) => {
@@ -238,7 +236,7 @@ function Register() {
                 </MDTypography>
               )}
             </MDBox>
-            <MDBox mb={2}>
+ {/*            <MDBox mb={2}>
               <MDInput
                 type="password"
                 label="Confirm Password"
@@ -256,7 +254,7 @@ function Register() {
                 </MDTypography>
               )}
             </MDBox>
- {/*           <MDBox display="flex" alignItems="center" ml={-1}>
+           <MDBox display="flex" alignItems="center" ml={-1}>
               <Checkbox name="agree" id="agree" onChange={changeHandler} />
               <InputLabel
                 variant="standard"

@@ -91,7 +91,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
       sx={{ mt: 2 }}
       disableScrollLock={ true }
     >
-      <NotificationItem icon={<Icon>person</Icon>} title={<i>{localStorage.getItem('login')}</i>} link="/user-profile" />
+      <NotificationItem icon={<Icon>person</Icon>} title={localStorage.getItem('login')} link="/user-profile" />
       <NotificationItem icon={<Icon>settings</Icon>} title="Settings" link='/settings' />    
       <NotificationItem icon={<Icon>logout</Icon>} title="Logout" onClick={handleLogOut}/>
     </Menu>

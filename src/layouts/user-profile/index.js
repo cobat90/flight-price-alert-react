@@ -309,10 +309,10 @@ const UserProfile = () => {
               </MDBox>
               <MDBox p={3}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
+  {/*                 <Grid item xs={12} md={6}>
                     <FormField name="telegramUserName" defaultValue={(user?.telegramUserName ? (user.telegramUserName || "").toString() : "")}
                     label="Telegram UserName" placeholder="telegramUsername" inputProps={{ type: "text" }}/>
-                  </Grid>
+                  </Grid> */}
                   <Tooltip title="It's necessary to look for ittent_bot and text '/chatId' in Telegram." placement="bottom">
                     <Grid item xs={12} md={6}>
                       <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
@@ -321,7 +321,7 @@ const UserProfile = () => {
                   </Tooltip>
                 </Grid>
               </MDBox>
-              <MDBox>
+              {/* <MDBox>
                 <MDTypography variant="h6">Email Notifications</MDTypography>
               </MDBox>
               <MDBox p={3}>
@@ -344,7 +344,7 @@ const UserProfile = () => {
                       </Grid>    
                     </Tooltip>
                 </Grid>
-              </MDBox>
+              </MDBox> */}
               <Grid item xs={12}>
                 {errors && Object.keys(errors).length > 0 && (
                   Object.keys(errors).map((key) => (

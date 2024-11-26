@@ -18,9 +18,11 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer"
 
+import { AuthContext } from "context";
 import AuthService from "../../services/auth-service";
 
 function Settings() {
+  const authContext = useContext(AuthContext);
   const passwordRequirements = [
     "Min 8 characters",
     "One special character",
@@ -167,7 +169,7 @@ function Settings() {
     try {
       const response = await AuthService.deleteAccount(userData);
       if (response.status === 200) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        authContext.logout();
       } else {
         console.error("Invalid data format in response:", response);
       }
@@ -185,7 +187,7 @@ function Settings() {
       }
       const response = await AuthService.disableAccount(userData);
       if (response.status === 200) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
+        authContext.logout();
       } else {
         console.error("Invalid data format in response:", response);
       }
