@@ -35,9 +35,8 @@ export const convertUserSignupRequest = (userData) => {
   return payload;
 };
 
-export const convertUserUpdateRequest = (userData) => {
+export const convertUserUpdateRequest = (userData) => { 
   const {
-    email,
     phoneNumber,
     login,
     country,
@@ -52,18 +51,18 @@ export const convertUserUpdateRequest = (userData) => {
     UserPoolId: process.env.REACT_APP_COGNITO_USERPOOLID,
     username: login,
     UserAttributes: [
-      { Name: 'email', Value: localStorage.getItem("login") },
-      { Name: 'phone_number', Value: phoneNumber },
       { Name: 'custom:country', Value: country },
       { Name: 'custom:currency', Value: currency },
       { Name: 'custom:lang_key', Value: langKey }, 
-      { Name: 'custom:telegramUserName', Value: telegramUserName }, 
-      { Name: 'custom:telegramChatId', Value: telegramChatId }, 
-    ],     
+      phoneNumber ? { Name: 'phone_number', Value: phoneNumber } : null,
+      telegramUserName ? { Name: 'custom:telegramUserName', Value: telegramUserName } : null, 
+      telegramChatId ? { Name: 'custom:telegramChatId', Value: telegramChatId } : null, 
+    ].filter(attribute => attribute !== null),
   };
 
   return payload;
 };
+
 
 export const convertUserResponse = (responseData) => {
   const attributes = responseData.UserAttributes;

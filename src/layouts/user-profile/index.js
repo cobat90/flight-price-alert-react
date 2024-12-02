@@ -157,7 +157,6 @@ const UserProfile = () => {
         setErrors(null);
         setSnackBarMessage("User Profile Saved!");
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
-        getUserData();
       } 
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) { 
@@ -207,15 +206,15 @@ const UserProfile = () => {
       userData[key] = value;
   
       if (key === 'country' && value.length > 2) {
-        validationErrors[key] = 'Country must be less than 2 characters';
+        validationErrors[key] = 'Country must be 2 characters';
       }
       if (key === 'langKey' && value.length > 2) {
-        validationErrors[key] = 'Language must be less than 2 characters';
+        validationErrors[key] = 'Language must be 2 characters';
       }
       if (key === 'currency' && value.length > 3) {
-        validationErrors[key] = 'Currency must be less than 3 characters';
+        validationErrors[key] = 'Currency must be 3 characters';
       }
-      if (key === 'phoneNumber'){
+      if (key === 'phoneNumber' && value.trim().length > 0) {
         if (value.trim().length === 0 || !value.trim().match(phoneFormat)) {
           validationErrors[key] = 'Invalid Phone Number, example: +99 99 99999 9999';
         }
@@ -285,7 +284,6 @@ const UserProfile = () => {
                       label="Phone Number"
                       placeholder="+55 99765 4646"
                       inputProps={{ type: "text", ref: phoneNumberRef }}
-                      required
                     />
                     </Grid>
                     <Tooltip title="For receving notifications by SMS, it's necessary to validate your Phone Number." placement="bottom">

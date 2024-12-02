@@ -121,36 +121,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return returnValue;
   });
 
-  const renderExampleRoutes = routes.map(
-    ({ type, name, icon, title, noCollapse, key, href, route }) => {
-      let returnValue;
-
-      if (type === "examples") {
-        returnValue = href ? (
-          <Link
-            href={href}
-            key={key}
-            target="_blank"
-            rel="noreferrer"
-            sx={{ textDecoration: "none" }}
-          >
-            <SidenavCollapse
-              name={name}
-              icon={icon}
-              active={key === collapseName}
-              noCollapse={noCollapse}
-            />
-          </Link>
-        ) : (
-          <NavLink key={key} to={route}>
-            <SidenavCollapse name={name} icon={icon} active={key === collapseName} />
-          </NavLink>
-        );
-      }
-      return returnValue;
-    }
-  );
-
   return (
     <SidenavRoot
       {...rest}

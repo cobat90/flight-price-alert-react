@@ -26,8 +26,8 @@ import Login from "auth/login";
 import Register from "auth/register";
 import { AuthContext } from "context";
 import UserProfile from "layouts/user-profile";
-import UserManagement from "layouts/user-management";
 import Settings from "layouts/settings";
+import LandingPage from "layouts/landing-page"; // Your landing page component
 
 export default function App() {
 
@@ -121,6 +121,7 @@ export default function App() {
           )}
           {layout === "vr"}
           <Routes>
+            <Route path="/" element={<LandingPage />} /> {/* Landing page */}
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
             <Route path="/auth/forgot-password-init" element={<ForgotPasswordInit />} />
@@ -135,16 +136,6 @@ export default function App() {
                 </ProtectedRoute>
               }
               key="user-profile"
-            />
-            <Route
-              exact
-              path="user-management"
-              element={
-                <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
-                  <UserManagement />
-                </ProtectedRoute>
-              }
-              key="user-management"
             />
             {getRoutes(routes)}
             <Route path="*" element={<Navigate to="/dashboard" />} />
