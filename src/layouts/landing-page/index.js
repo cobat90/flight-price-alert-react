@@ -2,6 +2,7 @@ import React from "react";
 
 const LandingPage = () => {
   return (
+    <PageLayout>
     <div className="landing-page landing-page1">
       {/* Navigation */}
       <nav className="navbar navbar-transparent navbar-top" role="navigation">
@@ -210,6 +211,7 @@ const LandingPage = () => {
         </footer>
       </div>
     </div>
+    </PageLayout>
   );
 };
 

@@ -704,14 +704,25 @@ function Dashboard() {
                     </Tooltip> 
                     <Tooltip title="Alert Equal Prices. To receive alerts even if the previous price does not change." placement="bottom">
                       <Grid item xs={12} sm={2.0}>
-                          <FormLabel component="legend" sx={{ fontSize: '12px' }}>Equal Prices</FormLabel>
-                          <FormGroup aria-label="position" row>
-                            <FormControlLabel 
-                              control={ <Checkbox name="alertEqualPrices" checked={isEditing && alertEqualPrices == null ?
-                               currentAlert?.preferencesFilter?.alertEqualPrices : alertEqualPrices} onChange={handleChangeAlertEqualPrices}/>} />               
-                          </FormGroup>
+                        <FormLabel component="legend" sx={{ fontSize: '12px' }}>Equal Prices</FormLabel>
+                        <FormGroup aria-label="position" row>
+                          <FormControlLabel 
+                            control={
+                              <Checkbox 
+                                name="alertEqualPrices" 
+                                checked={
+                                  isEditing && alertEqualPrices == null 
+                                    ? !!currentAlert?.preferencesFilter?.alertEqualPrices // Ensure boolean
+                                    : !!alertEqualPrices // Ensure boolean
+                                } 
+                                onChange={handleChangeAlertEqualPrices}
+                              />
+                            } 
+                          />
+                        </FormGroup>
                       </Grid>
                     </Tooltip>
+
                     <Tooltip title="Start of Range Date. For receving alerts at start of this date." placement="bottom">
                       <Grid item xs={12} sm={3.5}>                  
                           <div>
@@ -753,69 +764,89 @@ function Dashboard() {
                       </Grid>
                     </Tooltip>
                     <Grid item xs={12}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={1.5}>
-                    <Autocomplete
-                        defaultValue={(isEditing
-                          ? String(currentAlert?.mainFilter?.adults) || "1"
-                          : "1")}
-                        options={selectData.passagers}
-                        renderInput={(params) => (
-                          <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  />
-                    )}/>     
-                  </Grid>
-                  <Grid item xs={12} sm={1.5}>
-                    <Autocomplete
-                          defaultValue={(isEditing
-                            ? String(currentAlert?.mainFilter?.children) || "0"
-                            : "0")}
-                          options={selectData.passagers}
-                          renderInput={(params) => (
-                            <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  />
-                      )}/>
-                  </Grid>
-                  <Grid item xs={12} sm={1.5}>
-                    <Autocomplete
-                          defaultValue={(isEditing
-                            ? String(currentAlert?.mainFilter?.infants) || "0"
-                            : "0")}
-                          options={selectData.passagers}
-                          renderInput={(params) => (
-                            <FormField {...params} name="infants" label="Infants" InputLabelProps={{ shrink: true }}  />
-                      )}/>
-                  </Grid>
-                  <Grid item xs={12} sm={1.5}>
-                      <Autocomplete
-                        defaultValue={(isEditing && currentAlert?.preferencesFilter?.scalesQuantity
-                          ? String(currentAlert.preferencesFilter.scalesQuantity) || null
-                          : null)}
-                        options={selectData.scales}
-                        renderInput={(params) => (
-                          <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} 
-                           />
-                      )}/>     
-                  </Grid>
-                  <Tooltip title="Allow to add nearby airports for origin." placement="bottom">
-                      <Grid item xs={12} sm={2.0}>
-                          <FormLabel component="legend" sx={{ fontSize: '10px' }}>Nearby Origin</FormLabel>
-                          <FormGroup aria-label="position" row>
-                            <FormControlLabel 
-                              control={ <Checkbox name="includeOriginNearbyAirports" checked={isEditing && includeOriginNearbyAirports == null ?
-                               currentAlert?.preferencesFilter?.includeOriginNearbyAirports : includeOriginNearbyAirports} onChange={handleChangeIncludeOriginNearbyAirports}/>} />               
-                          </FormGroup>
-                      </Grid>
-                    </Tooltip>
-                    <Tooltip title="Allow to add nearby airports for destination." placement="bottom">
-                      <Grid item xs={12} sm={2.0}>
-                          <FormLabel component="legend" sx={{ fontSize: '10px' }}>Nearby Destination</FormLabel>
-                          <FormGroup aria-label="position" row>
-                            <FormControlLabel 
-                              control={ <Checkbox name="includeDestinationNearbyAirports" checked={isEditing && includeDestinationNearbyAirports == null ?
-                               currentAlert?.preferencesFilter?.includeDestinationNearbyAirports : includeDestinationNearbyAirports} onChange={handleChangeIncludeDestinationNearbyAirports}/>} />               
-                          </FormGroup>
-                      </Grid>
-                    </Tooltip>
-                  <Grid item xs={12} sm={1.5}>
+                      <Grid container spacing={3}>
+                        <Grid item xs={12} sm={1.5}>
+                          <Autocomplete
+                              defaultValue={(isEditing
+                                ? String(currentAlert?.mainFilter?.adults) || "1"
+                                : "1")}
+                              options={selectData.passagers}
+                              renderInput={(params) => (
+                                <FormField {...params} name="adults" label="Adults" InputLabelProps={{ shrink: true }}  />
+                          )}/>     
+                        </Grid>
+                        <Grid item xs={12} sm={1.5}>
+                          <Autocomplete
+                                defaultValue={(isEditing
+                                  ? String(currentAlert?.mainFilter?.children) || "0"
+                                  : "0")}
+                                options={selectData.passagers}
+                                renderInput={(params) => (
+                                  <FormField {...params} name="children" label="Children" InputLabelProps={{ shrink: true }}  />
+                            )}/>
+                        </Grid>
+                        <Grid item xs={12} sm={1.5}>
+                          <Autocomplete
+                                defaultValue={(isEditing
+                                  ? String(currentAlert?.mainFilter?.infants) || "0"
+                                  : "0")}
+                                options={selectData.passagers}
+                                renderInput={(params) => (
+                                  <FormField {...params} name="infants" label="Infants" InputLabelProps={{ shrink: true }}  />
+                            )}/>
+                        </Grid>
+                        <Grid item xs={12} sm={1.5}>
+                            <Autocomplete
+                              defaultValue={(isEditing && currentAlert?.preferencesFilter?.scalesQuantity
+                                ? String(currentAlert.preferencesFilter.scalesQuantity) || null
+                                : null)}
+                              options={selectData.scales}
+                              renderInput={(params) => (
+                                <FormField {...params} name="scalesQuantity" label="Scales" InputLabelProps={{ shrink: true }} 
+                                  />
+                            )}/>     
+                        </Grid>
+                        <Tooltip title="Allow to add nearby airports for origin." placement="bottom">
+                          <Grid item xs={12} sm={2.0}>
+                            <FormLabel component="legend" sx={{ fontSize: '10px' }}>Nearby Origin</FormLabel>
+                            <FormGroup aria-label="position" row>
+                              <FormControlLabel 
+                                control={
+                                  <Checkbox 
+                                    name="includeOriginNearbyAirports" 
+                                    checked={
+                                      isEditing && includeOriginNearbyAirports == null 
+                                        ? !!currentAlert?.preferencesFilter?.includeOriginNearbyAirports // Ensure boolean
+                                        : !!includeOriginNearbyAirports // Ensure boolean
+                                    } 
+                                    onChange={handleChangeIncludeOriginNearbyAirports}
+                                  />
+                                } 
+                              />
+                            </FormGroup>
+                          </Grid>
+                        </Tooltip>
+                        <Tooltip title="Allow to add nearby airports for destination." placement="bottom">
+                          <Grid item xs={12} sm={2.0}>
+                            <FormLabel component="legend" sx={{ fontSize: '10px' }}>Nearby Destination</FormLabel>
+                            <FormGroup aria-label="position" row>
+                              <FormControlLabel 
+                                control={
+                                  <Checkbox 
+                                    name="includeDestinationNearbyAirports" 
+                                    checked={
+                                      isEditing && includeDestinationNearbyAirports == null 
+                                        ? !!currentAlert?.preferencesFilter?.includeDestinationNearbyAirports // Ensure boolean
+                                        : !!includeDestinationNearbyAirports // Ensure boolean
+                                    } 
+                                    onChange={handleChangeIncludeDestinationNearbyAirports}
+                                  />
+                                } 
+                              />
+                            </FormGroup>
+                          </Grid>
+                        </Tooltip>
+                        <Grid item xs={12} sm={1.5}>
                           <Autocomplete
                             defaultValue={(isEditing && currentAlert?.preferencesFilter?.airline
                               ? (currentAlert.preferencesFilter.airline).toString() || null
@@ -825,8 +856,8 @@ function Dashboard() {
                               <FormField {...params} name="airline" label="Airlines" InputLabelProps={{ shrink: true }} disabled />
                             )}/> 
                         </Grid>
-                </Grid>
-              </Grid>
+                      </Grid>
+                    </Grid>
                     <Grid item xs={12}>
                       <Grid container spacing={3}>
                         <Grid item xs={12} sm={2.6}>

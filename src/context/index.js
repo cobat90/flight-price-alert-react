@@ -96,10 +96,8 @@ const RoleGuard = ({ allowedRoles, userRole, children }) => {
   }
 };
 
-// Setting custom name for the context which is visible on react dev tools
 MaterialUI.displayName = "ITTENT";
 
-// Material Dashboard 2 React reducer
 function reducer(state, action) {
   switch (action.type) {
     case "MINI_SIDENAV": {
@@ -138,7 +136,6 @@ function reducer(state, action) {
   }
 }
 
-// Material Dashboard 2 React context provider
 function MaterialUIControllerProvider({ children }) {
   const initialState = {
     miniSidenav: false,
@@ -172,12 +169,10 @@ function useMaterialUIController() {
   return context;
 }
 
-// Typechecking props for the MaterialUIControllerProvider
 MaterialUIControllerProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-// Context module functions
 const setMiniSidenav = (dispatch, value) => dispatch({ type: "MINI_SIDENAV", value });
 const setTransparentSidenav = (dispatch, value) => dispatch({ type: "TRANSPARENT_SIDENAV", value });
 const setWhiteSidenav = (dispatch, value) => dispatch({ type: "WHITE_SIDENAV", value });
