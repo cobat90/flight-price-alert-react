@@ -5,13 +5,24 @@ import PropTypes from "prop-types";
 import MDBox from "components/MDBox";
 import { useMaterialUIController, setLayout } from "context";
 
-function PageLayout({ background, children }) {
+function LandingPageLayout({ background, children }) {
   const [, dispatch] = useMaterialUIController();
   const { pathname } = useLocation();
 
   useEffect(() => {
     setLayout(dispatch, "page");
   }, [pathname]);
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "assets/css/bootstrap.css";
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
 
   return (
     <MDBox
@@ -27,14 +38,14 @@ function PageLayout({ background, children }) {
 }
 
 // Setting default values for the props for PageLayout
-PageLayout.defaultProps = {
+LandingPageLayout.defaultProps = {
   background: "default",
 };
 
 // Typechecking props for the PageLayout
-PageLayout.propTypes = {
+LandingPageLayout.propTypes = {
   background: PropTypes.oneOf(["white", "light", "default"]),
   children: PropTypes.node.isRequired,
 };
 
-export default PageLayout;
+export default LandingPageLayout;
