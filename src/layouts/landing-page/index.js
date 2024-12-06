@@ -42,7 +42,7 @@ const LandingPage = () => {
               </li>
               <li>
                 <a href="https://ittent.net/auth/register">
-                  <i className="pe-7s-add-user"></i> Register!
+                  <i className="pe-7s-add-user"></i> Register
                 </a>
               </li>
               <li>

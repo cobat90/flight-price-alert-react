@@ -16,7 +16,7 @@ import FormField from "components/FormField";
 
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import { convertUserForgotPasswordFinishRequest } from '../../services/convert-user-service';
-import bgImage from "assets/images/bg-reset-cover.jpeg";
+import bgImage from "assets/images/bg-reset-cover-two.jpg";
 import authService from "services/auth-service";
 
 function ForgotPasswordFinish() {

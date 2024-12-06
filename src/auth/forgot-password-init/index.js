@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 import { convertUserForgotPasswordRequest } from '../../services/convert-user-service';
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
-import bgImage from "assets/images/bg-reset-cover.jpeg";
+import bgImage from "assets/images/bg-reset-cover.jpg";
 import AuthService from "services/auth-service";
 
 function ForgotPassword() {
