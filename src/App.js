@@ -27,17 +27,16 @@ import Register from "auth/register";
 import { AuthContext } from "context";
 import UserProfile from "layouts/user-profile";
 import Settings from "layouts/settings";
-import LandingPage from "layouts/landing-page"; // Your landing page component
+import LandingPage from "layouts/landing-page";
+import AboutUsPage from "layouts/about-us-page";
 
 export default function App() {
-
   const authContext = useContext(AuthContext);
-
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
     direction,
-    layout,
+    layout, // Used to determine when to render the Sidenav
     sidenavColor,
     transparentSidenav,
     whiteSidenav,
@@ -45,8 +44,8 @@ export default function App() {
   } = controller;
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  // Open sidenav when mouse enter on mini sidenav
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
       setMiniSidenav(dispatch, false);
@@ -54,7 +53,6 @@ export default function App() {
     }
   };
 
-  // Close sidenav when mouse leave mini sidenav
   const handleOnMouseLeave = () => {
     if (onMouseEnter) {
       setMiniSidenav(dispatch, true);
@@ -62,29 +60,30 @@ export default function App() {
     }
   };
 
-  // if the token expired or other errors it logs out and goes to the login page
-  const navigate = useNavigate();
+  // Logout and navigate to login page if token expires
   setupAxiosInterceptors(() => {
     authContext.logout();
+    navigate("/auth/login");
   });
 
-  // Setting the dir attribute for the body element
+  // Set document direction
   useEffect(() => {
     document.body.setAttribute("dir", direction);
   }, [direction]);
 
-  // Setting page scroll to 0 when changing the route
+  // Scroll to top when route changes
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
 
+  // Generate routes
   const getRoutes = (allRoutes) =>
+    
     allRoutes.map((route) => {
       if (route.collapse) {
         return getRoutes(route.collapse);
       }
-
       if (route.route && route.type !== "auth") {
         return (
           <Route
@@ -103,45 +102,39 @@ export default function App() {
     });
 
   return (
-    <>
-      {
-        <ThemeProvider theme={darkMode ? themeDark : theme}>
-          <CssBaseline />
-          {layout === "dashboard" && (
-            <>
-              <Sidenav
-                color={sidenavColor}
-                brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-                brandName="Ittent"
-                routes={routes}
-                onMouseEnter={handleOnMouseEnter}
-                onMouseLeave={handleOnMouseLeave}
-              />
-            </>
-          )}
-          {layout === "vr"}
-          <Routes>
-            <Route path="/" element={<LandingPage />} /> {/* Landing page */}
-            <Route path="/auth/login" element={<Login />} />
-            <Route path="/auth/register" element={<Register />} />
-            <Route path="/auth/forgot-password-init" element={<ForgotPasswordInit />} />
-            <Route path="/auth/forgot-password-finish" element={<ForgotPasswordFinish />} />           
-            <Route exact path="/settings" element={<Settings />} />
-            <Route
-              exact
-              path="user-profile"
-              element={
-                <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
-                  <UserProfile />
-                </ProtectedRoute>
-              }
-              key="user-profile"
-            />
-            {getRoutes(routes)}
-            <Route path="*" element={<Navigate to="/dashboard" />} />
-          </Routes>
-        </ThemeProvider>
-      }
-    </>
+    <ThemeProvider theme={darkMode ? themeDark : theme}>
+      <CssBaseline />
+      {layout === "dashboard" && (
+        <Sidenav
+          color={sidenavColor}
+          brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+          brandName="Ittent"
+          routes={routes}
+          onMouseEnter={handleOnMouseEnter}
+          onMouseLeave={handleOnMouseLeave}
+        />
+      )}
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/about-us" element={<AboutUsPage />} />
+        <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/register" element={<Register />} />
+        <Route path="/auth/forgot-password-init" element={<ForgotPasswordInit />} />
+        <Route path="/auth/forgot-password-finish" element={<ForgotPasswordFinish />} />
+        <Route exact path="/settings" element={<Settings />} />
+        <Route
+          exact
+          path="/user-profile"
+          element={
+            <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        {getRoutes(routes)}
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Routes>
+    </ThemeProvider>
   );
 }
+

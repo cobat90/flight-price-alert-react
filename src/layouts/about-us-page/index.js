@@ -1,7 +1,7 @@
 import React from "react";
 import LandingPageLayout from "examples/LayoutContainers/LandingPageLayout";
 
-const LandingPage = () => {
+const AboutUsPage = () => {
   return (
     <LandingPageLayout>
     <div className="landing-page landing-page1">
@@ -47,7 +47,7 @@ const LandingPage = () => {
               </li>
               <li>
                   <a href="http://localhost:3000/about-us">
-                  <i className="pe-7s-note2"></i> About us
+                  <i className="pe-7s-plane"></i> About us
                   </a>
               </li>
               <li>
@@ -84,72 +84,65 @@ const LandingPage = () => {
             <div className="row">
               <div className="col-md-5 hidden-xs">
                 <div className="parallax-image">
-
+                  <img
+                    className="phone"
+                    src="assets/img/template/CelScreen.png"
+                    style={{ marginTop: "20px" }}
+                    alt="Phone"
+                  />
                 </div>
               </div>
               <div className="col-md-6 col-md-offset-1">
                 <div className="description">
-                  <h2>Be in control of prices</h2>
+                  <h2>About Us</h2>
                   <br />
                   <h5>
-                    Don't waste any more time looking at your flight ticket
-                    prices all the time, just choose your ticket information and
-                    the price you want to receive notifications!
+                    Welcome to Ittent, your personal price-alert concierge for flights, hotels, car rentals, and more.
+                    At Ittent, we empower you to be in control of prices while leaving the stress of constant monitoring to us.
                   </h5>
-                </div>
-                <div className="buttons">
-                  <a href="https://ittent.net/dashboard">
-                    <button className="btn btn-fill btn-neutral">
-                      <i className="pe-7s-graph1"></i> Enter Dashboard
-                    </button>
-                  </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Features Section */}
         <div className="section section-gray section-clients">
           <div className="container text-center">
-            <h4>Save money and don't waste time</h4>
-            <p>
-              Imagine planning your dream vacation or a critical business trip
-              without worrying about skyrocketing ticket prices. Our flight
-              price monitoring service takes the stress out of booking airfare
-              by tracking ticket prices for your desired destinations and
-              notifying you the moment the best deals appear.
+            <h4>Our Mission</h4>
+            <p>                   
+              We understand how overwhelming it can be to hunt for the best deals, whether you're planning a dream vacation, a business trip, or a quick weekend getaway. Our mission is simple:
+              <ol><li>Save you time.</li>
+              <li>Help you save money.</li>
+              <li>Eliminate the hassle of tracking ever-changing prices.</li>
+              </ol>
             </p>
           </div>
         </div>
 
         <div className="section section-features">
           <div className="container">
-            <h4 className="header-text text-center">Benefits</h4>
+            <h4 className="header-text text-center">What We Offer</h4>
             <div className="row">
               <div className="col-md-4">
                 <div className="card card-blue">
                   <div className="icon">
-                    <i className="pe-7s-alarm"></i>
+                    <i className="pe-7s-plane"></i>
                   </div>
-                  <h4>Save Time</h4>
+                  <h4>Flight tickets</h4>
                   <p>
-                    Skip the hassle of manually checking prices, our service
-                    does the work for you!
+                    Track fares for your desired destinations and get notified as soon as prices drop.
                   </p>
                 </div>
               </div>
               <div className="col-md-4">
                 <div className="card card-blue">
                   <div className="icon">
-                    <i className="pe-7s-cash"></i>
+                    <i className="pe-7s-home"></i>
                   </div>
                   <div className="text">
-                    <h4>Save Money</h4>
+                    <h4>Hotels</h4>
                     <p>
-                      Get alerted when prices drop, know when to buy with
-                      historical data of prices ensuring you never overpay for a
-                      flight.
+                      Secure the best deals for your stays without the hassle of endless searches.
                     </p>
                   </div>
                 </div>
@@ -157,13 +150,11 @@ const LandingPage = () => {
               <div className="col-md-4">
                 <div className="card card-blue">
                   <div className="icon">
-                    <i className="pe-7s-bell"></i>
+                    <i className="pe-7s-car"></i>
                   </div>
-                  <h4>Customized Alerts</h4>
+                  <h4>Car rentals</h4>
                   <p>
-                    Set your preferred travel destinations, range prices, range
-                    dates, and much more to receive notifications tailored to
-                    your plans.
+                    Book at the perfect time with alerts on rental offers.
                   </p>
                 </div>
               </div>
@@ -217,4 +208,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default AboutUsPage;

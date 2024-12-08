@@ -25,10 +25,6 @@ function Settings() {
   const authContext = useContext(AuthContext);
   const passwordRequirements = [
     "Min 8 characters",
-    "One special character",
-    "One number",
-    "Contains at least 1 uppercase letter",
-    "Contains at least 1 lowercase letter"
   ];
 
   const renderPasswordRequirements = passwordRequirements.map((item, key) => {

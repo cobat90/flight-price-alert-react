@@ -21,10 +21,7 @@ import authService from "services/auth-service";
 
 function ForgotPasswordFinish() {
   const passwordRequirements = [
-    "One special character",
-    "Min 6 characters",
-    "One number (2 are recommended)",
-    "Change it often",
+    "Min 8 characters",
   ];
 
   const renderPasswordRequirements = passwordRequirements.map((item, key) => {

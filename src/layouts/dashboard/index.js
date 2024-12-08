@@ -508,7 +508,7 @@ function Dashboard() {
             <input type="hidden" name="flightPriceAlertId" value={currentAlert?.flightPriceAlertId}  readOnly/>  
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4.5}>
-                <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2024" 
+                <FormField name="alertName" label="Flight Alert Name" placeholder="Bahamas 2025" 
                   defaultValue={(isEditing ? (currentAlert?.alert?.alertName || "").toString() : "")} required inputProps={{ maxLength: 25 }}/>                                   
               </Grid>
               <Grid item xs={12} sm={3}>
