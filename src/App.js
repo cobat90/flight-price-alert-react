@@ -27,6 +27,7 @@ import Register from "auth/register";
 import { AuthContext } from "context";
 import UserProfile from "layouts/user-profile";
 import Settings from "layouts/settings";
+import PlanSelection from "layouts/plan-selection";
 import LandingPage from "layouts/landing-page";
 import AboutUsPage from "layouts/about-us-page";
 
@@ -77,7 +78,6 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
 
-  // Generate routes
   const getRoutes = (allRoutes) =>
     
     allRoutes.map((route) => {
@@ -121,7 +121,20 @@ export default function App() {
         <Route path="/auth/register" element={<Register />} />
         <Route path="/auth/forgot-password-init" element={<ForgotPasswordInit />} />
         <Route path="/auth/forgot-password-finish" element={<ForgotPasswordFinish />} />
-        <Route exact path="/settings" element={<Settings />} />
+        <Route exact path="/settings"
+          element={
+            <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
+              <Settings />
+            </ProtectedRoute>
+          }
+        /> 
+        <Route exact path="/plan-selection"
+          element={
+            <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
+              <PlanSelection />
+            </ProtectedRoute>
+          }
+          /> 
         <Route
           exact
           path="/user-profile"

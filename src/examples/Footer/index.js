@@ -41,7 +41,7 @@ function Footer({ company, links }) {
         fontSize={size.sm}
         px={1.5}
       >
-        &copy; Price Alerts 2024
+        &copy; Price Alerts 2025
         by
         <Link href="https://ittent.com" target="_blank">
           <MDTypography variant="button" fontWeight="medium">
