@@ -17,10 +17,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useLocation, useNavigate } from "react-router-dom";
-
-"use client";
-
-import { Button } from "@mui/material";
+import FlightPriceAlertService from "../../services/flight-price-alert-service";
+import { getAttributeValue} from '../../services/convert-user-service'; 
 import CheckIcon from "@mui/icons-material/Check";
 import { Card, CardHeader, CardContent, CardActions, Typography } from "@mui/material";
 
@@ -37,128 +35,80 @@ const Notification = React.forwardRef(function Alert(props, ref) {
 });
 
 const PlanSelection = () => {
-  const [selectedPlan, setSelectedPlan] = useState("")
-
-  const [user, setUser] = useState(null);
+  
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
+  const userId = getAttributeValue(userAttributes, 'sub');
   const [snackBarState, setSnackBarState] = useState({
     open: false,
     vertical: 'top',
     horizontal: 'center',
   });
-  const { vertical, horizontal, open } = snackBarState;
-  const [snackBarMessage, setSnackBarMessage] = useState(null);
-  const countryRef = useRef(null);
-  const currencyRef = useRef(null);
-  const langKeyRef = useRef(null);
-  const phoneFormat = /^\+(?:[0-9] ?){7,25}[0-9]$/;
-  const phoneNumberRef = useRef(null);
-  const [errors, setErrors] = useState({});
-  const authContext = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [openDialogConfirm, setOpenDialogConfirm] = useState(false);
-  const verificationCodeRef = useRef(null);
-
-  const handleDialogConfirmClose = () => {
-    setOpenDialogConfirm(false);
-  };
-
-  const getUserData = async () => {
-    try {
-      let userData={
-        AccessToken: localStorage.getItem("token"),
-      }
-      const response = await AuthService.getProfile(userData);
-      if (response.status === 200 && response.data) {
-        setErrors(null);
-        setUser(convertUserResponse(response.data));
-        if (response.data.UserAttributes) {
-          const userAttributes = response.data.UserAttributes;
-          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
-          localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
-        }    
-      } 
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) { 
-        console.error(error.response.data.message);
-        if (error.response.data.message == "Access Token has expired") {
-          authContext.logout();
-        }
-        else {
-          console.error("Error fetching user");
-        }
-      } 
-    }
-  };
-
-  useEffect(() => {
-    setErrors(null);
-    getUserData();
-  }, []);
-
+  const { vertical, horizontal, open, msg } = snackBarState;
   const handleSnackBarOpen = (newState) => {
     setSnackBarState({ ...newState, open: true });
   };
-
   const handleSnackBarClose = () => {
     setSnackBarState({ ...snackBarState, open: false });
   };
+  const [snackBarErrorState, setSnackBarErrorState] = useState({
+    openE: false,
+    verticalE: 'top',
+    horizontalE: 'center',
+  });
+  const { openE, verticalE, horizontalE, msgE } = snackBarErrorState;
+  const handleSnackBarErrorOpen = (newState) => {  setSnackBarErrorState({ ...newState, openE: true });  };
+  const handleSnackBarErrorClose = () => { setSnackBarErrorState({ ...snackBarErrorState, openE: false });  };
 
-  const formRef = useRef();
 
-  const handleClearForm = () => {
-    const inputs =  formRef.current.querySelectorAll('input');
-    inputs.forEach((input) => {
-      input.value = '';
-    });   
+  const [snackBarMessage, setSnackBarMessage] = useState(null);
+  const countryRef = useRef(null);
+  const currencyRef = useRef(null);
+  const phoneFormat = /^\+(?:[0-9] ?){7,25}[0-9]$/;
+  const [errors, setErrors] = useState({});
+  const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  
+  const submitConfirmSelection = (planSelected) => {
+      const planPayload = {
+        plan: planSelected
+      };
+      selectPlan(planPayload);
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault(); 
-    const formData = new FormData(event.target); 
-    formData.append('userId', user.userId);
-    let userData = {};
-    let validationErrors = {};
-  
-    formData.forEach((value, key) => {
-      userData[key] = value;
-  
-      if (key === 'country' && value.length > 2) {
-        validationErrors[key] = 'Country must be 2 characters';
+  const selectPlan = async (planPayload) => {
+    try {
+      const response = await FlightPriceAlertService.selectPlan(userId, planPayload);
+      if (response.status === 200) {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Activated' });
       }
-      if (key === 'langKey' && value.length > 2) {
-        validationErrors[key] = 'Language must be 2 characters';
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
+        handleDialogConfirmClose();
+      } else if (error.response && error.response.data && error.response.data.message){
+        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
       }
-      if (key === 'currency' && value.length > 3) {
-        validationErrors[key] = 'Currency must be 3 characters';
-      }
-      if (key === 'phoneNumber' && value.trim().length > 0) {
-        if (value.trim().length === 0 || !value.trim().match(phoneFormat)) {
-          validationErrors[key] = 'Invalid Phone Number, example: +99 99 99999 9999';
-        }
-      }
-    });
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+      else { console.error("Error activating alert", error); }
     }
-    updateUserData(convertUserUpdateRequest(userData));
   };
 
   const plans = [
     {
-      name: "Simple",
+      name: "500 Balance",
       price: "R$ 9,90",
-      features: ["500 Alert Balance (10 days)", "SMS", "Telegram", "Email"],
+      features: ["Alert for 10 days", "SMS", "Telegram", "Email"],
     },
     {
-      name: "Advanced",
+      name: "1000 Balance",
       price: "R$ 17,90",
-      features: ["1000 Alert Balance (20 days)","SMS", "Telegram", "Email"],
+      features: ["Alert for 21 days","SMS", "Telegram", "Email"],
     },
     {
-      name: "Ultra",
-      price: "R$ 29.90",
-      features: ["3000 Alert Balance (40 days)","SMS", "Telegram", "Email"],
+      name: "3000 Balance",
+      price: "R$ 49.90",
+      features: ["Alert for 63 days" ,"SMS", "Telegram", "Email"],
     },
   ]
 
@@ -168,7 +118,7 @@ const PlanSelection = () => {
       <MDBox mb={2}>
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "16px" }}>
       <Typography variant="h4" align="center" gutterBottom>
-        Choose Your Plan
+        Choose One:
       </Typography>
       <Grid container spacing={4}>
         {plans.map((plan) => (
@@ -177,13 +127,19 @@ const PlanSelection = () => {
               style={{
                 border: selectedPlan === plan.name ? "2px solid #3f51b5" : "1px solid #ccc",
                 position: "relative",
+                minHeight: "380px", // Ensures a consistent minimum height
+                maxHeight: "380px", // Prevents cards from growing too tall
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between", // Ensures content and button are spaced properly
+
               }}
             >
               <CardHeader
                 title={plan.name}
                 titleTypographyProps={{ variant: "h6" }}
               />
-              <CardContent>
+              <CardContent style={{ flexGrow: 1, overflow: "hidden" }}>
                 <Typography variant="h5" color="textPrimary" gutterBottom>
                   {plan.price}
                 </Typography>
@@ -226,14 +182,39 @@ const PlanSelection = () => {
           color="primary"
           size="large"
           disabled={!selectedPlan}
-          onClick={() => alert(`You selected the ${selectedPlan} plan!`)}
+          onClick={() => submitConfirmSelection(selectedPlan)}
         >
           Confirm Selection
         </MDButton>
       </div>
     </div>
     </MDBox>
-            
+    <MDBox sx={{ width: 500 }}>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={open}
+          key={vertical + horizontal}
+          autoHideDuration={4000}
+          onClose={handleSnackBarClose}
+          disablescrolllock="true">     
+          <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
+            Flight Price Alert {msg} Successfully!
+          </Notification >
+        </Snackbar>
+      </MDBox>
+      <MDBox sx={{ width: 500 }}>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={openE}
+          key={verticalE + horizontalE}
+          autoHideDuration={5000}
+          onClose={handleSnackBarErrorClose}
+          disablescrolllock="true">     
+          <Notification onClose={handleSnackBarErrorClose} severity="error" sx={{ width: '100%' }}>
+            {msgE}
+          </Notification >
+        </Snackbar>
+      </MDBox>       
     </DashboardLayout>
   );
 };

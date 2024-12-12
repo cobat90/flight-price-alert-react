@@ -54,13 +54,7 @@ const LandingPage = () => {
                 <a href="https://t.me/ittent_bot">
                   <i className="pe-7s-chat"></i> Telegram
                 </a>
-              </li>
-              <li>
-                <a href="mailto:ittent.flightalert@gmail.com">
-                  <i className="pe-7s-mail"></i> Send Email
-                </a>
-              </li>
-              
+              </li>        
               <li>
                 <div id="google_translate_element"></div>
               </li>
@@ -84,7 +78,12 @@ const LandingPage = () => {
             <div className="row">
               <div className="col-md-5 hidden-xs">
                 <div className="parallax-image">
-
+                <img
+                    className="phone"
+                    src="assets/img/CelScreen.png"
+                    style={{ marginTop: "20px" }}
+                    alt="Phone"
+                  />
                 </div>
               </div>
               <div className="col-md-6 col-md-offset-1">
@@ -112,7 +111,7 @@ const LandingPage = () => {
         {/* Features Section */}
         <div className="section section-gray section-clients">
           <div className="container text-center">
-            <h4>Save money and don't waste time</h4>
+            <h4><b>Save money and don't waste time</b></h4>
             <p>
               Imagine planning your dream vacation or a critical business trip
               without worrying about skyrocketing ticket prices. Our flight
@@ -203,6 +202,11 @@ const LandingPage = () => {
                 </li>
                 <li>
                   <a href="https://ittent.net/about">About us</a>
+                </li>
+                <li>
+                  <a href="mailto:ittent.flightalert@gmail.com">
+                    <i className="pe-7s-mail"></i> Send Email
+                  </a>
                 </li>
               </ul>
             </nav>

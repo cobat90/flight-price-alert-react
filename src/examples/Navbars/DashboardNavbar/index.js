@@ -13,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ShoppingCart from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HomeIcon from '@mui/icons-material/Home';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
@@ -93,7 +94,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
     >
       <NotificationItem icon={<Icon>person</Icon>} title={localStorage.getItem('login')} link="/user-profile" />
       <NotificationItem icon={<Icon>settings</Icon>} title="Settings" link='/settings' />
-      <NotificationItem icon={<Icon>settings</Icon>} title="Plan Selection" link='/plan-selection' />  
+      <NotificationItem icon={<ShoppingCart sx={iconsStyle} />} title="Buy Balance" link='/plan-selection' />
       <NotificationItem icon={<Icon>logout</Icon>} title="Logout" onClick={handleLogOut}/>
     </Menu>
   );

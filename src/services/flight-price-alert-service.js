@@ -36,6 +36,11 @@ class FlightPriceAlertService {
     const deleteAlertEndpoint = `api/alerts/${alertId}/users/${userId}`;
     return await flightAxiosInstance.delete(deleteAlertEndpoint);
   };
+
+  selectPlan = async (userId, payload) => {
+    const selectPlanEndpoint = `api/plans/users/${userId}`;
+    return await flightAxiosInstance.post(selectPlanEndpoint, payload);
+  };
 }
 
 export default new FlightPriceAlertService();

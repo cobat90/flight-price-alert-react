@@ -47,20 +47,14 @@ const AboutUsPage = () => {
               </li>
               <li>
                   <a href="http://localhost:3000/about-us">
-                  <i className="pe-7s-plane"></i> About us
+                  <i className="pe-7s-note2"></i> About us
                   </a>
               </li>
               <li>
                 <a href="https://t.me/ittent_bot">
                   <i className="pe-7s-chat"></i> Telegram
                 </a>
-              </li>
-              <li>
-                <a href="mailto:ittent.flightalert@gmail.com">
-                  <i className="pe-7s-mail"></i> Send Email
-                </a>
-              </li>
-              
+              </li>          
               <li>
                 <div id="google_translate_element"></div>
               </li>
@@ -82,16 +76,7 @@ const AboutUsPage = () => {
           </div>
           <div className="container">
             <div className="row">
-              <div className="col-md-5 hidden-xs">
-                <div className="parallax-image">
-                  <img
-                    className="phone"
-                    src="assets/img/template/CelScreen.png"
-                    style={{ marginTop: "20px" }}
-                    alt="Phone"
-                  />
-                </div>
-              </div>
+
               <div className="col-md-6 col-md-offset-1">
                 <div className="description">
                   <h2>About Us</h2>
@@ -107,14 +92,11 @@ const AboutUsPage = () => {
         </div>
 
         <div className="section section-gray section-clients">
-          <div className="container text-center">
-            <h4>Our Mission</h4>
+          <div className="container text-left">
+            <h4><b>Our Mission</b></h4>
             <p>                   
-              We understand how overwhelming it can be to hunt for the best deals, whether you're planning a dream vacation, a business trip, or a quick weekend getaway. Our mission is simple:
-              <ol><li>Save you time.</li>
-              <li>Help you save money.</li>
-              <li>Eliminate the hassle of tracking ever-changing prices.</li>
-              </ol>
+              We understand how overwhelming it can be to hunt for the best deals, whether you're planning a dream vacation, a business trip, or a quick weekend getaway.
+              Our mission is simple: <b>Save you time</b>, <b>help you save money</b> and <b>eliminate the hassle of tracking ever-changing prices</b>.
             </p>
           </div>
         </div>
@@ -173,12 +155,12 @@ const AboutUsPage = () => {
               />
             </div>
             <div className="info">
-              <h1>Register now and receive 500 of price alert balance!</h1>
+              <h1>How can we help?</h1>
               <a
-                href="https://ittent.net/auth/register"
+                href="mailto:ittent.flightalert@gmail.com"
                 className="btn btn-neutral btn-lg btn-fill"
               >
-                Register
+                Contact me
               </a>
             </div>
           </div>
@@ -194,6 +176,11 @@ const AboutUsPage = () => {
                 </li>
                 <li>
                   <a href="https://ittent.net/about">About us</a>
+                </li>
+                <li>
+                  <a href="mailto:ittent.flightalert@gmail.com">
+                    <i className="pe-7s-mail"></i> Send Email
+                  </a>
                 </li>
               </ul>
             </nav>
