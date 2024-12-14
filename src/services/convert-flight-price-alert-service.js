@@ -1,3 +1,39 @@
+
+export const convertSelectPlanRequest = (planData) => { 
+  const {
+    userId,
+    email,
+    plan
+  } = planData;
+
+  let planEnum;
+
+  switch (plan) {
+    case '500 Balance':
+      planEnum = '500_BALANCE';
+      break;
+    case '1000 Balance':
+      planEnum = "1000_BALANCE";
+      break;
+    case '3000 Balance':
+      planEnum = "3000_BALANCE";
+      break;
+    case '5000 Balance':
+      planEnum = "5000_BALANCE";
+      break;
+    default:
+        break;
+    }
+
+  const payload = {
+    userId: userId,
+    email: email,
+    plan: planEnum
+  };
+
+  return payload;
+};
+
 export const convertFlightRequest = (alertData) => {
   const {
     alertName,

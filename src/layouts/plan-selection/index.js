@@ -18,6 +18,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useLocation, useNavigate } from "react-router-dom";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
+import { convertSelectPlanRequest} from '../../services/convert-flight-price-alert-service';
 import { getAttributeValue} from '../../services/convert-user-service'; 
 import CheckIcon from "@mui/icons-material/Check";
 import { Card, CardHeader, CardContent, CardActions, Typography } from "@mui/material";
@@ -39,6 +40,8 @@ const PlanSelection = () => {
   const [selectedPlan, setSelectedPlan] = useState("");
   const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
   const userId = getAttributeValue(userAttributes, 'sub');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [snackBarState, setSnackBarState] = useState({
     open: false,
     vertical: 'top',
@@ -59,29 +62,22 @@ const PlanSelection = () => {
   const { openE, verticalE, horizontalE, msgE } = snackBarErrorState;
   const handleSnackBarErrorOpen = (newState) => {  setSnackBarErrorState({ ...newState, openE: true });  };
   const handleSnackBarErrorClose = () => { setSnackBarErrorState({ ...snackBarErrorState, openE: false });  };
-
-
-  const [snackBarMessage, setSnackBarMessage] = useState(null);
-  const countryRef = useRef(null);
-  const currencyRef = useRef(null);
-  const phoneFormat = /^\+(?:[0-9] ?){7,25}[0-9]$/;
-  const [errors, setErrors] = useState({});
-  const authContext = useContext(AuthContext);
-  const navigate = useNavigate();
-
   
   const submitConfirmSelection = (planSelected) => {
       const planPayload = {
+        userId: userId,
+        email: getAttributeValue(userAttributes, 'email'),
         plan: planSelected
       };
-      selectPlan(planPayload);
+      selectPlan(convertSelectPlanRequest(planPayload));
   };
 
   const selectPlan = async (planPayload) => {
     try {
       const response = await FlightPriceAlertService.selectPlan(userId, planPayload);
-      if (response.status === 200) {
-        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Activated' });
+      if (response.status === 201) {
+        console.info("response: ", response);
+        window.location.href = response.data.redirectUrl;
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {

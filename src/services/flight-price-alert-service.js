@@ -38,7 +38,7 @@ class FlightPriceAlertService {
   };
 
   selectPlan = async (userId, payload) => {
-    const selectPlanEndpoint = `api/plans/users/${userId}`;
+    const selectPlanEndpoint = `api/alerts/plans`;
     return await flightAxiosInstance.post(selectPlanEndpoint, payload);
   };
 }
