@@ -1,35 +1,17 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import Grid from "@mui/material/Grid";
 import Snackbar from '@mui/material/Snackbar';
-import FormField from "components/FormField";
-import MDInput from "components/MDInput";
 import MuiAlert from '@mui/material/Alert';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
-import Tooltip from "@mui/material/Tooltip";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import FlightPriceAlertService from "../../services/flight-price-alert-service";
 import { convertSelectPlanRequest} from '../../services/convert-flight-price-alert-service';
 import { getAttributeValue} from '../../services/convert-user-service'; 
 import CheckIcon from "@mui/icons-material/Check";
 import { Card, CardHeader, CardContent, CardActions, Typography } from "@mui/material";
-
-
-import { convertUserUpdateRequest, convertUserResponse, convertGetVerificationCodeRequest, convertVerifyCodeRequest } from '../../services/convert-user-service';
-import AuthService from "../../services/auth-service";
-import AutoCompleteCountries  from "components/AutoCompleteCountries";
-import AutoCompleteCurrencies  from "components/AutoCompleteCurrencies";
-import AutoCompleteLanguages from "components/AutoCompleteLanguages";
-import { AuthContext } from "context";
 
 const Notification = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
@@ -40,29 +22,32 @@ const PlanSelection = () => {
   const [selectedPlan, setSelectedPlan] = useState("");
   const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
   const userId = getAttributeValue(userAttributes, 'sub');
-  const navigate = useNavigate();
   const location = useLocation();
   const [snackBarState, setSnackBarState] = useState({
     open: false,
     vertical: 'top',
     horizontal: 'center',
   });
-  const { vertical, horizontal, open, msg } = snackBarState;
+  const { vertical, horizontal, open, msg, color } = snackBarState;
   const handleSnackBarOpen = (newState) => {
     setSnackBarState({ ...newState, open: true });
   };
   const handleSnackBarClose = () => {
     setSnackBarState({ ...snackBarState, open: false });
   };
-  const [snackBarErrorState, setSnackBarErrorState] = useState({
-    openE: false,
-    verticalE: 'top',
-    horizontalE: 'center',
-  });
-  const { openE, verticalE, horizontalE, msgE } = snackBarErrorState;
-  const handleSnackBarErrorOpen = (newState) => {  setSnackBarErrorState({ ...newState, openE: true });  };
-  const handleSnackBarErrorClose = () => { setSnackBarErrorState({ ...snackBarErrorState, openE: false });  };
-  
+
+  useEffect(() => {
+      const queryParams = new URLSearchParams(location.search);
+      const status = queryParams.get("status");
+      if (status === "success") {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Payment successful! Balance added!', color: 'success' });
+      } else if (status === "failure") {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Payment failed! Please try another payment method or contact support: ittent.flightalert@gmail.com', color: 'error' });
+      } else if (status === "pending") {
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Payment pending! Please wait some minutes or contact support: ittent.flightalert@gmail.com', color: 'info' });
+      }
+  }, [location]);
+
   const submitConfirmSelection = (planSelected) => {
       const planPayload = {
         userId: userId,
@@ -81,10 +66,9 @@ const PlanSelection = () => {
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.parameters && error.response.data.parameters.fieldErrors) {
-        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message });
-        handleDialogConfirmClose();
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msgE: error.response.data.parameters.fieldErrors[0].field + " " + error.response.data.parameters.fieldErrors[0].message, color: 'error' });
       } else if (error.response && error.response.data && error.response.data.message){
-        handleSnackBarErrorOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message });
+        handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msgE:  error.response.data.message, color: 'error' });
       }
       else { console.error("Error activating alert", error); }
     }
@@ -123,11 +107,11 @@ const PlanSelection = () => {
               style={{
                 border: selectedPlan === plan.name ? "2px solid #3f51b5" : "1px solid #ccc",
                 position: "relative",
-                minHeight: "380px", // Ensures a consistent minimum height
-                maxHeight: "380px", // Prevents cards from growing too tall
+                minHeight: "380px", 
+                maxHeight: "380px", 
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "space-between", // Ensures content and button are spaced properly
+                justifyContent: "space-between", 
 
               }}
             >
@@ -190,27 +174,14 @@ const PlanSelection = () => {
           anchorOrigin={{ vertical, horizontal }}
           open={open}
           key={vertical + horizontal}
-          autoHideDuration={4000}
+          autoHideDuration={30000}
           onClose={handleSnackBarClose}
           disablescrolllock="true">     
-          <Notification  onClose={handleSnackBarClose} severity="success" sx={{ width: '100%' }}>
-            Flight Price Alert {msg} Successfully!
+          <Notification  onClose={handleSnackBarClose} severity={color} sx={{ width: '100%' }}>
+            {msg}
           </Notification >
         </Snackbar>
       </MDBox>
-      <MDBox sx={{ width: 500 }}>
-        <Snackbar
-          anchorOrigin={{ vertical, horizontal }}
-          open={openE}
-          key={verticalE + horizontalE}
-          autoHideDuration={5000}
-          onClose={handleSnackBarErrorClose}
-          disablescrolllock="true">     
-          <Notification onClose={handleSnackBarErrorClose} severity="error" sx={{ width: '100%' }}>
-            {msgE}
-          </Notification >
-        </Snackbar>
-      </MDBox>       
     </DashboardLayout>
   );
 };

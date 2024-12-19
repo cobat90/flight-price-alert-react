@@ -1,6 +1,4 @@
 import { useState, useEffect, useMemo, useContext } from "react";
-
-// react-router components
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 // @mui material components
@@ -130,9 +128,7 @@ export default function App() {
         /> 
         <Route exact path="/plan-selection"
           element={
-            <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
               <PlanSelection />
-            </ProtectedRoute>
           }
           /> 
         <Route
@@ -150,4 +146,3 @@ export default function App() {
     </ThemeProvider>
   );
 }
-

@@ -94,7 +94,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
     >
       <NotificationItem icon={<Icon>person</Icon>} title={localStorage.getItem('login')} link="/user-profile" />
       <NotificationItem icon={<Icon>settings</Icon>} title="Settings" link='/settings' />
-      <NotificationItem icon={<ShoppingCart sx={iconsStyle} />} title="Buy Balance" link='/plan-selection' />
+      <NotificationItem icon={<ShoppingCart sx={iconsStyle} />} title="Add Balance" link='/plan-selection' />
       <NotificationItem icon={<Icon>logout</Icon>} title="Logout" onClick={handleLogOut}/>
     </Menu>
   );
@@ -198,16 +198,11 @@ function DashboardNavbar({ absolute, light, isMini }) {
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           <Typography component="span" variant="inherit" color="info">
-            <b>Always keep your user profile updated for better accuracy when you create your Alerts.</b>
+            <b>Alerts Balance</b>
           </Typography>
           <br/>
-          <br/>
-          <Typography component="span" variant="inherit" color="info">
-            <b>Duration of Alerts</b>
-          </Typography>
-          <br/>
-          For each alert is verified on the interval of 30 minutes. The duration of each alert is counted for each one sented or added in history.
-          You can verify how much you have in your alert or how much you have for use on the right top corner of the page.
+          For each alert is verified on the interval of 30 minutes. The duration of each alert is counted for each time the price is verified and added in history.
+          You can verify how much balance your alert or how much balance available for use on the right top corner of the page.
           <br/>
           <br/>
           <Typography component="span" variant="inherit" color="info">
@@ -233,18 +228,26 @@ function DashboardNavbar({ absolute, light, isMini }) {
           <br/>
           Month: For flexible dates for one month and can be used with range preferences filter too.
           <br/>
+          Multicity: For multi destinations and defined dates for each one. Up to 3 destinations.
+          <br/>
           <br/>
           <Typography component="span" variant="inherit" color="info">
-            <b>To use Ittent in Telegram:</b>
+          <b>Alert types</b>
           </Typography>
-            <br/>
-            In Telegram look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
-            <br/>
-            <img src={botSearchImage} alt="Bot Search" />
-        <br/>
-        Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
-        <br/>
-        <img src={botChatIdImage} alt="Bot ChatId" />        
+          <br/>
+          Email: The notification you be sent in your registered email.
+          <br/>
+          SMS: Only is necessary to verify your phone number in User Profile.
+          <br/>
+          Telegram:
+          <br/>
+          In Telegram app look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
+          <br/>
+          <img src={botSearchImage} alt="Bot Search" />
+          <br/>
+          Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
+          <br/>
+          <img src={botChatIdImage} alt="Bot ChatId" />       
         </DialogContentText>
       </DialogContent>
       <DialogActions>
