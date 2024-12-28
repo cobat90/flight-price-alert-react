@@ -46,6 +46,7 @@ const PlanSelection = () => {
       } else if (status === "pending") {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Payment pending! Please wait some minutes or contact support: ittent.flightalert@gmail.com', color: 'info' });
       }
+      getUserData();
   }, [location]);
 
   const submitConfirmSelection = (planSelected) => {
@@ -91,6 +92,34 @@ const PlanSelection = () => {
       features: ["Alert for 63 days" ,"SMS", "Telegram", "Email"],
     },
   ]
+
+  const getUserData = async () => {
+    try {
+      let userData={
+        AccessToken: localStorage.getItem("token"),
+      }
+      const response = await AuthService.getProfile(userData);
+      if (response.status === 200 && response.data) {
+        setErrors(null);
+        setUser(convertUserResponse(response.data));
+        if (response.data.UserAttributes) {
+          const userAttributes = response.data.UserAttributes;
+          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
+          localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
+        }    
+      } 
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) { 
+        console.error(error.response.data.message);
+        if (error.response.data.message == "Access Token has expired") {
+          authContext.logout();
+        }
+        else {
+          console.error("Error fetching user");
+        }
+      } 
+    }
+  };
 
   return (
     <DashboardLayout>

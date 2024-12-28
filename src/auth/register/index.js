@@ -195,7 +195,7 @@ function Register() {
             Sing up
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            Sign up now and get 1000 free balance 
+            Sign up now and get 200 free balance 
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>

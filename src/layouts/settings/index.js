@@ -90,7 +90,7 @@ function Settings() {
       disableAccount();
     }
     if (dialogConfirmAction === "Delete"){
-      deleteAccount();
+      //deleteAccount();
     }
 
     handleDialogConfirmClose();
@@ -107,12 +107,15 @@ function Settings() {
     if (userData.confirmPassword || userData.newPassword) {
       if (userData.confirmPassword.trim() !== userData.newPassword.trim()) {
         setErrors({ ...errors, confirmPassError: true, newPassError: false});
-        return;
-       
+        return;     
       }
       if (userData.currentPassword.trim() === userData.newPassword.trim()) {
         setErrors({ ...errors, newPassError: true,  confirmPassError: false});
         return;
+      }
+      if (userData.newPassword.length < 8 || userData.confirmPassword.length < 8 ) {
+        setErrors({ ...errors, confirmPassError: true, newPassError: true});
+        return;     
       }
     }
 
@@ -296,7 +299,7 @@ function Settings() {
           </MDTypography>
         </MDBox>
         <MDBox display="flex" flexDirection={{ xs: "column", sm: "row" }}>
-          <MDButton variant="gradient" color="error" sx={{ height: "100%" }} onClick={(e) => {
+          <MDButton variant="gradient" color="error" sx={{ height: "100%" }} disabled onClick={(e) => {
             e.stopPropagation(); 
             handleDialogConfirmOpen(e, "Delete");
             }}>

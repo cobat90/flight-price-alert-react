@@ -342,7 +342,7 @@ function Dashboard() {
 
   useEffect(() => {
     getAlertsData();
-    if (userAttributesCount < 10){ setOpenDialogLetStart(true); }   
+    if (userAttributesCount < 7){ setOpenDialogLetStart(true); }   
   }, []);
 
   const [flightPriceAlertId, setFlightPriceAlertId] = useState(null);
@@ -1137,7 +1137,7 @@ function Dashboard() {
                   fullWidth
                   type="button"
                   onClick={openModalEditAlert}
-                  disabled={userAttributesCount < 10} >                          
+                  disabled={userAttributesCount < 7} >                          
                   Create New Alert        
                 </MDButton>            
                 {modalEditAlert && (
@@ -1213,21 +1213,67 @@ function Dashboard() {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Before we start, please update your user profile for better accuracy when you create your Alerts.
+          <Typography component="span" variant="inherit" color="info">
+              <b>Before we start, please update your user profile for better accuracy when you create your first Alert.
+              </b>
+            </Typography>
             <br/>
             <br/>
             <Typography component="span" variant="inherit" color="info">
-              <b>To use Ittent in Telegram:</b>
+              <h5>Tutorial</h5>
             </Typography>
-              <br/>
-              <br/>
-              In Telegram look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
-              <br/>
-              <img src={botSearchImage} alt="Bot Search" />
-          <br/>
-          Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
-          <br/>
-          <img src={botChatIdImage} alt="Bot ChatId" />        
+
+            <Typography component="span" variant="inherit" color="info">
+              <b>Alerts Balance</b>
+            </Typography>
+            <br/>
+            For each alert is verified on the interval of 30 minutes. The duration of each alert is counted for each time the price is verified and added in history.
+            You can verify how much balance your alert or how much balance available for use on the right top corner of the page.
+            <br/>
+            <br/>
+            <Typography component="span" variant="inherit" color="info">
+            <b>Price Types</b>
+            </Typography>          
+            <br/>
+            Every: Receive an alert every price found.
+            <br/>
+            Lowest: Receive an alert every time a price lower than the previous was found.
+            <br/>
+            Range: Define the range of prices or dates to receive an alert.
+            <br/>
+            <br/>
+            <Typography component="span" variant="inherit" color="info">
+            <b>Flight Types</b>
+            </Typography>
+            <br/>
+            One Way: For defined date one way flights.
+            <br/>
+            Roundtrip: For defined dates round-trip flights.
+            <br/>
+            Cheapest: For flexible dates and can be used with range of dates and prices on preferences filter.
+            <br/>
+            Month: For flexible dates for one month and can be used with range preferences filter too.
+            <br/>
+            Multicity: For multi destinations and defined dates for each one. Up to 3 destinations.
+            <br/>
+            <br/>
+            <Typography component="span" variant="inherit" color="info">
+            <b>Alert types</b>
+            </Typography>
+            <br/>
+            Email: The notification you be sent in your registered email.
+            <br/>
+            SMS: Only is necessary to verify your phone number in User Profile.
+            <br/>
+            Telegram:
+            <br/>
+            In Telegram app look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
+            <br/>
+            <img src={botSearchImage} alt="Bot Search" />
+            <br/>
+            Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
+            <br/>
+            <img src={botChatIdImage} alt="Bot ChatId" />       
           </DialogContentText>
         </DialogContent>
         <DialogActions>

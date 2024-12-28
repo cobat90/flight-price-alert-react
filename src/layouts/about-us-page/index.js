@@ -46,7 +46,7 @@ const AboutUsPage = () => {
                 </a>
               </li>
               <li>
-                  <a href="http://localhost:3000/about-us">
+                  <a href="https://ittent.net/about-us">
                   <i className="pe-7s-note2"></i> About us
                   </a>
               </li>
@@ -175,7 +175,7 @@ const AboutUsPage = () => {
                   <a href="https://ittent.net/">Home</a>
                 </li>
                 <li>
-                  <a href="https://ittent.net/about">About us</a>
+                  <a href="https://ittent.net/about-us">About us</a>
                 </li>
                 <li>
                   <a href="mailto:ittent.flightalert@gmail.com">

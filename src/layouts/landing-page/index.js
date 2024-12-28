@@ -46,7 +46,7 @@ const LandingPage = () => {
                 </a>
               </li>
               <li>
-                  <a href="http://localhost:3000/about-us">
+                  <a href="https://ittent.net/about-us">
                   <i className="pe-7s-note2"></i> About us
                   </a>
               </li>
@@ -113,7 +113,7 @@ const LandingPage = () => {
           <div className="container text-center">
             <h4><b>Save money and don't waste time</b></h4>
             <p>
-              Imagine planning your dream vacation or a critical business trip
+              Imagine planning your dream vacation or business trip
               without worrying about skyrocketing ticket prices. Our flight
               price monitoring service takes the stress out of booking airfare
               by tracking ticket prices for your desired destinations and
@@ -181,7 +181,7 @@ const LandingPage = () => {
               />
             </div>
             <div className="info">
-              <h1>Register now and receive 500 of price alert balance!</h1>
+              <h1>Register now and receive 200 of price alert balance!</h1>
               <a
                 href="https://ittent.net/auth/register"
                 className="btn btn-neutral btn-lg btn-fill"

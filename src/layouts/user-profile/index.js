@@ -154,6 +154,7 @@ const UserProfile = () => {
     try {
       const response = await AuthService.updateProfile(userData);
       if (response.status === 200) {
+        getUserData();
         setErrors(null);
         setSnackBarMessage("User Profile Saved!");
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center' });
