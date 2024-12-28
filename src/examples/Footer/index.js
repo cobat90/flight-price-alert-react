@@ -40,10 +40,10 @@ function Footer({ company, links }) {
         color="text"
         fontSize={size.sm}
         px={1.5}
-      >
-        &copy; Price Alerts 2025
+        >
+        &copy; 2025
         by
-        <Link href="https://ittent.com" target="_blank">
+        <Link href="https://ittent.com" target="_blank" translate="no">
           <MDTypography variant="button" fontWeight="medium">
             &nbsp;ITTENT&nbsp;
           </MDTypography>
@@ -75,7 +75,7 @@ function Footer({ company, links }) {
 Footer.defaultProps = {
   company: { href: "https://www.ittent.com/", name: "ITTENT" },
   links: [
-    { href: "https://www.ittent.com/", name: "ITTENT" },
+    { href: "https://www.ittent.com/", name: "" },
   ],
 };
 

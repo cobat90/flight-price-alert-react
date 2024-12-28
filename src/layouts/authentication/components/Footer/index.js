@@ -38,11 +38,10 @@ function Footer({ light }) {
           >
             &copy; 2025, made by
             <Link href="https://www.ittent.com/" target="_blank">
-              <MDTypography variant="button" fontWeight="medium" color={light ? "white" : "dark"}>
+              <MDTypography variant="button" fontWeight="medium" color={light ? "white" : "dark"} translate="no">
                 &nbsp;ITTENT&nbsp;
               </MDTypography>
             </Link>
-            for a better web.
           </MDBox>       
         </MDBox>
       </Container>

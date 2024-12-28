@@ -54,7 +54,7 @@ function BasicLayout({ image, children }) {
                     padding="1.5rem"
                     width="80%"
                   >
-                    <Typography variant="h3" style={{ color: "white" }} >
+                    <Typography variant="h3" style={{ color: "white" }} translate="no">
                       Ittent                      
                     </Typography>
                     <Typography variant="body2" style={{ color: "white" }} marginBottom="4rem">

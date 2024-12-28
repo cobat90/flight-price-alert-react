@@ -272,7 +272,7 @@ function Settings() {
                       color="info"
                       type="button"
                       onClick={handleClearForm}
-                    >
+                      translate="no">
                       Clear
                     </MDButton>
                   </MDBox>

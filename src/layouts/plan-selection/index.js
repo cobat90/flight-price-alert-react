@@ -6,12 +6,15 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Footer from "examples/Footer"
 import { useLocation } from "react-router-dom";
-import FlightPriceAlertService from "../../services/flight-price-alert-service";
-import { convertSelectPlanRequest} from '../../services/convert-flight-price-alert-service';
 import { getAttributeValue} from '../../services/convert-user-service'; 
 import CheckIcon from "@mui/icons-material/Check";
 import { Card, CardHeader, CardContent, CardActions, Typography } from "@mui/material";
+import FlightPriceAlertService from "../../services/flight-price-alert-service";
+import { convertSelectPlanRequest} from '../../services/convert-flight-price-alert-service';
+import AuthService from "../../services/auth-service";
+import { AuthContext } from "context";
 
 const Notification = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="standard" {...props} />;
@@ -23,6 +26,7 @@ const PlanSelection = () => {
   const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
   const userId = getAttributeValue(userAttributes, 'sub');
   const location = useLocation();
+  const authContext = useContext(AuthContext);
   const [snackBarState, setSnackBarState] = useState({
     open: false,
     vertical: 'top',
@@ -46,8 +50,11 @@ const PlanSelection = () => {
       } else if (status === "pending") {
         handleSnackBarOpen({ vertical: 'top', horizontal: 'center', msg: 'Payment pending! Please wait some minutes or contact support: ittent.flightalert@gmail.com', color: 'info' });
       }
-      getUserData();
   }, [location]);
+
+  useEffect(() => {
+    getUserData();
+  }, []);
 
   const submitConfirmSelection = (planSelected) => {
       const planPayload = {
@@ -100,11 +107,11 @@ const PlanSelection = () => {
       }
       const response = await AuthService.getProfile(userData);
       if (response.status === 200 && response.data) {
-        setErrors(null);
+        console.info("200 - response: ", response);
         setUser(convertUserResponse(response.data));
         if (response.data.UserAttributes) {
           const userAttributes = response.data.UserAttributes;
-          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
+          localStorage.setItem('userAttributes', JSON.stringify(userAttributes));
           localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
         }    
       } 
@@ -199,18 +206,19 @@ const PlanSelection = () => {
     </div>
     </MDBox>
     <MDBox sx={{ width: 500 }}>
-        <Snackbar
-          anchorOrigin={{ vertical, horizontal }}
-          open={open}
-          key={vertical + horizontal}
-          autoHideDuration={30000}
-          onClose={handleSnackBarClose}
-          disablescrolllock="true">     
-          <Notification  onClose={handleSnackBarClose} severity={color} sx={{ width: '100%' }}>
-            {msg}
-          </Notification >
-        </Snackbar>
-      </MDBox>
+      <Snackbar
+        anchorOrigin={{ vertical, horizontal }}
+        open={open}
+        key={vertical + horizontal}
+        autoHideDuration={30000}
+        onClose={handleSnackBarClose}
+        disablescrolllock="true">     
+        <Notification  onClose={handleSnackBarClose} severity={color} sx={{ width: '100%' }}>
+          {msg}
+        </Notification >
+      </Snackbar>
+    </MDBox>
+    <Footer />
     </DashboardLayout>
   );
 };

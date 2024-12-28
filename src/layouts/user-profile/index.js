@@ -276,7 +276,7 @@ const UserProfile = () => {
               </Grid>
               </MDBox>
               <MDBox>
-                <MDTypography variant="h6">SMS Notifications</MDTypography>
+                <MDTypography variant="h6"><b>SMS</b> Notifications</MDTypography>
               </MDBox>
               <MDBox p={3}>
                 <Grid container spacing={3}>
@@ -304,7 +304,7 @@ const UserProfile = () => {
                   </Grid>
               </MDBox>
               <MDBox>
-                <MDTypography variant="h6">Telegram Notifications</MDTypography>
+                <MDTypography variant="h6"><b translate="no">Telegram</b>&nbsp;Notifications</MDTypography>
               </MDBox>
               <MDBox p={3}>
                 <Grid container spacing={3}>
@@ -315,7 +315,7 @@ const UserProfile = () => {
                   <Tooltip title="It's necessary to look for ittent_bot and text '/chatId' in Telegram." placement="bottom">
                     <Grid item xs={12} md={6}>
                       <FormField name="telegramChatId" defaultValue={(user?.telegramChatId ? (user.telegramChatId || "").toString() : "")}
-                      label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }}/>
+                      label="Telegram ChatId" placeholder="123456" inputProps={{ type: "text" }} translate="no"/>
                     </Grid>
                   </Tooltip>
                 </Grid>
@@ -371,7 +371,7 @@ const UserProfile = () => {
                   variant="gradient"
                   color="info"
                   type="button"
-                  onClick={handleClearForm}>                  
+                  onClick={handleClearForm} translate="no">                  
                   Clear
                 </MDButton>
               </Grid>

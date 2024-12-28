@@ -241,7 +241,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
           <br/>
           Telegram:
           <br/>
-          In Telegram app look for <b>"Ittent"</b> or <b>"@ittent_bot"</b>. 
+          In Telegram app look for <b translate="no">"Ittent"</b> or <b translate="no">"@ittent_bot"</b>. 
           <br/>
           <img src={botSearchImage} alt="Bot Search" />
           <br/>

@@ -29,14 +29,14 @@ const AboutUsPage = () => {
                     alt="Ittent Logo"
                   />
                 </div>
-                <div className="brand">Ittent</div>
+                <div className="brand" translate="no">Ittent</div>
               </div>
             </a>
           </div>
           <div className="collapse navbar-collapse" id="example">
             <ul className="nav navbar-nav navbar-right">
               <li>
-                <a href="https://ittent.net/auth/login">
+                <a href="https://ittent.net/auth/login" translate="no">
                   <i className="pe-7s-user"></i> Login
                 </a>
               </li>
@@ -51,7 +51,7 @@ const AboutUsPage = () => {
                   </a>
               </li>
               <li>
-                <a href="https://t.me/ittent_bot">
+                <a href="https://t.me/ittent_bot" translate="no">
                   <i className="pe-7s-chat"></i> Telegram
                 </a>
               </li>          
@@ -172,20 +172,20 @@ const AboutUsPage = () => {
             <nav className="pull-left">
               <ul>
                 <li>
-                  <a href="https://ittent.net/">Home</a>
+                  <a href="https://ittent.net/" translate="no">Home</a>
                 </li>
                 <li>
                   <a href="https://ittent.net/about-us">About us</a>
                 </li>
                 <li>
                   <a href="mailto:ittent.flightalert@gmail.com">
-                    <i className="pe-7s-mail"></i> Send Email
+                    <i className="pe-7s-mail"></i>Send Email
                   </a>
                 </li>
               </ul>
             </nav>
             <div className="copyright">
-              &copy; 2025 <a href="https://ittent.net/">Ittent</a>
+              <a href="https://ittent.net/" translate="no">&copy; 2025 Ittent</a>
             </div>
           </div>
         </footer>

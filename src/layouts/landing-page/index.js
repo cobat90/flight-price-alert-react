@@ -29,14 +29,14 @@ const LandingPage = () => {
                     alt="Ittent Logo"
                   />
                 </div>
-                <div className="brand">Ittent</div>
+                <div className="brand" translate="no">Ittent</div>
               </div>
             </a>
           </div>
           <div className="collapse navbar-collapse" id="example">
             <ul className="nav navbar-nav navbar-right">
               <li>
-                <a href="https://ittent.net/auth/login">
+                <a href="https://ittent.net/auth/login" translate="no">
                   <i className="pe-7s-user"></i> Login
                 </a>
               </li>
@@ -51,7 +51,7 @@ const LandingPage = () => {
                   </a>
               </li>
               <li>
-                <a href="https://t.me/ittent_bot">
+                <a href="https://t.me/ittent_bot" translate="no">
                   <i className="pe-7s-chat"></i> Telegram
                 </a>
               </li>        
@@ -115,7 +115,7 @@ const LandingPage = () => {
             <p>
               Imagine planning your dream vacation or business trip
               without worrying about skyrocketing ticket prices. Our flight
-              price monitoring service takes the stress out of booking airfare
+              price alerts monitoring service takes the stress out and save you time
               by tracking ticket prices for your desired destinations and
               notifying you the moment the best deals appear.
             </p>
@@ -198,7 +198,7 @@ const LandingPage = () => {
             <nav className="pull-left">
               <ul>
                 <li>
-                  <a href="https://ittent.net/">Home</a>
+                  <a href="https://ittent.net/" translate="no">Home</a>
                 </li>
                 <li>
                   <a href="https://ittent.net/about">About us</a>
@@ -211,7 +211,7 @@ const LandingPage = () => {
               </ul>
             </nav>
             <div className="copyright">
-              &copy; 2025 <a href="https://ittent.net/">Ittent</a>
+            <a href="https://ittent.net/" translate="no">&copy; 2025 Ittent</a>
             </div>
           </div>
         </footer>
