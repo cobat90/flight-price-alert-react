@@ -69,9 +69,6 @@ const UserProfile = () => {
   };
 
   const handleGetVerificationCode = (attributeName, attributeValue, attributeCurrentValue) => {
-    console.info("handleGetVerificationCode: ", attributeName);
-    console.info("attributeValue: ", attributeValue);
-    console.info("attributeCurrentValue: ", attributeCurrentValue);
     if (attributeValue && attributeValue === attributeCurrentValue) {
       getVerificationCode(convertGetVerificationCodeRequest(attributeName));
     }

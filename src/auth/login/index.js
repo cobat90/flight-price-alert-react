@@ -71,7 +71,6 @@ function Login() {
         setCredentialsError("An unexpected error occurred", error);
       }
     }
-  
     return () => {
       setInputs({
         username: "",
@@ -85,10 +84,14 @@ function Login() {
     };
   };
 
-  function extractTextOutsideParentheses(inputString) {
-    const regex = /\(([^)]+)\)/;
-    const matches = regex.exec(inputString);
-    return matches ? inputString.replace(matches[0], '').trim() : inputString;
+  const handleGoogleLogin = (e) => {
+    e.preventDefault();
+    const clientId = process.env.REACT_APP_COGNITO_CLIENTID;
+    const redirectUri = encodeURIComponent("https://ittent-alert.auth.us-east-2.amazoncognito.com/oauth2/idpresponse");
+    const cognitoDomain = process.env.REACT_APP_COGNITO_DOMAIN;
+    const responseType = "code";
+    const url = `${cognitoDomain}/oauth2/authorize?identity_provider=Google&response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid email profile`;
+    window.location.href = url;
   }
 
   return (
@@ -136,8 +139,13 @@ function Login() {
               />
             </MDBox>
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth type="submit">
+              <MDButton variant="gradient" color="info" fullWidth type="submit" >
                 Sign in
+              </MDButton>
+            </MDBox>
+            <MDBox mt={4} mb={1}>
+              <MDButton id="google-login" variant="gradient" color="info" fullWidth onClick={handleGoogleLogin}>
+                Login with Google
               </MDButton>
             </MDBox>
             {credentialsErros && (

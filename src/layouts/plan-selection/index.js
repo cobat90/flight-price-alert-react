@@ -69,7 +69,6 @@ const PlanSelection = () => {
     try {
       const response = await FlightPriceAlertService.selectPlan(userId, planPayload);
       if (response.status === 201) {
-        console.info("response: ", response);
         window.location.href = response.data.redirectUrl;
       }
     } catch (error) {
@@ -107,7 +106,6 @@ const PlanSelection = () => {
       }
       const response = await AuthService.getProfile(userData);
       if (response.status === 200 && response.data) {
-        console.info("200 - response: ", response);
         setUser(convertUserResponse(response.data));
         if (response.data.UserAttributes) {
           const userAttributes = response.data.UserAttributes;

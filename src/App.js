@@ -18,9 +18,10 @@ import brandDark from "assets/images/logos/logo_ittent.png";
 
 import { setupAxiosInterceptors } from "./services/interceptor";
 import ProtectedRoute from "examples/ProtectedRoute";
+import Login from "auth/login";
 import ForgotPasswordInit from "auth/forgot-password-init";
 import ForgotPasswordFinish from "auth/forgot-password-finish";
-import Login from "auth/login";
+import Callback from "auth/google/callback";
 import Register from "auth/register";
 import { AuthContext } from "context";
 import UserProfile from "layouts/user-profile";
@@ -119,6 +120,7 @@ export default function App() {
         <Route path="/auth/register" element={<Register />} />
         <Route path="/auth/forgot-password-init" element={<ForgotPasswordInit />} />
         <Route path="/auth/forgot-password-finish" element={<ForgotPasswordFinish />} />
+        <Route path="/auth/google/callback" element={<Callback />} />
         <Route exact path="/settings"
           element={
             <ProtectedRoute isAuthenticated={authContext.isAuthenticated}>
