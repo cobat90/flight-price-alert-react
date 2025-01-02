@@ -638,7 +638,7 @@ function Dashboard() {
                       ref={airportRefFrom}
                       name="airportFrom"
                       label="Airport From"
-                      placeholder="GIG"
+                      placeholder="SDU"
                       defaultValue={(isEditing
                           ? (currentAlert?.mainFilter?.flights[0]?.airports?.airportFrom || "").toString()
                           : "")}

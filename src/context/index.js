@@ -49,9 +49,8 @@ const AuthContextProvider = ({ children }) => {
         if (response.status === 200) {
           if (response && response.data && response.data.UserAttributes) {
             const userAttributes = response.data.UserAttributes;
-          
             localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
-            localStorage.setItem("login", response.data.Username);
+            localStorage.setItem("login", getAttributeValue(userAttributes, 'email'));
             localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
 
             setIsAuthenticated(true);
@@ -63,14 +62,14 @@ const AuthContextProvider = ({ children }) => {
         }
     } catch (error) {
       if (error.response.data.message) {
-        setCredentialsError(error.response.data.message);
+        console.error(error.response.data.message);
       }
       else if (error.response.data.__type) 
       {
-        setCredentialsError(error.response.data.__type);
+        console.error(error.response.data.__type);
       } 
       else {
-        setCredentialsError("Invalid profile response");
+        console.error("Invalid profile response");
       }
     }
 };

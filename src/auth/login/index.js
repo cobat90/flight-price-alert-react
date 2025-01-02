@@ -11,6 +11,7 @@ import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 import BasicLayoutLanding from "layouts/authentication/components/BasicLayoutLanding";
+import GoogleButton from 'react-google-button'
 import bgImage from "assets/images/bg-sign-in-flight.png";
 import { convertUserLoginRequest } from '../../services/convert-user-service';
 import AuthService from "services/auth-service";
@@ -87,10 +88,10 @@ function Login() {
   const handleGoogleLogin = (e) => {
     e.preventDefault();
     const clientId = process.env.REACT_APP_COGNITO_CLIENTID;
-    const redirectUri = encodeURIComponent("https://ittent-alert.auth.us-east-2.amazoncognito.com/oauth2/idpresponse");
+    const redirectUri = encodeURIComponent("https://ittent.net/auth/google/callback");
     const cognitoDomain = process.env.REACT_APP_COGNITO_DOMAIN;
-    const responseType = "code";
-    const url = `${cognitoDomain}/oauth2/authorize?identity_provider=Google&response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid email profile`;
+    const responseType = "CODE";
+    const url = `${cognitoDomain}/oauth2/authorize?identity_provider=Google&response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid email profile aws.cognito.signin.user.admin`;
     window.location.href = url;
   }
 
@@ -143,10 +144,15 @@ function Login() {
                 Sign in
               </MDButton>
             </MDBox>
-            <MDBox mt={4} mb={1}>
-              <MDButton id="google-login" variant="gradient" color="info" fullWidth onClick={handleGoogleLogin}>
-                Login with Google
-              </MDButton>
+            <MDBox mt={4} mb={1}> 
+              <MDTypography fontWeight="medium" textAlign="center" variant="h6">
+                OR
+              </MDTypography>
+            </MDBox>
+            <MDBox mt={4} mb={1}> 
+            <GoogleButton
+                onClick={handleGoogleLogin}
+                style={{ width: '100%' }}/>
             </MDBox>
             {credentialsErros && (
               <MDTypography variant="caption" color="error" fontWeight="medium" >

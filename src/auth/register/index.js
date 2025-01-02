@@ -9,7 +9,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-
+import GoogleButton from 'react-google-button'
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
@@ -61,6 +61,16 @@ function Register() {
     });
   };
 
+  const handleGoogleLogin = (e) => {
+    e.preventDefault();
+    const clientId = process.env.REACT_APP_COGNITO_CLIENTID;
+    const redirectUri = encodeURIComponent("https://ittent.net/auth/google/callback");
+    const cognitoDomain = process.env.REACT_APP_COGNITO_DOMAIN;
+    const responseType = "CODE";
+    const url = `${cognitoDomain}/oauth2/authorize?identity_provider=Google&response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=openid email profile aws.cognito.signin.user.admin`;
+    window.location.href = url;
+  }
+
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -103,7 +113,6 @@ function Register() {
         });  
         registerUserData(convertUserSignupRequest(userData));
       }
-  
   };
 
   const registerUserData = async (userData) => {
@@ -113,7 +122,7 @@ function Register() {
         handleDialogConfirmOpen();
         setResendTimer(60);
         openOneMinuteTimer();
-        localStorage.setItem("login", userData.Username);
+        localStorage.setItem("login", userData.email);
       } 
     } catch (error) {
         if (error.response && error.response.data && error.response.data.__type){
@@ -285,6 +294,17 @@ function Register() {
               <MDButton variant="gradient" color="info" fullWidth type="submit" disabled={resendTimer > 0}>
                 sign up
               </MDButton>
+            </MDBox>
+            <MDBox mt={4} mb={1}> 
+              <MDTypography fontWeight="medium" textAlign="center" variant="h6">
+                OR
+              </MDTypography>
+            </MDBox>
+            <MDBox mt={4} mb={1}> 
+            <GoogleButton
+              label='Sign up with Google'
+              onClick={handleGoogleLogin}
+              style={{ width: '100%' }}/>
             </MDBox>
             {errors.error && (
               <MDTypography variant="caption" color="error" fontWeight="medium">

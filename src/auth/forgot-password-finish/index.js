@@ -76,8 +76,6 @@ function ForgotPasswordFinish() {
         code: confirmationCode,
         newPassword: userData.newPassword,
       };
-      console.log('Username:', username);
-      console.log('Confirmation Code:', confirmationCode);
 
       handleForgotPasswordFinish(convertUserForgotPasswordFinishRequest(newUserData));
     }
