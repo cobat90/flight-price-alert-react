@@ -1,6 +1,6 @@
 {
   "name": "ittent-flight-price-alert-react",
-  "version": "1.5.1",
+  "version": "1.7.0",
   "private": true,
   "dependencies": {
     "@emotion/cache": "^11.7.1",

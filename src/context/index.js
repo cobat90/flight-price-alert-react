@@ -4,7 +4,7 @@ import { createContext, useContext, useReducer, useMemo, useState, useEffect } f
 import PropTypes from "prop-types";
 import { useLocation, useNavigate } from "react-router-dom";
 import AuthService from "services/auth-service";
-import { getAttributeValue, convertBalanceToDays } from '../services/convert-user-service';
+import { getAttributeValue } from '../services/convert-user-service';
 
 const MaterialUI = createContext();
 
@@ -49,8 +49,9 @@ const AuthContextProvider = ({ children }) => {
         if (response.status === 200) {
           if (response && response.data && response.data.UserAttributes) {
             const userAttributes = response.data.UserAttributes;
+            console.info("response.data", response.data);
             localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
-            localStorage.setItem("login", getAttributeValue(userAttributes, 'email'));
+            localStorage.setItem("login", response.data.Username);
             localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));
 
             setIsAuthenticated(true);

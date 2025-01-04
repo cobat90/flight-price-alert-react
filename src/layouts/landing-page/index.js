@@ -26,7 +26,7 @@ const LandingPage = () => {
                 <div className="logo">
                   <img
                     src="assets/img/logos/ittent_logo.jpg"
-                    alt="Ittent Logo"
+                    alt="Ittent Flight Price Monitoring Logo"
                   />
                 </div>
                 <div className="brand" translate="no">Ittent</div>
@@ -70,8 +70,9 @@ const LandingPage = () => {
           <div className="parallax-background">
             <img
               className="parallax-background-image"
-              src="assets/img/template/bg3.jpg"
-              alt="Background"
+              src="assets/img/template/bg3.webp"
+              alt="Background Landing Page Image"
+              loading="lazy"
             />
           </div>
           <div className="container">
@@ -80,20 +81,22 @@ const LandingPage = () => {
                 <div className="parallax-image">
                 <img
                     className="phone"
-                    src="assets/img/CelScreen.png"
+                    src="assets/img/phone_screen.png"
                     style={{ marginTop: "20px" }}
-                    alt="Phone"
+                    alt="Mobile Screen Site View"
+                    loading="lazy"
                   />
                 </div>
               </div>
               <div className="col-md-6 col-md-offset-1">
                 <div className="description">
-                  <h2>Be in control of prices</h2>
+                  <h1>Receive real-time flight ticket prices</h1>
                   <br />
                   <h5>
                     Don't waste any more time looking at your flight ticket
                     prices all the time, just choose your ticket information and
-                    the price you want to receive notifications!
+                    the price you want to receive notifications.
+                    Create your alert of flight ticket here!
                   </h5>
                 </div>
                 <div className="buttons">
@@ -111,17 +114,16 @@ const LandingPage = () => {
         {/* Features Section */}
         <div className="section section-gray section-clients">
           <div className="container text-center">
-            <h4><b>Save money and don't waste time</b></h4>
+            <h2><b>Save money and don't waste time looking for best flight deals</b></h2>
             <p>
               Imagine planning your dream vacation or business trip
-              without worrying about skyrocketing ticket prices. Our flight
+              without worrying about skyrocketing flight ticket prices. Our flight
               price alerts monitoring service takes the stress out and save you time
               by tracking ticket prices for your desired destinations and
               notifying you the moment the best deals appear.
             </p>
           </div>
         </div>
-
         <div className="section section-features">
           <div className="container">
             <h4 className="header-text text-center">Benefits</h4>
@@ -134,7 +136,7 @@ const LandingPage = () => {
                   <h4>Save Time</h4>
                   <p>
                     Skip the hassle of manually checking prices, our service
-                    does the work for you!
+                    does the work for you and Receive Real-Time Flight Deals!
                   </p>
                 </div>
               </div>
@@ -176,17 +178,18 @@ const LandingPage = () => {
             <div className="parallax-background">
               <img
                 className="parallax-background-image"
-                src="assets/img/template/bg3.jpg"
-                alt="Background"
+                src="assets/img/template/bg3.webp"
+                alt="Background Landing Page Image"
+                loading="lazy"
               />
             </div>
             <div className="info">
-              <h1>Register now and receive 200 of price alert balance!</h1>
+              <h1>Register now and receive a balance for free for create your alerts!</h1>
               <a
                 href="https://ittent.net/auth/register"
                 className="btn btn-neutral btn-lg btn-fill"
               >
-                Register
+                Register here
               </a>
             </div>
           </div>

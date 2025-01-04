@@ -31,6 +31,7 @@ import botChatIdImage from "assets/images/bot-chatid.png";
 import botSearchImage from "assets/images/bot-search.png";
 import Button from '@mui/material/Button';
 import Tooltip from "@mui/material/Tooltip";
+import { getAttributeValue } from '../../../services/convert-user-service';
 
 import {
   navbar,
@@ -55,6 +56,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const [openMenu, setOpenMenu] = useState(false);
   const [openDialogTutorial, setOpenDialogTutorial] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const userAttributes = JSON.parse(localStorage.getItem('userAttributes'));
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,7 +94,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
       sx={{ mt: 2 }}
       disableScrollLock={ true }
     >
-      <NotificationItem icon={<Icon>person</Icon>} title={localStorage.getItem('login')} link="/user-profile" />
+      <NotificationItem icon={<Icon>person</Icon>} title={getAttributeValue(userAttributes, 'email')} link="/user-profile" />
       <NotificationItem icon={<Icon>settings</Icon>} title="Settings" link='/settings' />
       <NotificationItem icon={<ShoppingCart sx={iconsStyle} />} title="Add Balance" link='/plan-selection' />
       <NotificationItem icon={<Icon>logout</Icon>} title="Logout" onClick={handleLogOut}/>

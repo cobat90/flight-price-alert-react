@@ -342,7 +342,7 @@ function Dashboard() {
 
   useEffect(() => {
     getAlertsData();
-    if (userAttributesCount < 7){ setOpenDialogLetStart(true); }   
+    if (userAttributesCount < 9){ setOpenDialogLetStart(true); }   
   }, []);
 
   const [flightPriceAlertId, setFlightPriceAlertId] = useState(null);

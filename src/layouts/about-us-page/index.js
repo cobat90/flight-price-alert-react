@@ -26,7 +26,7 @@ const AboutUsPage = () => {
                 <div className="logo">
                   <img
                     src="assets/img/logos/ittent_logo.jpg"
-                    alt="Ittent Logo"
+                    alt="Ittent Company Logo"
                   />
                 </div>
                 <div className="brand" translate="no">Ittent</div>
@@ -70,8 +70,9 @@ const AboutUsPage = () => {
           <div className="parallax-background">
             <img
               className="parallax-background-image"
-              src="assets/img/template/bg3.jpg"
-              alt="Background"
+              src="assets/img/template/bg3.webp"
+              alt="Background Landing Page Image"
+              loading="lazy"
             />
           </div>
           <div className="container">
@@ -82,8 +83,8 @@ const AboutUsPage = () => {
                   <h2>About Us</h2>
                   <br />
                   <h5>
-                    Welcome to Ittent, your personal price-alert concierge for flights, hotels, car rentals, and more.
-                    At Ittent, we empower you to be in control of prices while leaving the stress of constant monitoring to us.
+                    Welcome to Ittent, your platform for monitoring prices of flights, hotels, car rentals, and more.
+                    At Ittent, we empower you to be in control of your trip through alert prices while leaving the stress of constant monitoring to us.
                   </h5>
                 </div>
               </div>
@@ -116,25 +117,25 @@ const AboutUsPage = () => {
                   </p>
                 </div>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-4" >
                 <div className="card card-blue">
                   <div className="icon">
                     <i className="pe-7s-home"></i>
                   </div>
-                  <div className="text">
-                    <h4>Hotels</h4>
+                  <div className="text"  >
+                    <h4>Hotels (coming)</h4>
                     <p>
                       Secure the best deals for your stays without the hassle of endless searches.
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-4" >
                 <div className="card card-blue">
                   <div className="icon">
                     <i className="pe-7s-car"></i>
                   </div>
-                  <h4>Car rentals</h4>
+                  <h4>Car rentals (coming)</h4>
                   <p>
                     Book at the perfect time with alerts on rental offers.
                   </p>
@@ -150,8 +151,9 @@ const AboutUsPage = () => {
             <div className="parallax-background">
               <img
                 className="parallax-background-image"
-                src="assets/img/template/bg3.jpg"
-                alt="Background"
+                src="assets/img/template/bg3.webp"
+                alt="Background Landing Page Image"
+                loading="lazy"
               />
             </div>
             <div className="info">
