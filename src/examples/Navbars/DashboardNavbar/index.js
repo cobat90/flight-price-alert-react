@@ -203,7 +203,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
             <b>Alerts Balance</b>
           </Typography>
           <br/>
-          For each alert is verified on the interval of 30 minutes. The duration of each alert is counted for each time the price is verified and added in history.
+          The duration of each alert is counted for each time the price is verified and added in history.
           You can verify how much balance your alert or how much balance available for use on the right top corner of the page.
           <br/>
           <br/>

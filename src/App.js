@@ -1,21 +1,14 @@
 import { useState, useEffect, useMemo, useContext } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-
-// @mui material components
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Sidenav from "examples/Sidenav";
 import theme from "assets/theme";
 import themeDark from "assets/theme-dark";
-
 import routes from "routes";
-
 import { useMaterialUIController, setMiniSidenav } from "context";
-
-// Images
 import brandWhite from "assets/images/logos/logo_ittent_big.png";
 import brandDark from "assets/images/logos/logo_ittent_big.png";
-
 import { setupAxiosInterceptors } from "./services/interceptor";
 import ProtectedRoute from "examples/ProtectedRoute";
 import Login from "auth/login";
@@ -29,6 +22,7 @@ import Settings from "layouts/settings";
 import PlanSelection from "layouts/plan-selection";
 import LandingPage from "layouts/landing-page";
 import AboutUsPage from "layouts/about-us-page";
+import FAQPage from "layouts/faq-page";
 
 export default function App() {
   const authContext = useContext(AuthContext);
@@ -116,6 +110,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/about-us" element={<AboutUsPage />} />
+        <Route path="/faq" element={<FAQPage />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
         <Route path="/auth/forgot-password-init" element={<ForgotPasswordInit />} />

@@ -47,14 +47,14 @@ const LandingPage = () => {
               </li>
               <li>
                   <a href="https://ittent.net/about-us">
-                  <i className="pe-7s-note2"></i> About us
+                  <i className="pe-7s-users"></i> About us
                   </a>
               </li>
               <li>
-                <a href="https://t.me/ittent_bot" translate="no">
-                  <i className="pe-7s-chat"></i> Telegram
-                </a>
-              </li>        
+                  <a href="https://ittent.net/faq">
+                  <i className="pe-7s-note2"></i> FAQ
+                  </a>
+              </li>          
               <li>
                 <div id="google_translate_element"></div>
               </li>
@@ -199,20 +199,23 @@ const LandingPage = () => {
         <footer className="footer">
           <div className="container">
             <nav className="pull-left">
-              <ul>
-                <li>
-                  <a href="https://ittent.net/" translate="no">Home</a>
-                </li>
-                <li>
-                  <a href="https://ittent.net/about">About us</a>
-                </li>
-                <li>
-                  <a href="mailto:ittent.flightalert@gmail.com">
-                    <i className="pe-7s-mail"></i> Send Email
-                  </a>
-                </li>
-              </ul>
-            </nav>
+                <ul>
+                  <li>
+                    <a href="https://ittent.net/" translate="no">Home</a>
+                  </li>
+                  <li>
+                    <a href="https://ittent.net/faq">FAQ</a>
+                  </li>
+                  <li>
+                    <a href="https://t.me/ittent_bot" translate="no">Telegram</a>
+                  </li>
+                  <li>
+                    <a href="mailto:ittent.flightalert@gmail.com">
+                    Send Email
+                    </a>
+                  </li>
+                </ul>
+              </nav>
             <div className="copyright">
             <a href="https://ittent.net/" translate="no">&copy; 2025 Ittent</a>
             </div>
