@@ -115,6 +115,16 @@ function Login() {
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form" method="POST" onSubmit={submitHandler}>
+          <MDBox> 
+            <GoogleButton
+                onClick={handleGoogleLogin}
+                style={{ width: '100%' }}/>
+          </MDBox>
+          <MDBox mt={3} mb={3}> 
+            <MDTypography fontWeight="medium" textAlign="center" variant="h6">
+              OR
+            </MDTypography>
+          </MDBox>
           <MDBox mb={2}>
               <MDInput
                 type="username"
@@ -143,16 +153,6 @@ function Login() {
               <MDButton variant="gradient" color="info" fullWidth type="submit" >
                 Sign in
               </MDButton>
-            </MDBox>
-            <MDBox mt={4} mb={1}> 
-              <MDTypography fontWeight="medium" textAlign="center" variant="h6">
-                OR
-              </MDTypography>
-            </MDBox>
-            <MDBox mt={4} mb={1}> 
-            <GoogleButton
-                onClick={handleGoogleLogin}
-                style={{ width: '100%' }}/>
             </MDBox>
             {credentialsErros && (
               <MDTypography variant="caption" color="error" fontWeight="medium" >

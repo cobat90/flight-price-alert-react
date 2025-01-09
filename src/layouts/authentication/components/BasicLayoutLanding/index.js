@@ -40,10 +40,9 @@ function BasicLayout({ image, children }) {
             display="flex"
             flexDirection="column"
             width="100%"
-            justifyContent="center"
-            paddingTop="4em"
+            justifyContent="center"           
           >
-            <MDBox paddingBottom="3rem" sx={{ textAlign: "center" }}>
+            <MDBox sx={{ textAlign: "center" }}>
               {pathname === "/auth/login" && (
                 <MDBox display="flex" width="100%" justifyContent="center" sx={{ zIndex: "99" }}>
                   <MDBox
@@ -57,7 +56,7 @@ function BasicLayout({ image, children }) {
                     <Typography variant="h3" style={{ color: "white" }} translate="no">
                       Ittent                      
                     </Typography>
-                    <Typography variant="body2" style={{ color: "white" }} marginBottom="4rem">
+                    <Typography variant="body2" style={{ color: "white" }} >
                       Best way to control your price alerts
                     </Typography>
                     <MDBox

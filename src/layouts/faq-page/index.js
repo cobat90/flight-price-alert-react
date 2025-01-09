@@ -29,6 +29,10 @@ const FAQPage = () => {
       answer: "Currently for each alert, you can choose to receive notifications by Email, Telegram or SMS with all informations of prices and the flight."
     },
     {
+      question: "Whats the difference between the others platforms alerts?",
+      answer: "Ittent gets real-time, 24/7 data from the best airline ticket providers and you can set your alert as you wish."
+    },
+    {
       question: "Is Ittent free to use?",
       answer: "The duration of each alert is counted for each time the price is verified and added in history. You can verify how much balance your alert or how much balance available for use on the right top corner of the page."
     }

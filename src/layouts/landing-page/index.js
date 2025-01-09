@@ -2,6 +2,18 @@ import React from "react";
 import LandingPageLayout from "examples/LayoutContainers/LandingPageLayout";
 
 const LandingPage = () => {
+  const handleButtonClick = (e, buttonName, link) => {
+    e.preventDefault();
+    if (window.gtag) {
+      window.gtag('event', 'button_click', {
+        event_category: 'Button',
+        event_label: buttonName,
+      });
+    }
+    setTimeout(() => {
+      window.location.href = link; // Navigate to the provided link
+    }, 200); // Adjust delay as needed
+  };
   return (
     <LandingPageLayout>
     <div className="landing-page landing-page1">
@@ -36,22 +48,22 @@ const LandingPage = () => {
           <div className="collapse navbar-collapse" id="example">
             <ul className="nav navbar-nav navbar-right">
               <li>
-                <a href="https://ittent.net/auth/login" translate="no">
+                <a translate="no" href="https://ittent.net/auth/login" onClick={(e) => handleButtonClick(e, 'Login Top Menu', 'https://ittent.net/auth/login')}>
                   <i className="pe-7s-user"></i> Login
                 </a>
               </li>
               <li>
-                <a href="https://ittent.net/auth/register">
+                <a href="https://ittent.net/auth/register" onClick={(e) => handleButtonClick(e, 'Register Top Menu', 'https://ittent.net/auth/register')}>
                   <i className="pe-7s-add-user"></i> Register
                 </a>
               </li>
               <li>
-                  <a href="https://ittent.net/about-us">
+                  <a href="https://ittent.net/about-us" onClick={(e) => handleButtonClick(e, 'Register Top Menu', 'https://ittent.net/about-us')}>
                   <i className="pe-7s-users"></i> About us
                   </a>
               </li>
               <li>
-                  <a href="https://ittent.net/faq">
+                  <a href="https://ittent.net/faq" onClick={(e) => handleButtonClick(e, 'FAQ Top Menu', 'https://ittent.net/faq')}>
                   <i className="pe-7s-note2"></i> FAQ
                   </a>
               </li>          
@@ -100,7 +112,7 @@ const LandingPage = () => {
                   </h5>
                 </div>
                 <div className="buttons">
-                  <a href="https://ittent.net/dashboard">
+                  <a href="https://ittent.net/dashboard" onClick={(e) => handleButtonClick(e, 'Enter Dashboard', 'https://ittent.net/dashboard')}>
                     <button className="btn btn-fill btn-neutral">
                       <i className="pe-7s-graph1"></i> Enter Dashboard
                     </button>
@@ -188,6 +200,7 @@ const LandingPage = () => {
               <a
                 href="https://ittent.net/auth/register"
                 className="btn btn-neutral btn-lg btn-fill"
+                onClick={(e) => handleButtonClick(e, 'Register here button', 'https://ittent.net/auth/register')}
               >
                 Register here
               </a>
@@ -201,16 +214,16 @@ const LandingPage = () => {
             <nav className="pull-left">
                 <ul>
                   <li>
-                    <a href="https://ittent.net/" translate="no">Home</a>
+                    <a href="https://ittent.net/" translate="no" onClick={(e) => handleButtonClick(e, 'Home footer', 'https://ittent.net')}>Home</a>
                   </li>
                   <li>
-                    <a href="https://ittent.net/faq">FAQ</a>
+                    <a href="https://ittent.net/faq" onClick={(e) => handleButtonClick(e, 'FAQ footer', 'https://ittent.net/faq')}>FAQ</a>
                   </li>
                   <li>
-                    <a href="https://t.me/ittent_bot" translate="no">Telegram</a>
+                    <a href="https://t.me/ittent_bot" translate="no" onClick={(e) => handleButtonClick(e, 'Telegram footer', 'https://t.me/ittent_bot')}>Telegram</a>
                   </li>
                   <li>
-                    <a href="mailto:ittent.flightalert@gmail.com">
+                    <a href="mailto:ittent.flightalert@gmail.com" onClick={(e) => handleButtonClick(e, 'Email footer', 'mailto:ittent.flightalert@gmail.com')}>
                     Send Email
                     </a>
                   </li>
