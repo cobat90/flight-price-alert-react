@@ -22,7 +22,7 @@ const FAQPage = () => {
     },
     {
       question: "What are the alerts like?",
-      answer: "After logged in, you can create alerts and custom it as you wish to receive new notifications. You can create as many alerts as you want and set the duration of each alert."
+      answer: "After logged in, you can create alerts and custom it as you wish to receive new notifications. You can create as many alerts as you want and set the duration of each alert, just be aware of your balance."
     },
     {
       question: "What are the notifications like?",
