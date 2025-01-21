@@ -201,29 +201,39 @@ const UserProfile = () => {
     let validationErrors = {};
   
     formData.forEach((value, key) => {
-      userData[key] = value;
-  
-      if (key === 'country' && value.length > 2) {
-        validationErrors[key] = 'Country must be 2 characters';
-      }
-      if (key === 'langKey' && value.length > 2) {
-        validationErrors[key] = 'Language must be 2 characters';
-      }
-      if (key === 'currency' && value.length > 3) {
-        validationErrors[key] = 'Currency must be 3 characters';
-      }
       if (key === 'phoneNumber' && value.trim().length > 0) {
-        if (value.trim().length === 0 || !value.trim().match(phoneFormat)) {
+        let sanitizedPhoneNumber = value.trim().replace(/[^\d+]/g, '');
+        userData[key] = sanitizedPhoneNumber;
+  
+        const phoneFormat = /^\+\d{11,15}$/;
+        phoneNumberRef.current.value = sanitizedPhoneNumber;
+        if (!sanitizedPhoneNumber.match(phoneFormat)) {
           validationErrors[key] = 'Invalid Phone Number, example: +99 99 99999 9999';
+        }
+      } else {
+        userData[key] = value;
+  
+        // Other validation logic
+        if (key === 'country' && value.length > 2) {
+          validationErrors[key] = 'Country must be 2 characters';
+        }
+        if (key === 'langKey' && value.length > 2) {
+          validationErrors[key] = 'Language must be 2 characters';
+        }
+        if (key === 'currency' && value.length > 3) {
+          validationErrors[key] = 'Currency must be 3 characters';
         }
       }
     });
+  
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
+  
     updateUserData(convertUserUpdateRequest(userData));
   };
+  
 
   return (
     <DashboardLayout>

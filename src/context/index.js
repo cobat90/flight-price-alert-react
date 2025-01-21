@@ -49,7 +49,6 @@ const AuthContextProvider = ({ children }) => {
         if (response.status === 200) {
           if (response && response.data && response.data.UserAttributes) {
             const userAttributes = response.data.UserAttributes;
-            console.info("response.data", response.data);
             localStorage.setItem('userAttributes', JSON.stringify(userAttributes));          
             localStorage.setItem("login", response.data.Username);
             localStorage.setItem("alert_time", getAttributeValue(userAttributes, 'custom:alert_time'));

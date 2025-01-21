@@ -13,18 +13,18 @@
         });
 
         $(window).on('scroll', function() {
-            responsive = $(window).width();
+            let responsive = $(window).width();
             if (responsive >= 768) {
                 parallax();
             }
         });
 
         function SelectColor(btn) {
-            oldColor = $('.filter-gradient').attr('data-color');
-            newColor = $(btn).attr('data-color');
+            let oldColor = $('.filter-gradient').attr('data-color');
+            let newColor = $(btn).attr('data-color');
 
-            oldButton = $('a[id^="Demo"]').attr('data-button');
-            newButton = $(btn).attr('data-button');
+            let oldButton = $('a[id^="Demo"]').attr('data-button');
+            let newButton = $(btn).attr('data-button');
 
             $('.filter-gradient').removeClass(oldColor).addClass(newColor).attr('data-color', newColor);
 
