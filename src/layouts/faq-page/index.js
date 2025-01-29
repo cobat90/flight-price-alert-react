@@ -101,7 +101,7 @@ const FAQPage = () => {
       {/* Main Wrapper */}
       <div className="wrapper">
         {/* Parallax Section */}
-        <div className="parallax filter-gradient blue" data-color="blue">
+        <div className="parallax filter-gradient blue" data-color="blue" style={{ height: "360px" }}>
           <div className="parallax-background">
             <img
               className="parallax-background-image"
@@ -118,7 +118,7 @@ const FAQPage = () => {
                   <h1>FAQ</h1>
                   <br />
                   <h4>
-                    See the answers to the most frequently asked questions
+                    See the answers to the most frequently asked questions.
                   </h4>
                 </div>
               </div>
@@ -145,9 +145,36 @@ const FAQPage = () => {
               </Box>
           </div>
         </div>
+        <div className="section section-features">
+          <div className="container text-left">
+            <h2>How to Create Your Price Alert on the Platform ✈️</h2>
+            <div className="row">
+              <h3>1️⃣ Basic Information:</h3>
+              <p>In the first step, you’ll need to fill out the following fields:</p>
+              <ul style={{ marginLeft: "30px" }}>
+                <li><strong>Alert name:</strong> to identify it easily.</li>
+                <li><strong>Alert type:</strong> choose how you prefer to be notified.</li>
+                <li><strong>Price type:</strong> set the price criteria you want to monitor.</li>
+                <li><strong>Balance:</strong> to manage your alerts according to your available balance.</li>
+              </ul>
+              <p>These details help you personalize and organize your alerts based on your preferences.</p>
+              <h3>2️⃣ Flight Details:</h3>
+              <p>Next, include your flight information, such as origin, destination, and dates.</p>
+
+              <h3>3️⃣ Additional Preferences (Optional):</h3>
+              <p>To make your alert even more accurate, you can add:</p>
+              <ul style={{ marginLeft: "30px" }}>
+                <li><strong>Desired price range.</strong></li>
+                <li><strong>Convenient dates and times.</strong></li>
+                <li><strong>Specific flight details.</strong></li>
+              </ul>
+              <p>🛫 <strong>Done!</strong> Now, you will receive notifications of your flight. Saving money has never been this easy!</p>
+            </div>
+          </div>
+        </div>
         {/* Call to Action */}
         <div className="section section-no-padding">
-          <div className="parallax filter-gradient blue" data-color="blue">
+          <div className="parallax filter-gradient blue" data-color="blue" style={{ height: "420px" }}>
             <div className="parallax-background">
               <img
                 className="parallax-background-image"
@@ -157,13 +184,14 @@ const FAQPage = () => {
               />
             </div>
             <div className="info">
-              <h1>Register now and receive a balance for free for create your alerts!</h1>
-              <a
-                href="https://ittent.net/auth/register"
-                className="btn btn-neutral btn-lg btn-fill"
-              >
-                Register here
-              </a>
+              <h2>Sign in now and receive a balance for free for create your alerts!</h2>
+              <div className="buttons">
+                  <a href="https://ittent.net/dashboard" onClick={(e) => handleButtonClick(e, 'Enter Dashboard', 'https://ittent.net/dashboard')}>
+                    <button className="btn btn-fill btn-neutral">
+                      <i className="pe-7s-graph1"></i> Enter Dashboard
+                    </button>
+                  </a>
+                </div>
             </div>
           </div>
         </div>

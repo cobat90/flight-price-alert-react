@@ -94,7 +94,7 @@ const AboutUsPage = () => {
 
         <div className="section section-gray section-clients">
           <div className="container text-left">
-            <h4><b>Our Mission</b></h4>
+            <h3><b>Our Mission</b></h3>
             <p>                   
               We understand how overwhelming it can be to hunt for the best deals, whether you're planning a dream vacation, a business trip, or a quick weekend getaway.
               Our mission is simple: <b>Save you time</b>, <b>help you save money</b> and <b>eliminate the hassle of tracking ever-changing prices</b>.

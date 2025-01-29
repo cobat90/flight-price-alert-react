@@ -29,6 +29,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import botChatIdImage from "assets/images/bot-chatid.png";
 import botSearchImage from "assets/images/bot-search.png";
+import alertScreenExample from "assets/images/illustrations/alert-screen-example.png";
 import Button from '@mui/material/Button';
 import Tooltip from "@mui/material/Tooltip";
 import { getAttributeValue } from '../../../services/convert-user-service';
@@ -249,7 +250,14 @@ function DashboardNavbar({ absolute, light, isMini }) {
           <br/>
           Type <b>/username</b> (To get your Telegram Username) and <b>/chatId</b> (To get your Telegram ChatId).
           <br/>
-          <img src={botChatIdImage} alt="Bot ChatId" />       
+          <img src={botChatIdImage} alt="Bot ChatId" />
+          <br/>
+          <br/>
+          <Typography component="span" variant="inherit" color="info">
+            <b>Example of alert:</b>
+          </Typography>
+          <img src={alertScreenExample} alt="Alert Screen" />
+          <br/>
         </DialogContentText>
       </DialogContent>
       <DialogActions>

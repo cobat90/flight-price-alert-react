@@ -100,7 +100,7 @@ const LandingPage = () => {
                   />
                 </div>
               </div>
-              <div className="col-md-6 col-md-offset-1">
+              <div className="col-md-6">
                 <div className="description">
                   <h1>Receive real-time flight ticket prices</h1>
                   <br />
@@ -196,7 +196,7 @@ const LandingPage = () => {
               />
             </div>
             <div className="info">
-              <h1>Register now and receive a balance for free for create your alerts!</h1>
+              <h1>Sign up now and receive a balance for free for create your alerts!</h1>
               <a
                 href="https://ittent.net/auth/register"
                 className="btn btn-neutral btn-lg btn-fill"

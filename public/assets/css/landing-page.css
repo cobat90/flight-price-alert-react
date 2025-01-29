@@ -745,7 +745,7 @@ a:focus, a:active {
   left: auto;
 }
 .landing-page .section-clients {
-  padding: 50px 0;
+  padding: 10px 0;
 }
 .landing-page .section-clients .info .icon {
   background: transparent;
@@ -1172,7 +1172,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#de8e0009', e
   }
 
    .landing-page .section-features{
-        margin: 50px 0;
+        margin: 5px 0;
    }
 
    .landing-page .section-features .card{
