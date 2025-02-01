@@ -54,17 +54,29 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400,300' rel='stylesheet' type='text/css'>
     <link href="assets/css/pe-icon-7-stroke.css" rel="stylesheet" />
-		<script type="text/javascript">
-			function googleTranslateElementInit() {
-				new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,pt,es,fr,de,it,ja', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
-			}
-		</script>
     <script type="text/javascript">
-      if (!document.cookie.includes("googtrans=/en/pt")) {
-        document.cookie = "googtrans=/en/pt; path=/; domain=" + location.hostname;
+      function getCookie(name) {
+        let matches = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+        return matches ? decodeURIComponent(matches[1]) : null;
+      }
+      function setCookie(name, value) {
+        document.cookie = name + "=" + encodeURIComponent(value) + "; path=/; domain=" + location.hostname;
+      }
+      function googleTranslateElementInit() {
+        var userLang = getCookie("googtrans") || "/en/en";
+    
+        var translateElement = new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'en,pt,es,fr,de,it,ja',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+    
+        if (!getCookie("googtrans")) {
+          setCookie("googtrans", userLang);
+        }
       }
     </script>
-		<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <!-- Meta Desc Tags -->
     <meta name="description" content="Ittent é uma plataforma para pesquisar e monitorar preços de voos baratos. Receba atualizações em tempo real sobre ofertas de voos e economize dinheiro em suas viagens.">
     <meta name="keywords" content="voos baratos, comprar voos baratos, pesquisar voos baratos, preços de voos baratos, ofertas de voos, encontrar voos baratos, ofertas de viagens baratas, alertas de preços de voos, passagens aéreas de baixo custo, preço de voo baixo ">
